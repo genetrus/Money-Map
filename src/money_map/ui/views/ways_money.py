@@ -94,10 +94,6 @@ def _render_directory(
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    st.title("Способы получения денег")
-    allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
-    filtered_taxonomy_ids = components.filter_taxonomy_by_cells(data.taxonomy, allowed_cells)
-    filtered_items = [item for item in data.taxonomy if item.id in filtered_taxonomy_ids]
     if "pending_selected_tax_id" in st.session_state:
         st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
         del st.session_state["pending_selected_tax_id"]
@@ -105,6 +101,11 @@ def render(data: AppData, filters: components.Filters) -> None:
     if "request_tab" in st.session_state:
         st.session_state["active_tab"] = st.session_state["request_tab"]
         del st.session_state["request_tab"]
+
+    st.title("Способы получения денег")
+    allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
+    filtered_taxonomy_ids = components.filter_taxonomy_by_cells(data.taxonomy, allowed_cells)
+    filtered_items = [item for item in data.taxonomy if item.id in filtered_taxonomy_ids]
 
     current = st.session_state.get("selected_tax_id")
     if current not in filtered_taxonomy_ids:
