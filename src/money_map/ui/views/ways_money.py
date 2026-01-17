@@ -53,18 +53,27 @@ def _render_map(data: AppData) -> None:
         show_tags=show_tags,
         selected_tax_id=current,
     )
-    selected_node = agraph(nodes=nodes, edges=edges, config=config)
-    if isinstance(selected_node, dict):
-        selected_node = selected_node.get("id")
-    if selected_node:
-        st.session_state["ways14_last_click"] = selected_node
-    if selected_node and isinstance(selected_node, str) and selected_node.startswith("tax:"):
-        selected_tax_id = selected_node.removeprefix("tax:")
+    result = agraph(nodes=nodes, edges=edges, config=config)
+    clicked_id = None
+    if isinstance(result, dict):
+        if result.get("selected_node"):
+            clicked_id = result["selected_node"]
+        elif result.get("selectedNodes"):
+            clicked_id = result["selectedNodes"][0]
+        elif result.get("nodes"):
+            first_node = result["nodes"][0]
+            clicked_id = first_node.get("id") if isinstance(first_node, dict) else first_node
+    elif isinstance(result, str):
+        clicked_id = result
+
+    st.session_state["last_click_id"] = clicked_id
+    if clicked_id and isinstance(clicked_id, str) and clicked_id.startswith("tax:"):
+        selected_tax_id = clicked_id.removeprefix("tax:")
         if selected_tax_id != st.session_state.get("selected_tax_id"):
             st.session_state["selected_tax_id"] = selected_tax_id
-            st.session_state["active_tab"] = "Справочник"
+            st.session_state["request_tab"] = "Справочник"
             st.rerun()
-    st.caption(f"Последний клик: {st.session_state.get('ways14_last_click') or '—'}")
+    st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")
 
 
 def _render_directory(data: AppData) -> None:
@@ -90,6 +99,10 @@ def _render_directory(data: AppData) -> None:
 def render(data: AppData) -> None:
     st.title("Способы получения денег")
     _ensure_defaults(data)
+
+    if "request_tab" in st.session_state:
+        st.session_state["active_tab"] = st.session_state["request_tab"]
+        del st.session_state["request_tab"]
 
     st.radio("", ["Карта", "Справочник"], horizontal=True, key="active_tab")
 
