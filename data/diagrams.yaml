@@ -1,0 +1,13 @@
+---
+diagrams:
+  ascii:
+    matrix:
+      show_examples: true
+      width: 92
+    arrows:
+      show_checks: false
+  markdown:
+    include_tables: true
+    include_examples: true
+  graphviz:
+    rankdir: "LR"

@@ -1,0 +1,17 @@
+---
+axes:
+  - id: activity
+    values: [active, passive]
+    labels:
+      active: "Активно"
+      passive: "Пассивно"
+  - id: scalability
+    values: [linear, scalable]
+    labels:
+      linear: "Линейно (потолок)"
+      scalable: "Масштабируемо"
+  - id: risk
+    values: [low, high]
+    labels:
+      low: "Низкий риск"
+      high: "Высокий риск"

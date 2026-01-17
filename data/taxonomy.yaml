@@ -1,0 +1,142 @@
+---
+taxonomy:
+  - id: salary
+    name: "Зарплата"
+    description: "Обмен времени/присутствия на оплату по ставке."
+    sell: ["time"]
+    to_whom: ["platform", "single_client"]
+    value: ["rate"]
+    typical_cells: ["A1"]
+    outside_market: false
+    risk_notes: "Обычно низкий риск, но есть зависимость от работодателя."
+    examples: ["оклад", "почасовая ставка", "смены/дежурства"]
+  - id: fee_for_result
+    name: "Гонорар / сделка (за результат)"
+    description: "Оплата за конкретный результат/задачу/проект."
+    sell: ["result"]
+    to_whom: ["single_client", "many_people", "platform"]
+    value: ["price"]
+    typical_cells: ["A1", "A2"]
+    outside_market: false
+    risk_notes: "Риск растёт, если оплата привязана к успеху или срокам."
+    examples: ["фриланс-проект", "ремонт/монтаж за фикс-цену", "разовая консультация"]
+  - id: commission
+    name: "Комиссия / процент от сделки"
+    description: "Деньги как доля от созданного денежного потока."
+    sell: ["result", "risk"]
+    to_whom: ["market", "platform", "single_client"]
+    value: ["percent"]
+    typical_cells: ["A3", "A2"]
+    outside_market: false
+    risk_notes: "Доход нестабилен; сильная зависимость от конверсии и потока сделок."
+    examples: ["продажи за %", "партнёрская программа", "риэлтор/брокер"]
+  - id: entrepreneurship_margin
+    name: "Предпринимательство / маржа на организации"
+    description: "Заработок на разнице вход/выход и управлении системой."
+    sell: ["access", "result", "risk"]
+    to_whom: ["many_people", "market", "platform"]
+    value: ["price"]
+    typical_cells: ["A2", "A4"]
+    outside_market: false
+    risk_notes: "Риск операционный и кассовый; масштаб даёт потолок выше."
+    examples: ["сервис с командой", "купил-улучшил-продал", "малое производство"]
+  - id: rent_access
+    name: "Рента / плата за доступ"
+    description: "Деньги за предоставление доступа к активу/ресурсу."
+    sell: ["access", "property"]
+    to_whom: ["single_client", "many_people", "market"]
+    value: ["rent"]
+    typical_cells: ["P1"]
+    outside_market: false
+    risk_notes: "Риск умеренный: простои, ремонт, регуляторика."
+    examples: ["аренда недвижимости", "аренда оборудования", "лицензирование доступа"]
+  - id: interest_dividends
+    name: "Проценты / дивиденды / купоны"
+    description: "Доход как выплата за предоставление капитала или владение долей."
+    sell: ["capital"]
+    to_whom: ["market", "platform"]
+    value: ["payout"]
+    typical_cells: ["P1"]
+    outside_market: false
+    risk_notes: "Риск зависит от инструмента; в среднем ниже, чем спекуляции."
+    examples: ["облигации", "дивиденды", "депозит"]
+  - id: appreciation
+    name: "Прирост стоимости (купил дешевле — продал дороже)"
+    description: "Заработок на изменении цены/оценки активов."
+    sell: ["capital"]
+    to_whom: ["market"]
+    value: ["appreciation"]
+    typical_cells: ["P3", "P4"]
+    outside_market: false
+    risk_notes: "Высокая волатильность; можно уйти в минус."
+    examples: ["акции роста", "трейд редкостей", "спекулятивная недвижимость"]
+  - id: intellectual_property
+    name: "Интеллектуальная собственность (1 раз сделал — много раз продал)"
+    description: "Копируемый продукт: продаётся многократно с низкой себестоимостью копии."
+    sell: ["property", "result"]
+    to_whom: ["many_people", "platform", "market"]
+    value: ["price", "rent"]
+    typical_cells: ["P2"]
+    outside_market: false
+    risk_notes: "Риск — спрос, конкуренция, пиратство, каналы продаж."
+    examples: ["шаблоны", "курс", "книга", "приложение/SaaS"]
+  - id: attention_audience
+    name: "Внимание / аудитория"
+    description: "Монетизация охвата: реклама, подписки, спонсорство."
+    sell: ["attention", "access"]
+    to_whom: ["platform", "many_people"]
+    value: ["payout", "price", "percent"]
+    typical_cells: ["P2", "P4"]
+    outside_market: false
+    risk_notes: "Зависимость от алгоритмов и трендов может быть высокой."
+    examples: ["YouTube/стримы", "блог с рекламой", "платное сообщество"]
+  - id: data_compute
+    name: "Данные / вычисления / доступ к сервису"
+    description: "Деньги за информацию, обработку и инфраструктурный доступ."
+    sell: ["access", "result"]
+    to_whom: ["single_client", "many_people", "platform"]
+    value: ["price"]
+    typical_cells: ["A2", "P2"]
+    outside_market: false
+    risk_notes: "Риск — качество данных, поддержка, ответственность и безопасность."
+    examples: ["аналитика", "API доступ", "автоматизация процессов"]
+  - id: grants_prizes
+    name: "Конкурсы / призы / гранты / стипендии"
+    description: "Выплата за победу/отбор; часто вне рыночной сделки."
+    sell: ["result"]
+    to_whom: ["state", "platform"]
+    value: ["payout"]
+    typical_cells: ["A1", "A3"]
+    outside_market: true
+    risk_notes: "Непредсказуемость: отбор, конкуренция, требования."
+    examples: ["грант", "премия", "призовые", "стипендия"]
+  - id: transfers_insurance
+    name: "Трансферты / страховые выплаты"
+    description: "Выплаты по правилам системы (соцподдержка, страховка)."
+    sell: []
+    to_whom: ["state"]
+    value: ["payout"]
+    typical_cells: ["P1"]
+    outside_market: true
+    risk_notes: "Зависит от регуляций и условий; не рыночный механизм."
+    examples: ["страховая выплата", "субсидия", "пособие"]
+  - id: gifts_inheritance
+    name: "Подарки / наследство / спонсорство"
+    description: "Деньги без прямого обмена; через отношения/доверие."
+    sell: []
+    to_whom: ["single_client", "many_people"]
+    value: ["payout"]
+    typical_cells: ["P1"]
+    outside_market: true
+    risk_notes: "Нестабильно и плохо планируется."
+    examples: ["наследство", "помощь семьи", "меценатство"]
+  - id: savings_effect
+    name: "Экономия как доход (эффект)"
+    description: "Снижение расходов эквивалентно росту дохода по эффекту на бюджет."
+    sell: []
+    to_whom: []
+    value: []
+    typical_cells: ["P1"]
+    outside_market: true
+    risk_notes: "Не генерирует поток извне, но усиливает устойчивость."
+    examples: ["оптимизация расходов", "пересмотр тарифов", "ремонт вместо покупки"]

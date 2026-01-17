@@ -1,0 +1,60 @@
+---
+sell_items:
+  time:
+    label: "Время"
+    typical_cells: ["A1"]
+  result:
+    label: "Результат"
+    typical_cells: ["A1", "A2", "A3"]
+  risk:
+    label: "Риск/ответственность"
+    typical_cells: ["A3", "A4", "P3"]
+  access:
+    label: "Доступ"
+    typical_cells: ["A2", "P1", "P2", "P4"]
+  attention:
+    label: "Внимание"
+    typical_cells: ["P2", "P4"]
+  capital:
+    label: "Капитал"
+    typical_cells: ["P1", "P3", "P4"]
+  property:
+    label: "Собственность"
+    typical_cells: ["P1", "P2", "P3"]
+
+to_whom_items:
+  single_client:
+    label: "Одному клиенту"
+    notes: "Часто линейно: 1 клиент = 1 сделка"
+  many_people:
+    label: "Многим людям"
+    notes: "Проще масштабировать через продукт/канал"
+  market:
+    label: "Рынку"
+    notes: "Чаще выше риск и волатильность"
+  state:
+    label: "Государству"
+    notes: "Часто вне рынка: правила, бюрократия, отбор"
+  platform:
+    label: "Платформе"
+    notes: "Масштаб возможен, но зависимость от правил/алгоритмов"
+
+value_measures:
+  rate:
+    label: "Ставка"
+    typical_cells: ["A1"]
+  price:
+    label: "Цена"
+    typical_cells: ["A1", "A2", "P2"]
+  percent:
+    label: "Процент"
+    typical_cells: ["A3", "A4", "P4"]
+  rent:
+    label: "Рента"
+    typical_cells: ["P1"]
+  payout:
+    label: "Выплата"
+    typical_cells: ["P1"]
+  appreciation:
+    label: "Прирост стоимости"
+    typical_cells: ["P3", "P4"]

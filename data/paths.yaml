@@ -1,0 +1,22 @@
+---
+paths:
+  - id: healthy_default
+    name: "Здоровый коридор"
+    sequence: ["A1", "A2", "P1", "P2"]
+    note: "стабильность → рычаг → броня + актив"
+  - id: fast_cash
+    name: "Быстрый кэш"
+    sequence: ["A1", "A3", "A2"]
+    note: "ускорение через %/KPI, затем систематизация"
+  - id: entrepreneur_growth
+    name: "Предпринимательский рост"
+    sequence: ["A1", "A2", "A4", "P1", "P2"]
+    note: "сначала система, потом агрессивный рост, потом закрепление"
+  - id: investor_conservative
+    name: "Инвесторский (консервативный)"
+    sequence: ["A1", "P1"]
+    note: "база → броня"
+  - id: platform_lottery
+    name: "Платформа-лотерея"
+    sequence: ["A1", "P4", "P2"]
+    note: "если повезло — стабилизация в P2; иначе откат"
