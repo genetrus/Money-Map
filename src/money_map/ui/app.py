@@ -11,8 +11,7 @@ from money_map.ui.views import (
     overview,
     paths,
     search,
-    taxonomy,
-    taxonomy_graph,
+    ways_money,
 )
 
 
@@ -44,6 +43,8 @@ def main() -> None:
 
     st.sidebar.markdown("### Навигация")
     current_page = st.session_state.get("page", components.DEFAULT_PAGE)
+    if current_page not in components.PAGES:
+        current_page = components.DEFAULT_PAGE
     page = st.sidebar.radio(
         "Разделы",
         components.PAGES,
@@ -57,8 +58,6 @@ def main() -> None:
         overview.render(data)
     elif page == "Матрица":
         matrix.render(data, filters)
-    elif page == "Таксономия":
-        taxonomy.render(data)
     elif page == "Мосты":
         bridges.render(data, filters)
     elif page == "Маршруты":
@@ -67,10 +66,10 @@ def main() -> None:
         search.render(data)
     elif page == "Классификатор":
         classify.render(data)
-    elif page == "Граф: 14 способов":
-        taxonomy_graph.render(data)
     elif page == "Граф":
         graph.render(data, filters)
+    elif page == "Способы получения денег":
+        ways_money.render(data)
 
 
 if __name__ == "__main__":

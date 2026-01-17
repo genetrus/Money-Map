@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import streamlit as st
+import streamlit.components.v1 as components_html
 
 from money_map.core.load import load_app_data
 from money_map.core.model import AppData, BridgeItem, Cell, PathItem, TaxonomyItem
 from money_map.core.query import list_bridges
 from money_map.core.validate import validate_app_data
+from money_map.render.taxonomy_graph import render_taxonomy_graph_html
 
 
 @dataclass
@@ -23,13 +25,12 @@ DEFAULT_PAGE = "Обзор"
 PAGES = [
     "Обзор",
     "Матрица",
-    "Таксономия",
     "Мосты",
     "Маршруты",
     "Поиск",
     "Классификатор",
-    "Граф: 14 способов",
     "Граф",
+    "Способы получения денег",
 ]
 
 
@@ -48,11 +49,13 @@ def init_session_state() -> None:
     st.session_state.setdefault("page", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
     st.session_state.setdefault("selected_taxonomy", None)
+    st.session_state.setdefault("selected_tax_id", None)
     st.session_state.setdefault("selected_bridge", None)
     st.session_state.setdefault("selected_path", None)
     st.session_state.setdefault("graph_selected_node", None)
     st.session_state.setdefault("graph_selected_bridge", None)
     st.session_state.setdefault("search_query", "")
+    st.session_state.setdefault("active_tab", "Карта")
 
 
 def set_page(page: str) -> None:
@@ -65,6 +68,11 @@ def set_selected_cell(cell_id: Optional[str]) -> None:
 
 
 def set_selected_taxonomy(item_id: Optional[str]) -> None:
+    st.session_state["selected_taxonomy"] = item_id
+
+
+def set_selected_tax_id(item_id: Optional[str]) -> None:
+    st.session_state["selected_tax_id"] = item_id
     st.session_state["selected_taxonomy"] = item_id
 
 
@@ -288,3 +296,70 @@ def render_taxonomy_details_card(app_data: AppData, tax_id: Optional[str]) -> No
                 st.markdown(f"**{path.name}**")
                 st.markdown(f"`{ascii_path(path)}`")
                 st.caption(path.note or "—")
+
+
+@st.cache_data(show_spinner="Формирование графа...")
+def _build_taxonomy_graph_html(
+    data: AppData,
+    include_tags: bool,
+    outside_only: bool,
+    selected_tax_id: Optional[str],
+) -> str:
+    return render_taxonomy_graph_html(
+        data,
+        include_tags=include_tags,
+        outside_only=outside_only,
+        selected_tax_id=selected_tax_id,
+        height="720px",
+        width="100%",
+    )
+
+
+def render_taxonomy_star_graph(
+    app_data: AppData,
+    selected_tax_id: Optional[str],
+    show_tags: bool,
+    outside_only: bool,
+) -> None:
+    html = _build_taxonomy_graph_html(
+        app_data,
+        include_tags=show_tags,
+        outside_only=outside_only,
+        selected_tax_id=selected_tax_id,
+    )
+    components_html.html(html, height=760, scrolling=True)
+
+
+def clear_taxonomy_graph_cache() -> None:
+    _build_taxonomy_graph_html.clear()
+
+
+def render_taxonomy_list(app_data: AppData, search_query: str) -> Optional[str]:
+    items = sorted(app_data.taxonomy, key=lambda item: item.name)
+    if search_query:
+        lowered = search_query.lower()
+        items = [item for item in items if lowered in item.name.lower()]
+    if not items:
+        st.info("Нет механизмов под текущий запрос.")
+        return None
+
+    options = [item.id for item in items]
+    name_lookup = {item.id: item.name for item in items}
+    current = st.session_state.get("selected_tax_id")
+    if current in options:
+        desired = current
+    else:
+        desired = options[0]
+
+    if st.session_state.get("taxonomy_list_select") != desired:
+        st.session_state["taxonomy_list_select"] = desired
+
+    selected_id = st.radio(
+        "Список механизмов",
+        options,
+        format_func=lambda item_id: name_lookup[item_id],
+        key="taxonomy_list_select",
+    )
+    if selected_id and selected_id != current:
+        set_selected_tax_id(selected_id)
+    return selected_id
