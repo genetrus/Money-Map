@@ -1,0 +1,15 @@
+/* Money Map UI tweaks */
+
+.block-container {
+  padding-top: 2rem;
+}
+
+div[data-testid="stMetric"] {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.stButton button {
+  border-radius: 6px;
+}

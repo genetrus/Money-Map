@@ -51,6 +51,21 @@ money-map render dot
 money-map export all
 ```
 
+## GUI Quickstart
+
+Установите дополнительные зависимости и запустите графический интерфейс:
+
+```bash
+pip install -e ".[ui]"
+money-map ui
+```
+
+Альтернатива без CLI:
+
+```bash
+streamlit run -m money_map.ui.app
+```
+
 ## Что умеет CLI
 
 - `money-map validate` — проверка данных YAML и ссылочной целостности.
@@ -68,6 +83,7 @@ money-map export all
 - `money-map graph show|shortest|outgoing` — работа с графом переходов.
 - `money-map render ascii|md|dot` — рендеринг.
 - `money-map export all` — построение экспорта в `exports/`.
+- `money-map ui` — запуск графического интерфейса на Streamlit.
 
 ## Структура данных
 
@@ -86,4 +102,3 @@ money-map export all
 - `exports/map_ascii.txt`
 - `exports/graph.dot`
 - `exports/index.json`
-
