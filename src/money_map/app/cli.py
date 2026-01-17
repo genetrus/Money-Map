@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import importlib.util
+import subprocess
+import sys
 from typing import List, Optional
 
 import typer
@@ -256,3 +259,18 @@ def graph(command: str, start: Optional[str] = None, end: Optional[str] = None) 
 
     console.print("[red]Команда графа не распознана.[/red]")
     raise typer.Exit(code=1)
+
+
+@app.command()
+def ui() -> None:
+    """Запустить Streamlit-интерфейс."""
+    if importlib.util.find_spec("streamlit") is None:
+        console.print(
+            "[red]Streamlit не установлен.[/red] Установите зависимости: pip install -e \".[ui]\""
+        )
+        raise typer.Exit(code=1)
+
+    command = [sys.executable, "-m", "streamlit", "run", "-m", "money_map.ui.app"]
+    console.print("Запуск UI...")
+    console.print(" ".join(command))
+    raise typer.Exit(code=subprocess.call(command))
