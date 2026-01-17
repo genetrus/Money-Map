@@ -66,7 +66,7 @@ class BridgeItem(BaseModel):
 
 
 class DiagramConfig(BaseModel):
-    diagrams: Dict[str, Dict[str, Dict[str, object]]]
+    diagrams: Dict[str, object]
 
 
 class Keywords(BaseModel):
