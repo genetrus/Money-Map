@@ -58,7 +58,7 @@ def init_session_state() -> None:
     st.session_state.setdefault("graph_selected_bridge", None)
     st.session_state.setdefault("search_query", "")
     st.session_state.setdefault("active_tab", "Карта")
-    st.session_state.setdefault("ways14_last_click", None)
+    st.session_state.setdefault("last_click_id", None)
 
 
 def set_page(page: str) -> None:
@@ -514,6 +514,7 @@ def build_ways14_agraph_graph(
         physics=False,
         hierarchical=False,
         nodeHighlightBehavior=True,
+        highlightBehavior=True,
         highlightColor="#1D4ED8",
     )
     return nodes, edges, config
