@@ -59,6 +59,7 @@ def init_session_state() -> None:
     st.session_state.setdefault("search_query", "")
     st.session_state.setdefault("active_tab", "Карта")
     st.session_state.setdefault("last_click_id", None)
+    st.session_state.setdefault("matrix_focus_cell", None)
 
 
 def set_page(page: str) -> None:
@@ -140,6 +141,23 @@ def filter_cells(cells: Iterable[Cell], filters: Filters) -> List[Cell]:
     if filters.scalability != "all":
         results = [cell for cell in results if cell.scalability == filters.scalability]
     return results
+
+
+def get_allowed_cells_from_global_filters(data: AppData, filters: Filters) -> set[str]:
+    return {cell.id for cell in filter_cells(data.cells, filters)}
+
+
+def filter_taxonomy_by_cells(
+    taxonomy: Iterable[TaxonomyItem],
+    allowed_cells: set[str],
+) -> List[str]:
+    if not allowed_cells:
+        return []
+    return [
+        item.id
+        for item in taxonomy
+        if any(cell_id in allowed_cells for cell_id in item.typical_cells)
+    ]
 
 
 def cell_lookup(data: AppData) -> Dict[str, Cell]:
@@ -264,7 +282,14 @@ def render_taxonomy_details_card(app_data: AppData, tax_id: Optional[str]) -> No
             for cell_id in item.typical_cells:
                 cell = lookup.get(cell_id)
                 summary = cell.short if cell and cell.short else (cell.label if cell else "—")
-                st.markdown(f"- {cell_id} — {summary}")
+                row = st.columns([1, 5])
+                with row[0]:
+                    if st.button(cell_id, key=f"tax-cell-{item.id}-{cell_id}"):
+                        st.session_state["request_nav_section"] = "Матрица"
+                        st.session_state["request_matrix_focus_cell"] = cell_id
+                        st.rerun()
+                with row[1]:
+                    st.markdown(summary)
 
         st.markdown("#### Связанные мосты")
         bridges = taxonomy_related_bridges(app_data, item)
@@ -439,8 +464,14 @@ def build_ways14_agraph_graph(
     outside_only: bool,
     show_tags: bool,
     selected_tax_id: Optional[str],
+    allowed_taxonomy_ids: Optional[set[str]] = None,
 ) -> Tuple[List[Node], List[Edge], Config]:
-    graph = build_taxonomy_star(app_data, include_tags=show_tags, outside_only=outside_only)
+    graph = build_taxonomy_star(
+        app_data,
+        include_tags=show_tags,
+        outside_only=outside_only,
+        allowed_taxonomy_ids=allowed_taxonomy_ids,
+    )
     selected_node = f"tax:{selected_tax_id}" if selected_tax_id else None
     taxonomy_items = taxonomy_lookup(app_data)
     nodes: List[Node] = []

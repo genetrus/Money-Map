@@ -49,6 +49,7 @@ def build_taxonomy_star(
     app_data: AppData,
     include_tags: bool,
     outside_only: bool,
+    allowed_taxonomy_ids: set[str] | None = None,
 ) -> nx.DiGraph:
     graph = nx.DiGraph()
     graph.add_node(
@@ -59,7 +60,10 @@ def build_taxonomy_star(
     )
 
     taxonomy_items = [
-        item for item in app_data.taxonomy if not outside_only or item.outside_market
+        item
+        for item in app_data.taxonomy
+        if (not outside_only or item.outside_market)
+        and (allowed_taxonomy_ids is None or item.id in allowed_taxonomy_ids)
     ]
     taxonomy_nodes = [f"tax:{item.id}" for item in taxonomy_items]
 
