@@ -60,6 +60,8 @@ pip install -e ".[ui]"
 money-map ui
 ```
 
+В навигации UI ищите раздел **"Граф: 14 способов"** для визуализации таксономии.
+
 Альтернатива без CLI:
 
 ```bash
@@ -83,6 +85,7 @@ python -m streamlit run .\\src\\money_map\\ui\\app.py
 - `money-map graph show|shortest|outgoing` — работа с графом переходов.
 - `money-map render ascii|md|dot` — рендеринг.
 - `money-map export all` — построение экспорта в `exports/`.
+- `money-map export taxonomy-graph` — экспорт звёздного графа таксономии.
 - `money-map ui` — запуск графического интерфейса на Streamlit.
 
 ## Структура данных
@@ -101,4 +104,6 @@ python -m streamlit run .\\src\\money_map\\ui\\app.py
 - `exports/full_summary.md`
 - `exports/map_ascii.txt`
 - `exports/graph.dot`
+- `exports/taxonomy_graph.html`
+- `exports/taxonomy_graph.dot`
 - `exports/index.json`
