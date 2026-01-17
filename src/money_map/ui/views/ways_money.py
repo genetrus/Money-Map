@@ -16,23 +16,23 @@ def _ensure_defaults(data: AppData) -> None:
 
 
 def _render_map(data: AppData) -> None:
-    st.markdown("Выберите механизм на карте или через список ниже.")
-    controls = st.columns([2, 2, 1])
+    st.markdown(
+        "Нажмите на кружок — откроется справочник. "
+        "Выбор делается кликом по кружку на карте."
+    )
+    controls = st.columns([2, 2])
     show_tags = controls[0].checkbox(
         "Показать теги вторым кольцом",
         value=False,
     )
     outside_only = controls[1].checkbox(
-        "Показывать только «вне рынка»",
+        "Показывать только «вне рынка» (пособия/страховки/подарки)",
         value=False,
+        help=(
+            "«Вне рынка» = деньги не за сделку/продажу, "
+            "а по правилам системы или отношениям."
+        ),
     )
-    controls[1].caption(
-        "«Вне рынка» = деньги не за сделку, а по правилам системы или отношениям "
-        "(пособия, страховки, подарки и т.п.)."
-    )
-    if controls[2].button("Обновить граф"):
-        components.clear_taxonomy_graph_cache()
-
     available_items = [
         item for item in data.taxonomy if not outside_only or item.outside_market
     ]
@@ -40,46 +40,45 @@ def _render_map(data: AppData) -> None:
         st.info("Нет механизмов для выбранного фильтра.")
         return
 
-    item_lookup = {item.id: item for item in available_items}
     available_ids = [item.id for item in available_items]
     current = st.session_state.get("selected_tax_id")
-    if current not in item_lookup:
+    if current not in available_ids:
         current = available_ids[0]
         components.set_selected_tax_id(current)
 
-    if st.session_state.get("taxonomy_map_select") != current:
-        st.session_state["taxonomy_map_select"] = current
-
-    def _on_select_change() -> None:
-        selected = st.session_state.get("taxonomy_map_select")
-        components.set_selected_tax_id(selected)
-        st.session_state["active_tab"] = "Справочник"
-
-    st.selectbox(
-        "Выберите способ",
-        available_ids,
-        format_func=lambda item_id: item_lookup[item_id].name,
-        key="taxonomy_map_select",
-        on_change=_on_select_change,
-    )
-    st.caption("Выбор через список — основной способ обновления данных и карты.")
-
-    components.render_taxonomy_star_graph(
+    nodes, edges = components.build_ways14_nodes_edges(
         data,
-        selected_tax_id=current,
         show_tags=show_tags,
         outside_only=outside_only,
+        selected_tax_id=current,
     )
+    selected_node = components.render_ways14_agraph(nodes, edges)
+    if selected_node and isinstance(selected_node, str) and selected_node.startswith("tax:"):
+        selected_tax_id = selected_node.removeprefix("tax:")
+        if selected_tax_id != st.session_state.get("selected_tax_id"):
+            st.session_state["selected_tax_id"] = selected_tax_id
+            st.session_state["active_tab"] = "Справочник"
+            st.rerun()
 
 
 def _render_directory(data: AppData) -> None:
-    left, right = st.columns([1, 2])
-    with left:
-        query = st.text_input("Поиск по названию", key="taxonomy_search")
-        selected_id = components.render_taxonomy_list(data, query)
+    items = sorted(data.taxonomy, key=lambda item: item.name)
+    if not items:
+        st.info("Нет механизмов для отображения.")
+        return
 
-    with right:
-        components.render_taxonomy_details_card(data, selected_id or st.session_state.get("selected_tax_id"))
+    id_to_name = {item.id: item.name for item in items}
+    options = [item.id for item in items]
+    current = st.session_state.get("selected_tax_id")
+    index = options.index(current) if current in options else 0
+    st.selectbox(
+        "Выберите механизм",
+        options,
+        format_func=lambda item_id: id_to_name[item_id],
+        key="selected_tax_id",
+        index=index,
+    )
+    components.render_taxonomy_details_card(data, st.session_state.get("selected_tax_id"))
 
 
 def render(data: AppData) -> None:

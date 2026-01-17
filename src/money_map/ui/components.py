@@ -6,10 +6,12 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 import streamlit as st
 import streamlit.components.v1 as components_html
+from streamlit_agraph import Config, Edge, Node, agraph
 
 from money_map.core.load import load_app_data
 from money_map.core.model import AppData, BridgeItem, Cell, PathItem, TaxonomyItem
 from money_map.core.query import list_bridges
+from money_map.core.taxonomy_graph import build_taxonomy_star
 from money_map.core.validate import validate_app_data
 from money_map.render.taxonomy_graph import render_taxonomy_graph_html
 
@@ -363,3 +365,139 @@ def render_taxonomy_list(app_data: AppData, search_query: str) -> Optional[str]:
     if selected_id and selected_id != current:
         set_selected_tax_id(selected_id)
     return selected_id
+
+
+def wrap_label(text: str, max_chars_per_line: int, max_lines: int) -> str:
+    words = text.split()
+    if not words:
+        return ""
+
+    lines: List[str] = []
+    current = ""
+    for word in words:
+        candidate = word if not current else f"{current} {word}"
+        if len(candidate) <= max_chars_per_line:
+            current = candidate
+            continue
+        if current:
+            lines.append(current)
+        current = word
+        if len(lines) >= max_lines:
+            break
+
+    if len(lines) < max_lines and current:
+        lines.append(current)
+
+    total_words = len(words)
+    used_words = len(" ".join(lines).split())
+    if used_words < total_words:
+        last_line = lines[-1]
+        if len(last_line) >= max_chars_per_line:
+            last_line = last_line[: max(0, max_chars_per_line - 1)].rstrip()
+        last_line = f"{last_line}…" if last_line else "…"
+        lines[-1] = last_line
+
+    return "\n".join(lines[:max_lines])
+
+
+def _label_font_size(text: str) -> int:
+    length = len(text)
+    if length <= 16:
+        return 12
+    if length <= 26:
+        return 10
+    return 9
+
+
+def _node_color(kind: str) -> str:
+    if kind == "root":
+        return "#FDE68A"
+    if kind == "taxonomy":
+        return "#93C5FD"
+    if kind == "tag":
+        return "#D1D5DB"
+    return "#FFFFFF"
+
+
+def build_ways14_nodes_edges(
+    app_data: AppData,
+    show_tags: bool,
+    outside_only: bool,
+    selected_tax_id: Optional[str],
+) -> Tuple[List[Node], List[Edge]]:
+    graph = build_taxonomy_star(app_data, include_tags=show_tags, outside_only=outside_only)
+    selected_node = f"tax:{selected_tax_id}" if selected_tax_id else None
+    nodes: List[Node] = []
+    edges: List[Edge] = []
+
+    for node_id, attrs in graph.nodes(data=True):
+        kind = attrs.get("kind", "")
+        label_text = attrs.get("label", node_id)
+        if kind == "tag":
+            wrapped = wrap_label(label_text, max_chars_per_line=10, max_lines=2)
+            base_size = 36
+            font_size = 9
+        else:
+            wrapped = wrap_label(label_text, max_chars_per_line=12, max_lines=3)
+            base_size = 56 if kind == "root" else 52
+            font_size = _label_font_size(label_text)
+
+        border_width = 2
+        border_color = "#2563EB"
+        size = base_size
+        if node_id == selected_node:
+            border_width = 4
+            border_color = "#1D4ED8"
+            size = base_size + 8
+
+        nodes.append(
+            Node(
+                id=node_id,
+                label=wrapped,
+                title=attrs.get("title", label_text),
+                x=attrs.get("x"),
+                y=attrs.get("y"),
+                fixed=True,
+                size=size,
+                shape="dot",
+                color={"background": _node_color(kind), "border": border_color},
+                borderWidth=border_width,
+                font={
+                    "face": "Inter, Segoe UI, Arial",
+                    "size": font_size,
+                    "color": "#111827",
+                    "bold": True,
+                    "align": "center",
+                },
+            )
+        )
+
+    for source, target, attrs in graph.edges(data=True):
+        kind = attrs.get("kind")
+        edges.append(
+            Edge(
+                source=source,
+                target=target,
+                color="#9CA3AF" if kind == "tag" else "#2563EB",
+                width=attrs.get("width", 1),
+                arrows="to",
+            )
+        )
+
+    return nodes, edges
+
+
+def render_ways14_agraph(nodes: List[Node], edges: List[Edge]) -> Optional[str]:
+    config = Config(
+        width="100%",
+        height=720,
+        directed=True,
+        physics=False,
+        hierarchical=False,
+        nodeHighlightBehavior=True,
+        highlightColor="#1D4ED8",
+    )
+    selected = agraph(nodes=nodes, edges=edges, config=config)
+    if isinstance(selected, dict):
+        return selected.get("id")
+    return selected
