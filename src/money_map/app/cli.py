@@ -26,7 +26,7 @@ from money_map.core.query import (
 )
 from money_map.core.validate import validate_app_data
 from money_map.render.ascii import render_full_ascii
-from money_map.render.graphviz import render_graphviz
+from money_map.render.graphviz import render_graphviz, render_taxonomy_graphviz
 from money_map.render.json_export import write_index_json
 from money_map.render.markdown import (
     render_bridges_md,
@@ -35,6 +35,7 @@ from money_map.render.markdown import (
     render_paths_md,
     render_taxonomy_md,
 )
+from money_map.render.taxonomy_graph import render_taxonomy_graph_html
 
 app = typer.Typer(help="Money Map CLI")
 console = Console()
@@ -213,12 +214,17 @@ def render(format: str = typer.Argument(...)) -> None:
 
 @app.command()
 def export(command: str = typer.Argument(...)) -> None:
-    if command != "all":
-        console.print("[red]Поддерживается только export all.[/red]")
-        raise typer.Exit(code=1)
     data = load_app_data()
     export_dir = Path(__file__).resolve().parents[3] / "exports"
     export_dir.mkdir(parents=True, exist_ok=True)
+
+    if command == "taxonomy-graph":
+        _export_taxonomy_graph(data, export_dir)
+        console.print(f"Экспорт графа таксономии сохранён в {export_dir}")
+        return
+    if command != "all":
+        console.print("[red]Поддерживаются только export all или export taxonomy-graph.[/red]")
+        raise typer.Exit(code=1)
 
     (export_dir / "matrix.md").write_text(render_matrix_md(data), encoding="utf-8")
     (export_dir / "bridges.md").write_text(render_bridges_md(data), encoding="utf-8")
@@ -227,6 +233,7 @@ def export(command: str = typer.Argument(...)) -> None:
     (export_dir / "full_summary.md").write_text(render_full_summary_md(data), encoding="utf-8")
     (export_dir / "map_ascii.txt").write_text(render_full_ascii(data), encoding="utf-8")
     (export_dir / "graph.dot").write_text(render_graphviz(data), encoding="utf-8")
+    _export_taxonomy_graph(data, export_dir)
     write_index_json(data, export_dir / "index.json")
 
     console.print(f"Экспорт сохранён в {export_dir}")
@@ -292,3 +299,16 @@ def build_streamlit_command(
     if extra_args:
         command.extend(extra_args)
     return command
+
+
+def _export_taxonomy_graph(data, export_dir: Path) -> None:
+    try:
+        html = render_taxonomy_graph_html(data, include_tags=True, outside_only=False)
+    except ModuleNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    (export_dir / "taxonomy_graph.html").write_text(html, encoding="utf-8")
+    (export_dir / "taxonomy_graph.dot").write_text(
+        render_taxonomy_graphviz(data, include_tags=True, outside_only=False),
+        encoding="utf-8",
+    )

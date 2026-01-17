@@ -12,6 +12,7 @@ from money_map.ui.views import (
     paths,
     search,
     taxonomy,
+    taxonomy_graph,
 )
 
 
@@ -66,6 +67,8 @@ def main() -> None:
         search.render(data)
     elif page == "Классификатор":
         classify.render(data)
+    elif page == "Граф: 14 способов":
+        taxonomy_graph.render(data)
     elif page == "Граф":
         graph.render(data, filters)
 
