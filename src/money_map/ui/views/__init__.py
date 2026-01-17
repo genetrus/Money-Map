@@ -10,6 +10,5 @@ __all__ = [
     "overview",
     "paths",
     "search",
-    "taxonomy",
-    "taxonomy_graph",
+    "ways_money",
 ]
