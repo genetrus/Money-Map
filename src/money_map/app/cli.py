@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 import importlib.util
 import subprocess
 import sys
+from pathlib import Path
 from typing import List, Optional
 
 import typer
@@ -270,7 +270,25 @@ def ui() -> None:
         )
         raise typer.Exit(code=1)
 
-    command = [sys.executable, "-m", "streamlit", "run", "-m", "money_map.ui.app"]
-    console.print("Запуск UI...")
+    import money_map.ui.app as ui_app
+
+    app_path = Path(ui_app.__file__).resolve()
+    command = build_streamlit_command(app_path)
+    console.print(
+        "Запускаю UI Streamlit... Откроется браузер. Если нет — открой http://localhost:8501"
+    )
     console.print(" ".join(command))
-    raise typer.Exit(code=subprocess.call(command))
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as exc:
+        raise typer.Exit(code=exc.returncode) from exc
+
+
+def build_streamlit_command(
+    app_path: Path,
+    extra_args: Optional[List[str]] = None,
+) -> List[str]:
+    command = [sys.executable, "-m", "streamlit", "run", str(app_path)]
+    if extra_args:
+        command.extend(extra_args)
+    return command
