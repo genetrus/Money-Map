@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import streamlit as st
+from streamlit_agraph import agraph
 
 from money_map.core.model import AppData
 from money_map.ui import components
@@ -46,19 +47,24 @@ def _render_map(data: AppData) -> None:
         current = available_ids[0]
         components.set_selected_tax_id(current)
 
-    nodes, edges = components.build_ways14_nodes_edges(
+    nodes, edges, config = components.build_ways14_agraph_graph(
         data,
-        show_tags=show_tags,
         outside_only=outside_only,
+        show_tags=show_tags,
         selected_tax_id=current,
     )
-    selected_node = components.render_ways14_agraph(nodes, edges)
+    selected_node = agraph(nodes=nodes, edges=edges, config=config)
+    if isinstance(selected_node, dict):
+        selected_node = selected_node.get("id")
+    if selected_node:
+        st.session_state["ways14_last_click"] = selected_node
     if selected_node and isinstance(selected_node, str) and selected_node.startswith("tax:"):
         selected_tax_id = selected_node.removeprefix("tax:")
         if selected_tax_id != st.session_state.get("selected_tax_id"):
             st.session_state["selected_tax_id"] = selected_tax_id
             st.session_state["active_tab"] = "Справочник"
             st.rerun()
+    st.caption(f"Последний клик: {st.session_state.get('ways14_last_click') or '—'}")
 
 
 def _render_directory(data: AppData) -> None:
