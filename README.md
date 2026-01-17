@@ -63,7 +63,7 @@ money-map ui
 Альтернатива без CLI:
 
 ```bash
-streamlit run -m money_map.ui.app
+python -m streamlit run .\\src\\money_map\\ui\\app.py
 ```
 
 ## Что умеет CLI
