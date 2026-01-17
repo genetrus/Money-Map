@@ -3,11 +3,15 @@ from __future__ import annotations
 import streamlit as st
 from streamlit_agraph import agraph
 
-from money_map.core.model import AppData
+from money_map.core.model import AppData, TaxonomyItem
 from money_map.ui import components
 
 
-def _render_map(data: AppData) -> None:
+def _render_map(
+    data: AppData,
+    filtered_items: list[TaxonomyItem],
+    allowed_taxonomy_ids: set[str],
+) -> None:
     st.markdown(
         "Нажмите на кружок — откроется справочник. "
         "Выбор делается кликом по кружку на карте."
@@ -26,10 +30,12 @@ def _render_map(data: AppData) -> None:
         ),
     )
     available_items = [
-        item for item in data.taxonomy if not outside_only or item.outside_market
+        item
+        for item in filtered_items
+        if not outside_only or item.outside_market
     ]
     if not available_items:
-        st.info("Нет механизмов для выбранного фильтра.")
+        st.info("Ничего не найдено по фильтрам.")
         return
 
     available_ids = [item.id for item in available_items]
@@ -42,6 +48,7 @@ def _render_map(data: AppData) -> None:
         outside_only=outside_only,
         show_tags=show_tags,
         selected_tax_id=current,
+        allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
     result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = None
@@ -66,10 +73,13 @@ def _render_map(data: AppData) -> None:
     st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")
 
 
-def _render_directory(data: AppData) -> None:
-    items = sorted(data.taxonomy, key=lambda item: item.name)
+def _render_directory(
+    data: AppData,
+    filtered_items: list[TaxonomyItem],
+) -> None:
+    items = sorted(filtered_items, key=lambda item: item.name)
     if not items:
-        st.info("Нет механизмов для отображения.")
+        st.info("Нет подходящих способов.")
         return
 
     id_to_name = {item.id: item.name for item in items}
@@ -83,9 +93,11 @@ def _render_directory(data: AppData) -> None:
     components.render_taxonomy_details_card(data, st.session_state.get("selected_tax_id"))
 
 
-def render(data: AppData) -> None:
+def render(data: AppData, filters: components.Filters) -> None:
     st.title("Способы получения денег")
-    taxonomy_ids = [item.id for item in data.taxonomy]
+    allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
+    filtered_taxonomy_ids = components.filter_taxonomy_by_cells(data.taxonomy, allowed_cells)
+    filtered_items = [item for item in data.taxonomy if item.id in filtered_taxonomy_ids]
     if "pending_selected_tax_id" in st.session_state:
         st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
         del st.session_state["pending_selected_tax_id"]
@@ -95,14 +107,14 @@ def render(data: AppData) -> None:
         del st.session_state["request_tab"]
 
     current = st.session_state.get("selected_tax_id")
-    if current not in taxonomy_ids:
-        st.session_state["selected_tax_id"] = taxonomy_ids[0] if taxonomy_ids else None
+    if current not in filtered_taxonomy_ids:
+        st.session_state["selected_tax_id"] = filtered_taxonomy_ids[0] if filtered_taxonomy_ids else None
     if st.session_state.get("active_tab") not in {"Карта", "Справочник"}:
         st.session_state["active_tab"] = "Карта"
 
     st.radio("", ["Карта", "Справочник"], horizontal=True, key="active_tab")
 
     if st.session_state.get("active_tab") == "Справочник":
-        _render_directory(data)
+        _render_directory(data, filtered_items)
     else:
-        _render_map(data)
+        _render_map(data, filtered_items, set(filtered_taxonomy_ids))

@@ -24,6 +24,10 @@ def render(data: AppData, filters: components.Filters) -> None:
     st.title("Матрица 2×2×2")
     st.markdown("Нажмите на ячейку, чтобы открыть детали и связанные мосты.")
 
+    focus_cell = st.session_state.get("matrix_focus_cell")
+    if focus_cell and st.session_state.get("selected_cell") != focus_cell:
+        components.set_selected_cell(focus_cell)
+
     for risk_key, risk_label in [("low", "Низкий риск"), ("high", "Высокий риск")]:
         if filters.risk != "all" and filters.risk != risk_key:
             continue
@@ -44,7 +48,10 @@ def render(data: AppData, filters: components.Filters) -> None:
                     if filters.scalability != "all" and cell.scalability != filters.scalability:
                         st.caption("Скрыто фильтром масштабируемости")
                         continue
-                    st.markdown(components.render_cell_card(cell))
+                    with st.container(border=cell.id == focus_cell):
+                        st.markdown(components.render_cell_card(cell))
+                        if cell.id == focus_cell:
+                            st.caption("Фокусная ячейка")
                     if st.button(
                         f"Открыть {cell.id}",
                         key=f"cell-{cell.id}",
