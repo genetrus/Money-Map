@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.dist/
+.pytest_cache/
+.coverage
+exports/*.md
+exports/*.txt
+exports/*.json
+exports/*.dot

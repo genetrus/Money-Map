@@ -1,0 +1,144 @@
+---
+bridges:
+  - id: A1_to_A2_standardize
+    from: "A1"
+    to: "A2"
+    name: "Стандартизация процесса"
+    mechanisms: ["checklists", "quality_criteria", "time_norms"]
+    checks:
+      - "Могу ли я описать процесс в 10–20 шагов?"
+      - "Есть ли критерии 'готово' и контроль качества?"
+    notes: "Убирает хаос и повышает скорость/надёжность."
+  - id: A1_to_A2_packaging
+    from: "A1"
+    to: "A2"
+    name: "Упаковка в пакеты (фикс-результат вместо часов)"
+    mechanisms: ["fixed_scope", "three_tiers", "exclude_rules"]
+    checks:
+      - "Есть ли 3 тарифа и понятный объём работ?"
+      - "Понятно ли, что входит и что не входит?"
+    notes: "Отвязывает цену от времени и упрощает продажу."
+  - id: A1_to_A2_retainer
+    from: "A1"
+    to: "A2"
+    name: "Ретейнер / подписка (платят регулярно за сервис)"
+    mechanisms: ["subscription", "service_contract"]
+    checks:
+      - "Может ли клиент платить ежемесячно за поддержку/доступ?"
+      - "Есть ли SLA/правила обслуживания?"
+    notes: "Стабилизирует кэш-флоу."
+  - id: A1_to_A2_delegation
+    from: "A1"
+    to: "A2"
+    name: "Делегирование (подрядчики/минимальная команда)"
+    mechanisms: ["contractors", "training", "qa"]
+    checks:
+      - "Есть ли задача, которую можно отдать другому без потери качества?"
+      - "Есть ли обучение и контроль?"
+    notes: "Создаёт масштаб и маржу."
+  - id: A1_to_A2_automation
+    from: "A1"
+    to: "A2"
+    name: "Автоматизация (инструменты вместо рук)"
+    mechanisms: ["scripts", "templates", "crm"]
+    checks:
+      - "Какие 2–3 рутины можно автоматизировать прямо сейчас?"
+      - "Сократится ли время на задачу минимум на 20–30%?"
+    notes: "Увеличивает пропускную способность."
+  - id: A1_to_A2_channel
+    from: "A1"
+    to: "A2"
+    name: "Канал продаж (стабильный вход заявок)"
+    mechanisms: ["referrals", "partners", "content_inbound", "marketplaces"]
+    checks:
+      - "Есть ли источник заявок без ежедневной охоты?"
+      - "Могу ли я предсказать хотя бы грубо поток?"
+    notes: "Без канала масштаб почти всегда ломается."
+  - id: A1_to_A2_segmentation
+    from: "A1"
+    to: "A2"
+    name: "Сегментация (узкая аудитория = дороже)"
+    mechanisms: ["niche", "positioning"]
+    checks:
+      - "Могу ли я назвать конкретную аудиторию и проблему одной фразой?"
+    notes: "Упрощает маркетинг и повышает цену."
+
+  - id: A2_to_P2_artifact
+    from: "A2"
+    to: "P2"
+    name: "Кодирование опыта в артефакт (шаблоны/библиотека)"
+    mechanisms: ["templates", "docs", "library", "product_assets"]
+    checks:
+      - "Можно ли использовать/продать это без моего участия?"
+      - "Сформулирована ли одна главная боль, которую решает артефакт?"
+    notes: "Переводит процесс в актив."
+  - id: A2_to_P2_productize
+    from: "A2"
+    to: "P2"
+    name: "Продуктизация процесса (самообслуживание/фикс-поставка)"
+    mechanisms: ["self_service", "fixed_delivery"]
+    checks:
+      - "Есть ли стандартный вход и стандартный выход?"
+      - "Можно ли ограничить кастомизацию правилами?"
+    notes: "Снижает ручную долю работы."
+  - id: A2_to_P2_funnel
+    from: "A2"
+    to: "P2"
+    name: "Воронка (контент → лид → продажа продукта)"
+    mechanisms: ["lead_magnet", "email", "landing"]
+    checks:
+      - "Есть ли один повторяемый путь клиента до покупки?"
+    notes: "Делает продажи менее случайными."
+
+  - id: A1_to_P1_auto_save
+    from: "A1"
+    to: "P1"
+    name: "Авто-накопление (броня)"
+    mechanisms: ["autotransfer", "budget_rule"]
+    checks:
+      - "Есть ли правило: X% в капитал до расходов?"
+    notes: "Создаёт устойчивость."
+  - id: A2_to_P1_auto_save
+    from: "A2"
+    to: "P1"
+    name: "Авто-накопление на масштабе"
+    mechanisms: ["autotransfer", "buffer_policy"]
+    checks:
+      - "Есть ли буфер на 3–6 месяцев и план пополнения?"
+    notes: "Фиксирует устойчивость при росте."
+
+  - id: A1_to_A3_commission_jump
+    from: "A1"
+    to: "A3"
+    name: "Прыжок в комиссию/успех (ускоритель)"
+    mechanisms: ["commission_only", "kpi_pay"]
+    checks:
+      - "Есть ли финансовый запас на просадки?"
+      - "Контролирую ли я рычаг (лиды/конверсия), а не удачу?"
+    notes: "Опасно без базы."
+  - id: A2_to_A4_scale_aggressive
+    from: "A2"
+    to: "A4"
+    name: "Агрессивное масштабирование"
+    mechanisms: ["hiring", "marketing_scale", "ops_scale"]
+    checks:
+      - "Сходится ли юнит-экономика?"
+      - "Есть ли контроль кассовых разрывов?"
+    notes: "Высокий потолок, высокий стресс."
+
+  - id: A1_to_P4_viral_lottery
+    from: "A1"
+    to: "P4"
+    name: "Ставка на вирусность/алгоритмы (лотерея)"
+    mechanisms: ["viral", "algo_dependence"]
+    checks:
+      - "Это модель или надежда на удачу?"
+    notes: "Часто нестабильно."
+  - id: P1_to_P3_leverage
+    from: "P1"
+    to: "P3"
+    name: "Повышение риска на капитале (плечо/high-yield)"
+    mechanisms: ["leverage", "high_yield"]
+    checks:
+      - "Готов ли я к сценарию -50%?"
+    notes: "Высокий риск."

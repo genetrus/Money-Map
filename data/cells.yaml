@@ -1,0 +1,58 @@
+---
+cells:
+  - id: A1
+    activity: active
+    scalability: linear
+    risk: low
+    label: "A1 — Активно • Линейно • Низкий риск"
+    short: "База: время/простые задачи"
+    examples: ["оклад", "почасовка", "смены", "простые услуги по задаче"]
+  - id: A2
+    activity: active
+    scalability: scalable
+    risk: low
+    label: "A2 — Активно • Масштабируемо • Низкий риск"
+    short: "Система: процессы/пакеты/команда"
+    examples: ["пакеты услуг", "процессы", "подписка на сервис", "команда/подрядчики"]
+  - id: P1
+    activity: passive
+    scalability: linear
+    risk: low
+    label: "P1 — Пассивно • Линейно • Низкий риск"
+    short: "Броня: рента/проценты"
+    examples: ["рента", "депозит/проценты", "облигации", "консервативные дивиденды"]
+  - id: P2
+    activity: passive
+    scalability: scalable
+    risk: low
+    label: "P2 — Пассивно • Масштабируемо • Низкий риск"
+    short: "Турбина: проверенный продукт/каталог"
+    examples: ["цифровой продукт", "каталог/шаблоны", "контент-библиотека", "SaaS"]
+  - id: A3
+    activity: active
+    scalability: linear
+    risk: high
+    label: "A3 — Активно • Линейно • Высокий риск"
+    short: "Ускоритель: %/KPI/неопределённость"
+    examples: ["комиссия 'только %'", "жёсткие KPI", "трейдинг как работа", "арбитраж с риском"]
+  - id: A4
+    activity: active
+    scalability: scalable
+    risk: high
+    label: "A4 — Активно • Масштабируемо • Высокий риск"
+    short: "Агрессивный рост: стартап/масштабирование"
+    examples: ["стартап", "агрессивный маркетинг", "найм/рост", "кассовые разрывы"]
+  - id: P3
+    activity: passive
+    scalability: linear
+    risk: high
+    label: "P3 — Пассивно • Линейно • Высокий риск"
+    short: "Риск-капитал: high-yield/плечо"
+    examples: ["high-yield", "плечо", "риск-кредитование", "концентрированные ставки"]
+  - id: P4
+    activity: passive
+    scalability: scalable
+    risk: high
+    label: "P4 — Пассивно • Масштабируемо • Высокий риск"
+    short: "Лотерея масштаба: вирусность/алгоритмы"
+    examples: ["вирусность", "зависимость от алгоритмов", "спекулятивные ставки", "доля без контроля"]

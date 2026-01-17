@@ -1,0 +1,25 @@
+[project]
+name = "money-map"
+version = "0.1.0"
+description = "Data-driven Money Map with YAML data, validation, queries, and rendering."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Money Map" }]
+dependencies = [
+  "PyYAML>=6.0",
+  "pydantic>=2.6",
+  "typer>=0.9",
+  "rich>=13.7",
+  "networkx>=3.2",
+]
+
+[project.scripts]
+money-map = "money_map.app.cli:app"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
