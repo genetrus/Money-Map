@@ -7,15 +7,6 @@ from money_map.core.model import AppData
 from money_map.ui import components
 
 
-def _ensure_defaults(data: AppData) -> None:
-    taxonomy_ids = [item.id for item in data.taxonomy]
-    current = st.session_state.get("selected_tax_id")
-    if current not in taxonomy_ids:
-        st.session_state["selected_tax_id"] = taxonomy_ids[0] if taxonomy_ids else None
-    if st.session_state.get("active_tab") not in {"Карта", "Справочник"}:
-        st.session_state["active_tab"] = "Карта"
-
-
 def _render_map(data: AppData) -> None:
     st.markdown(
         "Нажмите на кружок — откроется справочник. "
@@ -45,7 +36,6 @@ def _render_map(data: AppData) -> None:
     current = st.session_state.get("selected_tax_id")
     if current not in available_ids:
         current = available_ids[0]
-        components.set_selected_tax_id(current)
 
     nodes, edges, config = components.build_ways14_agraph_graph(
         data,
@@ -66,13 +56,13 @@ def _render_map(data: AppData) -> None:
     elif isinstance(result, str):
         clicked_id = result
 
-    st.session_state["last_click_id"] = clicked_id
     if clicked_id and isinstance(clicked_id, str) and clicked_id.startswith("tax:"):
         selected_tax_id = clicked_id.removeprefix("tax:")
-        if selected_tax_id != st.session_state.get("selected_tax_id"):
-            st.session_state["selected_tax_id"] = selected_tax_id
-            st.session_state["request_tab"] = "Справочник"
-            st.rerun()
+        st.session_state["pending_selected_tax_id"] = selected_tax_id
+        st.session_state["request_tab"] = "Справочник"
+        st.session_state["last_click_id"] = clicked_id
+        st.rerun()
+    st.session_state["last_click_id"] = clicked_id
     st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")
 
 
@@ -84,25 +74,31 @@ def _render_directory(data: AppData) -> None:
 
     id_to_name = {item.id: item.name for item in items}
     options = [item.id for item in items]
-    current = st.session_state.get("selected_tax_id")
-    index = options.index(current) if current in options else 0
     st.selectbox(
         "Выберите механизм",
         options,
-        format_func=lambda item_id: id_to_name[item_id],
         key="selected_tax_id",
-        index=index,
+        format_func=lambda item_id: id_to_name[item_id],
     )
     components.render_taxonomy_details_card(data, st.session_state.get("selected_tax_id"))
 
 
 def render(data: AppData) -> None:
     st.title("Способы получения денег")
-    _ensure_defaults(data)
+    taxonomy_ids = [item.id for item in data.taxonomy]
+    if "pending_selected_tax_id" in st.session_state:
+        st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
+        del st.session_state["pending_selected_tax_id"]
 
     if "request_tab" in st.session_state:
         st.session_state["active_tab"] = st.session_state["request_tab"]
         del st.session_state["request_tab"]
+
+    current = st.session_state.get("selected_tax_id")
+    if current not in taxonomy_ids:
+        st.session_state["selected_tax_id"] = taxonomy_ids[0] if taxonomy_ids else None
+    if st.session_state.get("active_tab") not in {"Карта", "Справочник"}:
+        st.session_state["active_tab"] = "Карта"
 
     st.radio("", ["Карта", "Справочник"], horizontal=True, key="active_tab")
 
