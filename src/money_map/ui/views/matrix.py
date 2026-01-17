@@ -106,17 +106,19 @@ def render(data: AppData, filters: components.Filters) -> None:
         or relevant_sell.intersection(item.sell)
         or relevant_value.intersection(item.value)
     ]
-    st.markdown("#### Связанная таксономия")
+    st.markdown("#### Связанные способы получения денег")
     if not related_taxonomy:
         st.caption("Нет связанных механизмов.")
     else:
         for item in related_taxonomy:
             if st.button(
                 f"{item.name} ({item.id})",
-                key=f"tax-{cell.id}-{item.id}",
+                key=f"goto_way_from_cell_{cell.id}_{item.id}",
             ):
-                components.set_selected_taxonomy(item.id)
-                components.set_page("Таксономия")
+                st.session_state["request_nav_section"] = "Способы получения денег"
+                st.session_state["pending_selected_tax_id"] = item.id
+                st.session_state["request_tab"] = "Справочник"
+                st.rerun()
 
     st.markdown("#### Мини-диаграмма")
     st.code(components.ascii_focus_diagram(cell.id, outgoing), language="text")

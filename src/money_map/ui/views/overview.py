@@ -20,7 +20,7 @@ def render(data: AppData) -> None:
     st.subheader("Ключевые показатели")
     cols = st.columns(4)
     cols[0].metric("Ячейки", len(data.cells))
-    cols[1].metric("Таксономия", len(data.taxonomy))
+    cols[1].metric("Способы получения денег", len(data.taxonomy))
     cols[2].metric("Мосты", len(data.bridges))
     cols[3].metric("Маршруты", len(data.paths))
 

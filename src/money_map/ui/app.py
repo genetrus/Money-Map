@@ -43,6 +43,7 @@ def main() -> None:
 
     if "request_nav_section" in st.session_state:
         requested = st.session_state["request_nav_section"]
+        st.session_state["nav_section"] = requested
         if requested in components.PAGES:
             components.set_page(requested)
         del st.session_state["request_nav_section"]
