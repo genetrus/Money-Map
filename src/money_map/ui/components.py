@@ -195,3 +195,96 @@ def load_css() -> None:
     css_path = Path(__file__).resolve().parent / "assets" / "style.css"
     if css_path.exists():
         st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
+
+
+def _outside_market_label(outside_market: bool) -> str:
+    return "Вне рынка: Да" if outside_market else "Вне рынка: Нет"
+
+
+def _chips(values: Iterable[str]) -> str:
+    return " ".join(f"`{value}`" for value in values) if values else "—"
+
+
+def render_taxonomy_details_card(app_data: AppData, tax_id: Optional[str]) -> None:
+    with st.container(border=True):
+        if not tax_id:
+            st.markdown("Нажмите на любой узел (например «Зарплата») — здесь появятся детали.")
+            return
+
+        item = taxonomy_lookup(app_data).get(tax_id)
+        if not item:
+            st.warning("Механизм не найден.")
+            return
+
+        header_left, header_right = st.columns([3, 2])
+        with header_left:
+            st.markdown(f"### {item.name}")
+        badge = _outside_market_label(item.outside_market)
+        if item.outside_market:
+            badge = f"{badge} · ⚠️ не рыночный механизм"
+        with header_right:
+            st.markdown(f"**{badge}**")
+
+        st.markdown("#### Коротко")
+        st.write(item.description)
+        st.caption(item.risk_notes or "—")
+        if item.examples:
+            st.markdown("**Примеры**")
+            for example in item.examples:
+                st.markdown(f"- {example}")
+
+        st.markdown("#### Теги (что продаёшь / кому / как меряется)")
+        tag_cols = st.columns(3)
+        with tag_cols[0]:
+            st.caption("Что продаёшь")
+            st.markdown(_chips(item.sell))
+        with tag_cols[1]:
+            st.caption("Кому")
+            st.markdown(_chips(item.to_whom))
+        with tag_cols[2]:
+            st.caption("Как меряется")
+            st.markdown(_chips(item.value))
+
+        st.markdown("#### Связанные ячейки матрицы (A1..P4)")
+        if not item.typical_cells:
+            st.caption("Нет типовых ячеек.")
+        else:
+            lookup = cell_lookup(app_data)
+            for cell_id in item.typical_cells:
+                cell = lookup.get(cell_id)
+                summary = cell.short if cell and cell.short else (cell.label if cell else "—")
+                st.markdown(f"- {cell_id} — {summary}")
+
+        st.markdown("#### Связанные мосты")
+        bridges = taxonomy_related_bridges(app_data, item)
+        if not bridges:
+            st.caption("Нет связанных мостов.")
+        else:
+            grouped: Dict[Tuple[str, str], List[BridgeItem]] = {}
+            for bridge in bridges:
+                grouped.setdefault((bridge.from_cell, bridge.to_cell), []).append(bridge)
+            for (from_cell, to_cell), items in grouped.items():
+                names = ", ".join(bridge.name for bridge in items)
+                with st.expander(f"{from_cell} → {to_cell} — {names}", expanded=False):
+                    for bridge in items:
+                        if len(items) > 1:
+                            st.markdown(f"**{bridge.name}**")
+                        st.markdown(bridge.notes or "—")
+                        st.caption("Механизмы")
+                        st.markdown(_chips(bridge.mechanisms))
+                        st.caption("Проверки")
+                        if bridge.checks:
+                            for check in bridge.checks:
+                                st.markdown(f"- {check}")
+                        else:
+                            st.markdown("—")
+
+        st.markdown("#### Связанные маршруты")
+        paths = taxonomy_related_paths(app_data, item)
+        if not paths:
+            st.caption("Нет связанных маршрутов.")
+        else:
+            for path in paths:
+                st.markdown(f"**{path.name}**")
+                st.markdown(f"`{ascii_path(path)}`")
+                st.caption(path.note or "—")

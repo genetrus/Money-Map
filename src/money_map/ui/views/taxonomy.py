@@ -44,7 +44,7 @@ def render(data: AppData) -> None:
         st.markdown("**Кому:** " + (", ".join(item.to_whom) or "—"))
         st.markdown("**Мера ценности:** " + (", ".join(item.value) or "—"))
         st.markdown("**Типовые ячейки:** " + components.format_cells_inline(item.typical_cells))
-        st.markdown("**Вне рынка:** " + ("да" if item.outside_market else "нет"))
+        st.markdown("**Вне рынка: " + ("Да" if item.outside_market else "Нет") + "**")
         st.markdown("**Риск:** " + (item.risk_notes or "—"))
         st.markdown("**Примеры:**")
         for example in item.examples:

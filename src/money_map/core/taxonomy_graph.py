@@ -107,7 +107,7 @@ def _taxonomy_tooltip(item: TaxonomyItem) -> str:
         f"<b>Кому:</b> {', '.join(item.to_whom) or '—'}<br>"
         f"<b>Мера ценности:</b> {', '.join(item.value) or '—'}<br>"
         f"<b>Типовые ячейки:</b> {', '.join(item.typical_cells) or '—'}<br>"
-        f"<b>Вне рынка:</b> {'да' if item.outside_market else 'нет'}"
+        f"<b>Вне рынка:</b> {'Да' if item.outside_market else 'Нет'}"
     )
 
 
