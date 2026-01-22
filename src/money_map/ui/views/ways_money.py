@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import streamlit as st
 from streamlit_agraph import agraph
 
@@ -13,8 +15,8 @@ def _render_map(
     allowed_taxonomy_ids: set[str],
 ) -> None:
     st.markdown(
-        "Нажмите на кружок — откроется справочник. "
-        "Выбор делается кликом по кружку на карте."
+        "Двойной клик по кружку откроет справочник. "
+        "Одинарный клик подсветит связи."
     )
     legend_items = components.classifier_legend_items()
     legend_html = " ".join(
@@ -61,27 +63,49 @@ def _render_map(
         outside_only=outside_only,
         show_tags=show_tags,
         selected_tax_id=current,
+        highlighted_node_id=st.session_state.get("ways_highlight_node_id"),
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
     result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = None
+    background_clicked = False
     if isinstance(result, dict):
         if result.get("selected_node"):
             clicked_id = result["selected_node"]
         elif result.get("selectedNodes"):
             clicked_id = result["selectedNodes"][0]
-        elif result.get("nodes"):
-            first_node = result["nodes"][0]
-            clicked_id = first_node.get("id") if isinstance(first_node, dict) else first_node
+        elif result.get("nodes") is not None:
+            nodes_value = result.get("nodes", [])
+            if nodes_value:
+                first_node = nodes_value[0]
+                clicked_id = first_node.get("id") if isinstance(first_node, dict) else first_node
+            else:
+                background_clicked = True
     elif isinstance(result, str):
         clicked_id = result
 
-    if clicked_id and isinstance(clicked_id, str) and clicked_id.startswith("tax:"):
-        selected_tax_id = clicked_id.removeprefix("tax:")
-        st.session_state["pending_selected_tax_id"] = selected_tax_id
-        st.session_state["request_tab"] = "Справочник"
-        st.session_state["last_click_id"] = clicked_id
-        st.rerun()
+    if clicked_id and isinstance(clicked_id, str):
+        now = time.monotonic()
+        last_click_time = st.session_state.get("ways_last_click_time")
+        last_click_id = st.session_state.get("ways_last_click_id")
+        is_double_click = (
+            last_click_id == clicked_id
+            and last_click_time is not None
+            and now - last_click_time <= 0.25
+        )
+        st.session_state["ways_last_click_time"] = now
+        st.session_state["ways_last_click_id"] = clicked_id
+        if is_double_click and clicked_id.startswith("tax:"):
+            selected_tax_id = clicked_id.removeprefix("tax:")
+            st.session_state["pending_selected_tax_id"] = selected_tax_id
+            st.session_state["request_tab"] = "Справочник"
+            st.session_state["last_click_id"] = clicked_id
+            st.rerun()
+        else:
+            st.session_state["ways_highlight_node_id"] = clicked_id
+    elif background_clicked:
+        st.session_state["ways_highlight_node_id"] = None
+
     st.session_state["last_click_id"] = clicked_id
     st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")
 

@@ -532,6 +532,7 @@ def build_ways14_agraph_graph(
     outside_only: bool,
     show_tags: bool,
     selected_tax_id: Optional[str],
+    highlighted_node_id: Optional[str],
     allowed_taxonomy_ids: Optional[set[str]] = None,
 ) -> Tuple[List[Node], List[Edge], Config]:
     graph = build_taxonomy_star(
@@ -604,12 +605,20 @@ def build_ways14_agraph_graph(
 
     for source, target, attrs in graph.edges(data=True):
         kind = attrs.get("kind")
+        is_highlighted = highlighted_node_id in {source, target}
+        if highlighted_node_id:
+            base_color = "#9CA3AF"
+        else:
+            base_color = "#9CA3AF" if kind == "tag" else "#2563EB"
+        edge_color = "#2E7D32" if is_highlighted else base_color
+        base_width = attrs.get("width", 1)
+        edge_width = max(base_width + 2, 3) if is_highlighted else base_width
         edges.append(
             Edge(
                 source=source,
                 target=target,
-                color="#9CA3AF" if kind == "tag" else "#2563EB",
-                width=attrs.get("width", 1),
+                color=edge_color,
+                width=edge_width,
                 arrows="to",
             )
         )
