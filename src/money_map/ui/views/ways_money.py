@@ -9,7 +9,7 @@ from money_map.core.model import AppData, TaxonomyItem
 from money_map.ui import components
 
 
-def _parse_agraph_clicked_id(result: object) -> str | None:
+def _get_clicked_id(result: object) -> str | None:
     if isinstance(result, str):
         return result or None
     if not isinstance(result, dict):
@@ -91,8 +91,17 @@ def _render_map(
         highlighted_node_id=st.session_state.get("ways_highlight_node_id"),
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
-    result = agraph(nodes=nodes, edges=edges, config=config)
-    clicked_id = _parse_agraph_clicked_id(result)
+    sanitized_nodes = components._sanitize_agraph_nodes(nodes)
+    if __debug__:
+        bad_nodes = [
+            node
+            for node in sanitized_nodes
+            if any(key in node for key in ("url", "href", "link", "target"))
+        ]
+        assert not bad_nodes, f"Found link fields in nodes: {bad_nodes[:1]}"
+
+    result = agraph(nodes=sanitized_nodes, edges=edges, config=config)
+    clicked_id = _get_clicked_id(result)
     dbl = False
     if clicked_id is not None:
         now = time.monotonic()
@@ -120,6 +129,10 @@ def _render_map(
             st.rerun()
 
     st.caption(f"clicked_id={clicked_id} dbl={dbl}")
+    st.caption(
+        "NOTE: If a new tab still opens, some node still contains "
+        "url/href/link/target inside agraph."
+    )
 
 
 def _render_directory(
@@ -144,12 +157,10 @@ def _render_directory(
 
 def render(data: AppData, filters: components.Filters) -> None:
     if "pending_selected_tax_id" in st.session_state:
-        st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
-        del st.session_state["pending_selected_tax_id"]
+        st.session_state["selected_tax_id"] = st.session_state.pop("pending_selected_tax_id")
 
     if "request_tab" in st.session_state:
-        st.session_state["active_tab"] = st.session_state["request_tab"]
-        del st.session_state["request_tab"]
+        st.session_state["active_tab"] = st.session_state.pop("request_tab")
 
     st.title("Способы получения денег")
     allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
