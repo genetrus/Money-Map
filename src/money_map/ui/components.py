@@ -65,8 +65,6 @@ def init_session_state() -> None:
     st.session_state.setdefault("ways_last_click_id", None)
     st.session_state.setdefault("ways_last_click_ts", None)
     st.session_state.setdefault("ways_last_click_is_double", False)
-    st.session_state.setdefault("request_tab", None)
-    st.session_state.setdefault("pending_selected_tax_id", None)
 
 
 def set_page(page: str) -> None:
@@ -545,6 +543,10 @@ def _strip_anchor_tags(text: str) -> str:
     return re.sub(r"</?a\b[^>]*>", "", text, flags=re.IGNORECASE)
 
 
+def _strip_markdown_links(text: str) -> str:
+    return re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+
+
 def build_ways14_agraph_graph(
     app_data: AppData,
     outside_only: bool,
@@ -567,6 +569,9 @@ def build_ways14_agraph_graph(
     for node_id, attrs in graph.nodes(data=True):
         kind = attrs.get("kind", "")
         label_text = attrs.get("label", node_id)
+        if not isinstance(label_text, str):
+            label_text = str(label_text)
+        label_text = _strip_markdown_links(_strip_anchor_tags(label_text))
         if kind == "tag":
             wrapped = wrap_label(label_text, max_chars_per_line=10, max_lines=2)
             base_size = 40
@@ -593,12 +598,14 @@ def build_ways14_agraph_graph(
             size = base_size + 8
 
         title = attrs.get("title", label_text)
+        if not isinstance(title, str):
+            title = str(title) if title is not None else label_text
         if kind == "taxonomy" and node_id.startswith("tax:"):
             tax_id = node_id.removeprefix("tax:")
             item = taxonomy_items.get(tax_id)
             if item:
                 title = _taxonomy_tooltip_text(item)
-        title = _strip_anchor_tags(title)
+        title = _strip_markdown_links(_strip_anchor_tags(title))
 
         nodes.append(
             Node(
