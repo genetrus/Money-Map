@@ -94,37 +94,32 @@ def _render_map(
     result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = _parse_agraph_clicked_id(result)
     dbl = False
+    if clicked_id is not None:
+        now = time.monotonic()
+        last_click_id = st.session_state.get("ways_last_click_id")
+        last_click_ts = st.session_state.get("ways_last_click_ts", 0.0)
+        dbl = (
+            clicked_id == last_click_id
+            and (now - last_click_ts) <= 0.9
+        )
+        st.session_state["ways_last_click_id"] = clicked_id
+        st.session_state["ways_last_click_ts"] = now
 
     if clicked_id and isinstance(clicked_id, str):
-        now = time.monotonic()
-        last_click_ts = st.session_state.get("ways_last_click_ts")
-        last_click_id = st.session_state.get("ways_last_click_id")
-        dbl = (
-            last_click_id == clicked_id
-            and last_click_ts is not None
-            and now - last_click_ts <= 0.9
-        )
-        st.session_state["ways_last_click_ts"] = now
-        st.session_state["ways_last_click_id"] = clicked_id
-        st.session_state["ways_last_click_is_double"] = dbl
         st.session_state["ways_highlight_node_id"] = clicked_id
-        if not dbl:
-            st.rerun()
         if dbl and clicked_id.startswith("tax:"):
             selected_tax_id = clicked_id.removeprefix("tax:")
             st.session_state["pending_selected_tax_id"] = selected_tax_id
             st.session_state["request_tab"] = "Справочник"
-            st.session_state["last_click_id"] = clicked_id
+            st.rerun()
+        if not dbl:
             st.rerun()
     elif clicked_id is None:
-        st.session_state["ways_last_click_id"] = None
-        st.session_state["ways_last_click_is_double"] = False
         if st.session_state.get("ways_highlight_node_id") is not None:
             st.session_state["ways_highlight_node_id"] = None
             st.rerun()
 
-    st.session_state["last_click_id"] = clicked_id
-    st.caption(f"click={clicked_id} dbl={dbl}")
+    st.caption(f"clicked_id={clicked_id} dbl={dbl}")
 
 
 def _render_directory(
