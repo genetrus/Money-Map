@@ -93,23 +93,24 @@ def _render_map(
     )
     result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = _parse_agraph_clicked_id(result)
+    dbl = False
 
     if clicked_id and isinstance(clicked_id, str):
         now = time.monotonic()
         last_click_ts = st.session_state.get("ways_last_click_ts")
         last_click_id = st.session_state.get("ways_last_click_id")
-        is_double_click = (
+        dbl = (
             last_click_id == clicked_id
             and last_click_ts is not None
             and now - last_click_ts <= 0.9
         )
         st.session_state["ways_last_click_ts"] = now
         st.session_state["ways_last_click_id"] = clicked_id
-        st.session_state["ways_last_click_is_double"] = is_double_click
+        st.session_state["ways_last_click_is_double"] = dbl
         st.session_state["ways_highlight_node_id"] = clicked_id
-        if not is_double_click:
+        if not dbl:
             st.rerun()
-        if is_double_click and clicked_id.startswith("tax:"):
+        if dbl and clicked_id.startswith("tax:"):
             selected_tax_id = clicked_id.removeprefix("tax:")
             st.session_state["pending_selected_tax_id"] = selected_tax_id
             st.session_state["request_tab"] = "Справочник"
@@ -123,11 +124,7 @@ def _render_map(
             st.rerun()
 
     st.session_state["last_click_id"] = clicked_id
-    st.caption(
-        "Последний клик: "
-        f"{st.session_state.get('ways_last_click_id') or '—'} "
-        f"(dblclick: {'yes' if st.session_state.get('ways_last_click_is_double') else 'no'})"
-    )
+    st.caption(f"click={clicked_id} dbl={dbl}")
 
 
 def _render_directory(
@@ -151,15 +148,13 @@ def _render_directory(
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    pending_tax_id = st.session_state.get("pending_selected_tax_id")
-    if pending_tax_id:
-        st.session_state["selected_tax_id"] = pending_tax_id
-        st.session_state["pending_selected_tax_id"] = None
+    if "pending_selected_tax_id" in st.session_state:
+        st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
+        del st.session_state["pending_selected_tax_id"]
 
-    requested_tab = st.session_state.get("request_tab")
-    if requested_tab:
-        st.session_state["active_tab"] = requested_tab
-        st.session_state["request_tab"] = None
+    if "request_tab" in st.session_state:
+        st.session_state["active_tab"] = st.session_state["request_tab"]
+        del st.session_state["request_tab"]
 
     st.title("Способы получения денег")
     allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
