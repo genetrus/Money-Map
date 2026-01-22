@@ -412,6 +412,74 @@ def _node_color(kind: str) -> str:
     return "#FFFFFF"
 
 
+CLASSIFIER_GROUP_CONFIG: Dict[str, Dict[str, object]] = {
+    "sell": {
+        "label": "Что продаём",
+        "color": "#2A9D8F",
+        "ids": {"access", "attention", "capital", "property", "result", "risk", "time"},
+    },
+    "to": {
+        "label": "Кому",
+        "color": "#E9C46A",
+        "ids": {"many_people", "market", "platform", "single_client", "state"},
+    },
+    "value": {
+        "label": "Мера ценности",
+        "color": "#8E6AC8",
+        "ids": {"appreciation", "payout", "percent", "price", "rate", "rent"},
+    },
+}
+
+
+def classifier_legend_items() -> List[Tuple[str, str, str]]:
+    order = ("sell", "to", "value")
+    items: List[Tuple[str, str, str]] = []
+    for group in order:
+        config = CLASSIFIER_GROUP_CONFIG[group]
+        color = str(config["color"])
+        items.append((str(config["label"]), color, _darken_hex(color)))
+    return items
+
+
+def _darken_hex(color: str, factor: float = 0.75) -> str:
+    value = color.lstrip("#")
+    r = int(value[0:2], 16)
+    g = int(value[2:4], 16)
+    b = int(value[4:6], 16)
+    r = max(0, min(255, int(r * factor)))
+    g = max(0, min(255, int(g * factor)))
+    b = max(0, min(255, int(b * factor)))
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def _text_color_for_background(color: str) -> str:
+    value = color.lstrip("#")
+    r = int(value[0:2], 16) / 255
+    g = int(value[2:4], 16) / 255
+    b = int(value[4:6], 16) / 255
+    luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return "#FFFFFF" if luminance < 0.5 else "#0B0B0B"
+
+
+def _classifier_tag_style(attrs: Dict[str, object], node_id: str) -> Optional[Dict[str, str]]:
+    group = attrs.get("group")
+    if not isinstance(group, str):
+        group = node_id.split(":", 1)[0] if ":" in node_id else ""
+    tag_id = node_id.split(":", 1)[1] if ":" in node_id else ""
+    config = CLASSIFIER_GROUP_CONFIG.get(group)
+    if not config:
+        return None
+    ids = config["ids"]
+    if not isinstance(ids, set) or tag_id not in ids:
+        return None
+    color = str(config["color"])
+    return {
+        "color": color,
+        "border_color": _darken_hex(color),
+        "font_color": _text_color_for_background(color),
+    }
+
+
 def wrap_label(text: str, max_chars_per_line: int = 12, max_lines: int = 3) -> str:
     words = text.split()
     if not words:
@@ -492,6 +560,14 @@ def build_ways14_agraph_graph(
         border_width = 2
         border_color = "#2563EB"
         size = base_size
+        background_color = _node_color(kind)
+        font_color = "#0b0b0b"
+        if kind == "tag":
+            tag_style = _classifier_tag_style(attrs, node_id)
+            if tag_style:
+                background_color = tag_style["color"]
+                border_color = tag_style["border_color"]
+                font_color = tag_style["font_color"]
         if node_id == selected_node:
             border_width = 4
             border_color = "#1D4ED8"
@@ -514,12 +590,12 @@ def build_ways14_agraph_graph(
                 fixed=True,
                 size=size,
                 shape="circle",
-                color={"background": _node_color(kind), "border": border_color},
+                color={"background": background_color, "border": border_color},
                 borderWidth=border_width,
                 font={
                     "face": "Segoe UI, Inter, Arial",
                     "size": font_size,
-                    "color": "#0b0b0b",
+                    "color": font_color,
                     "bold": True,
                     "align": "center",
                 },

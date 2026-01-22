@@ -16,9 +16,22 @@ def _render_map(
         "Нажмите на кружок — откроется справочник. "
         "Выбор делается кликом по кружку на карте."
     )
+    legend_items = components.classifier_legend_items()
+    legend_html = " ".join(
+        (
+            "<span style='display:inline-flex;align-items:center;"
+            "margin-right:16px;gap:6px;'>"
+            f"<span style='width:10px;height:10px;border-radius:50%;"
+            f"background:{color};border:1px solid {border};display:inline-block;'></span>"
+            f"<span>{label}</span>"
+            "</span>"
+        )
+        for label, color, border in legend_items
+    )
+    st.markdown(legend_html, unsafe_allow_html=True)
     controls = st.columns([2, 2])
     show_tags = controls[0].checkbox(
-        "Показать теги вторым кольцом",
+        "Показать классификаторы вторым кольцом",
         value=False,
     )
     outside_only = controls[1].checkbox(
