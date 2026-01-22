@@ -14,6 +14,12 @@ def _render_map(
     filtered_items: list[TaxonomyItem],
     allowed_taxonomy_ids: set[str],
 ) -> None:
+    def apply_edge_highlight(node_id: str) -> None:
+        st.session_state["ways_highlight_node_id"] = node_id
+
+    def clear_edge_highlight() -> None:
+        st.session_state["ways_highlight_node_id"] = None
+
     st.markdown(
         "Двойной клик по кружку откроет справочник. "
         "Одинарный клик подсветит связи."
@@ -102,9 +108,13 @@ def _render_map(
             st.session_state["last_click_id"] = clicked_id
             st.rerun()
         else:
-            st.session_state["ways_highlight_node_id"] = clicked_id
+            if st.session_state.get("ways_highlight_node_id") != clicked_id:
+                apply_edge_highlight(clicked_id)
+                st.rerun()
     elif background_clicked:
-        st.session_state["ways_highlight_node_id"] = None
+        if st.session_state.get("ways_highlight_node_id") is not None:
+            clear_edge_highlight()
+            st.rerun()
 
     st.session_state["last_click_id"] = clicked_id
     st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")

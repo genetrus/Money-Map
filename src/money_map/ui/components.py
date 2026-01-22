@@ -606,10 +606,7 @@ def build_ways14_agraph_graph(
     for source, target, attrs in graph.edges(data=True):
         kind = attrs.get("kind")
         is_highlighted = highlighted_node_id in {source, target}
-        if highlighted_node_id:
-            base_color = "#9CA3AF"
-        else:
-            base_color = "#9CA3AF" if kind == "tag" else "#2563EB"
+        base_color = "#9CA3AF"
         edge_color = "#2E7D32" if is_highlighted else base_color
         base_width = attrs.get("width", 1)
         edge_width = max(base_width + 2, 3) if is_highlighted else base_width
