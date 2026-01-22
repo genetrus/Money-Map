@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import re
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import streamlit as st
@@ -63,6 +64,7 @@ def init_session_state() -> None:
     st.session_state.setdefault("ways_highlight_node_id", None)
     st.session_state.setdefault("ways_last_click_id", None)
     st.session_state.setdefault("ways_last_click_ts", None)
+    st.session_state.setdefault("ways_last_click_is_double", False)
     st.session_state.setdefault("request_tab", None)
     st.session_state.setdefault("pending_selected_tax_id", None)
 
@@ -539,6 +541,10 @@ def _taxonomy_tooltip_text(item: TaxonomyItem) -> str:
     )
 
 
+def _strip_anchor_tags(text: str) -> str:
+    return re.sub(r"</?a\b[^>]*>", "", text, flags=re.IGNORECASE)
+
+
 def build_ways14_agraph_graph(
     app_data: AppData,
     outside_only: bool,
@@ -592,6 +598,7 @@ def build_ways14_agraph_graph(
             item = taxonomy_items.get(tax_id)
             if item:
                 title = _taxonomy_tooltip_text(item)
+        title = _strip_anchor_tags(title)
 
         nodes.append(
             Node(
