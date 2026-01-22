@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import streamlit as st
 import streamlit.components.v1 as components_html
@@ -547,23 +547,40 @@ def _strip_markdown_links(text: str) -> str:
     return re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
 
 
-def _sanitize_agraph_nodes(nodes: Iterable[object]) -> List[Dict[str, object]]:
-    out: List[Dict[str, object]] = []
+def _sanitize_nodes_inplace(nodes: List[Node]) -> List[tuple[str, str, object]]:
+    bad: List[tuple[str, str, object]] = []
     for node in nodes:
-        node_dict = node.__dict__.copy() if hasattr(node, "__dict__") else dict(node)
-        for bad in ("url", "href", "link", "target", "openNewTab"):
-            node_dict.pop(bad, None)
-        for key in ("label", "title"):
-            value = node_dict.get(key)
-            if isinstance(value, str):
-                cleaned = (
-                    value.replace("<a", "")
+        for attr in ("url", "href", "link", "target", "openNewTab"):
+            if hasattr(node, attr):
+                try:
+                    setattr(node, attr, None)
+                except Exception:
+                    pass
+            if hasattr(node, "__dict__") and attr in node.__dict__:
+                node.__dict__.pop(attr, None)
+
+        if hasattr(node, "label") and isinstance(node.label, str):
+            if "<a" in node.label or "href=" in node.label:
+                node.label = (
+                    node.label.replace("<a", "")
                     .replace("href=", "")
                     .replace("target=", "")
                 )
-                node_dict[key] = cleaned
-        out.append(node_dict)
-    return out
+        if hasattr(node, "title") and isinstance(node.title, str):
+            if "<a" in node.title or "href=" in node.title:
+                node.title = (
+                    node.title.replace("<a", "")
+                    .replace("href=", "")
+                    .replace("target=", "")
+                )
+
+        if hasattr(node, "__dict__"):
+            for attr in ("url", "href", "link"):
+                value = node.__dict__.get(attr)
+                if value:
+                    bad.append((node.id, attr, value))
+
+    return bad
 
 
 def build_ways14_agraph_graph(
