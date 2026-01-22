@@ -91,16 +91,12 @@ def _render_map(
         highlighted_node_id=st.session_state.get("ways_highlight_node_id"),
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
-    sanitized_nodes = components._sanitize_agraph_nodes(nodes)
-    if __debug__:
-        bad_nodes = [
-            node
-            for node in sanitized_nodes
-            if any(key in node for key in ("url", "href", "link", "target"))
-        ]
-        assert not bad_nodes, f"Found link fields in nodes: {bad_nodes[:1]}"
+    bad_nodes = components._sanitize_nodes_inplace(nodes)
+    if bad_nodes:
+        st.error(f"Found link fields in nodes (must be NONE): {bad_nodes[:3]}")
+    st.caption("agraph nodes sanitized: url/href/link removed (check st.error above)")
 
-    result = agraph(nodes=sanitized_nodes, edges=edges, config=config)
+    result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = _get_clicked_id(result)
     dbl = False
     if clicked_id is not None:
@@ -128,11 +124,7 @@ def _render_map(
             st.session_state["ways_highlight_node_id"] = None
             st.rerun()
 
-    st.caption(f"clicked_id={clicked_id} dbl={dbl}")
-    st.caption(
-        "NOTE: If a new tab still opens, some node still contains "
-        "url/href/link/target inside agraph."
-    )
+
 
 
 def _render_directory(
