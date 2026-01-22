@@ -60,6 +60,11 @@ def init_session_state() -> None:
     st.session_state.setdefault("active_tab", "Карта")
     st.session_state.setdefault("last_click_id", None)
     st.session_state.setdefault("matrix_focus_cell", None)
+    st.session_state.setdefault("ways_highlight_node_id", None)
+    st.session_state.setdefault("ways_last_click_id", None)
+    st.session_state.setdefault("ways_last_click_ts", None)
+    st.session_state.setdefault("request_tab", None)
+    st.session_state.setdefault("pending_selected_tax_id", None)
 
 
 def set_page(page: str) -> None:
@@ -418,7 +423,7 @@ CLASSIFIER_GROUP_CONFIG: Dict[str, Dict[str, object]] = {
         "color": "#2A9D8F",
         "ids": {"access", "attention", "capital", "property", "result", "risk", "time"},
     },
-    "to": {
+    "to_whom": {
         "label": "Кому",
         "color": "#E9C46A",
         "ids": {"many_people", "market", "platform", "single_client", "state"},
@@ -432,7 +437,7 @@ CLASSIFIER_GROUP_CONFIG: Dict[str, Dict[str, object]] = {
 
 
 def classifier_legend_items() -> List[Tuple[str, str, str]]:
-    order = ("sell", "to", "value")
+    order = ("sell", "to_whom", "value")
     items: List[Tuple[str, str, str]] = []
     for group in order:
         config = CLASSIFIER_GROUP_CONFIG[group]
@@ -465,7 +470,8 @@ def _classifier_tag_style(attrs: Dict[str, object], node_id: str) -> Optional[Di
     group = attrs.get("group")
     if not isinstance(group, str):
         group = node_id.split(":", 1)[0] if ":" in node_id else ""
-    tag_id = node_id.split(":", 1)[1] if ":" in node_id else ""
+    group = _normalize_classifier_group(group)
+    tag_id = node_id.split(":", 1)[1] if ":" in node_id else node_id
     config = CLASSIFIER_GROUP_CONFIG.get(group)
     if not config:
         return None
@@ -478,6 +484,12 @@ def _classifier_tag_style(attrs: Dict[str, object], node_id: str) -> Optional[Di
         "border_color": _darken_hex(color),
         "font_color": _text_color_for_background(color),
     }
+
+
+def _normalize_classifier_group(group: str) -> str:
+    if group in {"to", "to_whom"}:
+        return "to_whom"
+    return group
 
 
 def wrap_label(text: str, max_chars_per_line: int = 12, max_lines: int = 3) -> str:
@@ -609,7 +621,7 @@ def build_ways14_agraph_graph(
         base_color = "#9CA3AF"
         edge_color = "#2E7D32" if is_highlighted else base_color
         base_width = attrs.get("width", 1)
-        edge_width = max(base_width + 2, 3) if is_highlighted else base_width
+        edge_width = max(base_width + 3, 4) if is_highlighted else base_width
         edges.append(
             Edge(
                 source=source,
