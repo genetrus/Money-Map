@@ -9,6 +9,30 @@ from money_map.core.model import AppData, TaxonomyItem
 from money_map.ui import components
 
 
+def _parse_agraph_clicked_id(result: object) -> str | None:
+    if isinstance(result, str):
+        return result or None
+    if not isinstance(result, dict):
+        return None
+
+    def _extract_from_value(value: object) -> str | None:
+        if isinstance(value, str):
+            return value or None
+        if isinstance(value, dict):
+            node_id = value.get("id")
+            return node_id if isinstance(node_id, str) else None
+        if isinstance(value, list) and value:
+            return _extract_from_value(value[0])
+        return None
+
+    for key in ("selected_node", "selectedNodes", "selected_nodes", "selectedNode", "node"):
+        node_id = _extract_from_value(result.get(key))
+        if node_id:
+            return node_id
+
+    return _extract_from_value(result.get("nodes"))
+
+
 def _render_map(
     data: AppData,
     filtered_items: list[TaxonomyItem],
@@ -68,19 +92,7 @@ def _render_map(
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
     result = agraph(nodes=nodes, edges=edges, config=config)
-    clicked_id = None
-    if isinstance(result, dict):
-        if result.get("selected_node"):
-            clicked_id = result["selected_node"]
-        elif result.get("selectedNodes"):
-            clicked_id = result["selectedNodes"][0]
-        elif result.get("nodes") is not None:
-            nodes_value = result.get("nodes", [])
-            if nodes_value:
-                first_node = nodes_value[0]
-                clicked_id = first_node.get("id") if isinstance(first_node, dict) else first_node
-    elif isinstance(result, str):
-        clicked_id = result
+    clicked_id = _parse_agraph_clicked_id(result)
 
     if clicked_id and isinstance(clicked_id, str):
         now = time.monotonic()
@@ -93,10 +105,10 @@ def _render_map(
         )
         st.session_state["ways_last_click_ts"] = now
         st.session_state["ways_last_click_id"] = clicked_id
-        if st.session_state.get("ways_highlight_node_id") != clicked_id:
-            st.session_state["ways_highlight_node_id"] = clicked_id
-            if not is_double_click:
-                st.rerun()
+        st.session_state["ways_last_click_is_double"] = is_double_click
+        st.session_state["ways_highlight_node_id"] = clicked_id
+        if not is_double_click:
+            st.rerun()
         if is_double_click and clicked_id.startswith("tax:"):
             selected_tax_id = clicked_id.removeprefix("tax:")
             st.session_state["pending_selected_tax_id"] = selected_tax_id
@@ -104,12 +116,18 @@ def _render_map(
             st.session_state["last_click_id"] = clicked_id
             st.rerun()
     elif clicked_id is None:
+        st.session_state["ways_last_click_id"] = None
+        st.session_state["ways_last_click_is_double"] = False
         if st.session_state.get("ways_highlight_node_id") is not None:
             st.session_state["ways_highlight_node_id"] = None
             st.rerun()
 
     st.session_state["last_click_id"] = clicked_id
-    st.caption(f"Последний клик: {st.session_state.get('last_click_id') or '—'}")
+    st.caption(
+        "Последний клик: "
+        f"{st.session_state.get('ways_last_click_id') or '—'} "
+        f"(dblclick: {'yes' if st.session_state.get('ways_last_click_is_double') else 'no'})"
+    )
 
 
 def _render_directory(
