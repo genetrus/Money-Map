@@ -14,29 +14,10 @@ def _render_map(
     filtered_items: list[TaxonomyItem],
     allowed_taxonomy_ids: set[str],
 ) -> None:
-    def apply_edge_highlight(node_id: str) -> None:
-        st.session_state["ways_highlight_node_id"] = node_id
-
-    def clear_edge_highlight() -> None:
-        st.session_state["ways_highlight_node_id"] = None
-
     st.markdown(
         "Двойной клик по кружку откроет справочник. "
         "Одинарный клик подсветит связи."
     )
-    legend_items = components.classifier_legend_items()
-    legend_html = " ".join(
-        (
-            "<span style='display:inline-flex;align-items:center;"
-            "margin-right:16px;gap:6px;'>"
-            f"<span style='width:10px;height:10px;border-radius:50%;"
-            f"background:{color};border:1px solid {border};display:inline-block;'></span>"
-            f"<span>{label}</span>"
-            "</span>"
-        )
-        for label, color, border in legend_items
-    )
-    st.markdown(legend_html, unsafe_allow_html=True)
     controls = st.columns([2, 2])
     show_tags = controls[0].checkbox(
         "Показать классификаторы вторым кольцом",
@@ -50,6 +31,20 @@ def _render_map(
             "а по правилам системы или отношениям."
         ),
     )
+    if show_tags:
+        legend_items = components.classifier_legend_items()
+        legend_html = " ".join(
+            (
+                "<span style='display:inline-flex;align-items:center;"
+                "margin-right:16px;gap:6px;'>"
+                f"<span style='width:10px;height:10px;border-radius:50%;"
+                f"background:{color};border:1px solid {border};display:inline-block;'></span>"
+                f"<span>{label}</span>"
+                "</span>"
+            )
+            for label, color, border in legend_items
+        )
+        st.markdown(legend_html, unsafe_allow_html=True)
     available_items = [
         item
         for item in filtered_items
@@ -74,7 +69,6 @@ def _render_map(
     )
     result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = None
-    background_clicked = False
     if isinstance(result, dict):
         if result.get("selected_node"):
             clicked_id = result["selected_node"]
@@ -85,35 +79,33 @@ def _render_map(
             if nodes_value:
                 first_node = nodes_value[0]
                 clicked_id = first_node.get("id") if isinstance(first_node, dict) else first_node
-            else:
-                background_clicked = True
     elif isinstance(result, str):
         clicked_id = result
 
     if clicked_id and isinstance(clicked_id, str):
         now = time.monotonic()
-        last_click_time = st.session_state.get("ways_last_click_time")
+        last_click_ts = st.session_state.get("ways_last_click_ts")
         last_click_id = st.session_state.get("ways_last_click_id")
         is_double_click = (
             last_click_id == clicked_id
-            and last_click_time is not None
-            and now - last_click_time <= 0.25
+            and last_click_ts is not None
+            and now - last_click_ts <= 0.9
         )
-        st.session_state["ways_last_click_time"] = now
+        st.session_state["ways_last_click_ts"] = now
         st.session_state["ways_last_click_id"] = clicked_id
+        if st.session_state.get("ways_highlight_node_id") != clicked_id:
+            st.session_state["ways_highlight_node_id"] = clicked_id
+            if not is_double_click:
+                st.rerun()
         if is_double_click and clicked_id.startswith("tax:"):
             selected_tax_id = clicked_id.removeprefix("tax:")
             st.session_state["pending_selected_tax_id"] = selected_tax_id
             st.session_state["request_tab"] = "Справочник"
             st.session_state["last_click_id"] = clicked_id
             st.rerun()
-        else:
-            if st.session_state.get("ways_highlight_node_id") != clicked_id:
-                apply_edge_highlight(clicked_id)
-                st.rerun()
-    elif background_clicked:
+    elif clicked_id is None:
         if st.session_state.get("ways_highlight_node_id") is not None:
-            clear_edge_highlight()
+            st.session_state["ways_highlight_node_id"] = None
             st.rerun()
 
     st.session_state["last_click_id"] = clicked_id
@@ -141,13 +133,15 @@ def _render_directory(
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    if "pending_selected_tax_id" in st.session_state:
-        st.session_state["selected_tax_id"] = st.session_state["pending_selected_tax_id"]
-        del st.session_state["pending_selected_tax_id"]
+    pending_tax_id = st.session_state.get("pending_selected_tax_id")
+    if pending_tax_id:
+        st.session_state["selected_tax_id"] = pending_tax_id
+        st.session_state["pending_selected_tax_id"] = None
 
-    if "request_tab" in st.session_state:
-        st.session_state["active_tab"] = st.session_state["request_tab"]
-        del st.session_state["request_tab"]
+    requested_tab = st.session_state.get("request_tab")
+    if requested_tab:
+        st.session_state["active_tab"] = requested_tab
+        st.session_state["request_tab"] = None
 
     st.title("Способы получения денег")
     allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
