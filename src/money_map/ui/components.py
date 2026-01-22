@@ -547,6 +547,25 @@ def _strip_markdown_links(text: str) -> str:
     return re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
 
 
+def _sanitize_agraph_nodes(nodes: Iterable[object]) -> List[Dict[str, object]]:
+    out: List[Dict[str, object]] = []
+    for node in nodes:
+        node_dict = node.__dict__.copy() if hasattr(node, "__dict__") else dict(node)
+        for bad in ("url", "href", "link", "target", "openNewTab"):
+            node_dict.pop(bad, None)
+        for key in ("label", "title"):
+            value = node_dict.get(key)
+            if isinstance(value, str):
+                cleaned = (
+                    value.replace("<a", "")
+                    .replace("href=", "")
+                    .replace("target=", "")
+                )
+                node_dict[key] = cleaned
+        out.append(node_dict)
+    return out
+
+
 def build_ways14_agraph_graph(
     app_data: AppData,
     outside_only: bool,
@@ -572,6 +591,11 @@ def build_ways14_agraph_graph(
         if not isinstance(label_text, str):
             label_text = str(label_text)
         label_text = _strip_markdown_links(_strip_anchor_tags(label_text))
+        label_text = (
+            label_text.replace("<br />", "\n")
+            .replace("<br/>", "\n")
+            .replace("<br>", "\n")
+        )
         if kind == "tag":
             wrapped = wrap_label(label_text, max_chars_per_line=10, max_lines=2)
             base_size = 40
@@ -606,6 +630,11 @@ def build_ways14_agraph_graph(
             if item:
                 title = _taxonomy_tooltip_text(item)
         title = _strip_markdown_links(_strip_anchor_tags(title))
+        title = (
+            title.replace("<br />", "\n")
+            .replace("<br/>", "\n")
+            .replace("<br>", "\n")
+        )
 
         nodes.append(
             Node(
