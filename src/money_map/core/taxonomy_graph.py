@@ -105,12 +105,12 @@ def build_taxonomy_star(
 
 def _taxonomy_tooltip(item: TaxonomyItem) -> str:
     return (
-        f"{item.name}<br>"
-        f"{item.description}<br>"
-        f"Продаём: {', '.join(item.sell) or '—'}<br>"
-        f"Кому: {', '.join(item.to_whom) or '—'}<br>"
-        f"Мера ценности: {', '.join(item.value) or '—'}<br>"
-        f"Типовые ячейки: {', '.join(item.typical_cells) or '—'}<br>"
+        f"{item.name}\n"
+        f"{item.description}\n"
+        f"Продаём: {', '.join(item.sell) or '—'}\n"
+        f"Кому: {', '.join(item.to_whom) or '—'}\n"
+        f"Мера ценности: {', '.join(item.value) or '—'}\n"
+        f"Типовые ячейки: {', '.join(item.typical_cells) or '—'}\n"
         f"Вне рынка: {'Да' if item.outside_market else 'Нет'}"
     )
 

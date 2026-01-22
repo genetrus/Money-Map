@@ -531,10 +531,10 @@ def _taxonomy_tooltip_text(item: TaxonomyItem) -> str:
     value = ", ".join(item.value) or "—"
     outside_label = _outside_market_label(item.outside_market)
     return (
-        f"{item.name}<br>"
-        f"{outside_label}<br>"
-        f"sell: {sell}<br>"
-        f"to: {to_whom}<br>"
+        f"{item.name}\n"
+        f"{outside_label}\n"
+        f"sell: {sell}\n"
+        f"to: {to_whom}\n"
         f"value: {value}"
     )
 
