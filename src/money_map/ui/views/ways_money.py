@@ -88,9 +88,7 @@ def _render_map(
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
     components._sanitize_nodes_inplace(nodes)
-    focus_id = st.session_state.get("ways_map_focus_id")
-    graph_key = f"ways_map_{focus_id or 'none'}_{show_tags}_{outside_only}"
-    result = agraph(nodes=nodes, edges=edges, config=config, key=graph_key)
+    result = agraph(nodes=nodes, edges=edges, config=config)
     clicked_id = _get_clicked_id(result)
     has_selection_keys = isinstance(result, dict) and any(
         key in result for key in ("selected_node", "selectedNodes", "selected_nodes", "selectedNode", "node", "nodes")
