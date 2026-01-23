@@ -14,6 +14,7 @@ def go_to_section(
     bridge_id: Optional[str] = None,
     route_id: Optional[str] = None,
     variant_id: Optional[str] = None,
+    classifier: Optional[object] = None,
     tab: Optional[str] = None,
     open_tab: Optional[str] = None,
     variant_cell_filter: Optional[str] = None,
@@ -53,6 +54,8 @@ def go_to_section(
         st.session_state["request_selected_route_id"] = route_id
     if variant_id is not None:
         st.session_state["request_selected_variant_id"] = variant_id
+    if classifier is not None:
+        st.session_state["request_classifier_filters"] = classifier
     if variant_cell_filter is not None:
         st.session_state["request_variant_cell_filter"] = variant_cell_filter
     if target_tab is not None:

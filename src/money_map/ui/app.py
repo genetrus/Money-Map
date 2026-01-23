@@ -75,6 +75,33 @@ def main() -> None:
         route_id = st.session_state.pop("request_selected_route_id")
         st.session_state["selected_route_id"] = route_id
         st.session_state["selected_path"] = route_id
+    if "request_classifier_filters" in st.session_state:
+        request = st.session_state.pop("request_classifier_filters")
+        current = st.session_state.get(
+            "selected_classifier_filters",
+            {"what_sell": [], "to_whom": [], "value_measure": []},
+        )
+
+        def _apply_classifier(group: str, value: str) -> None:
+            if not group or not value:
+                return
+            values = list(current.get(group, []))
+            if value not in values:
+                values.append(value)
+            current[group] = values
+
+        if isinstance(request, list):
+            for item in request:
+                if isinstance(item, dict):
+                    _apply_classifier(item.get("group", ""), item.get("id", ""))
+                elif isinstance(item, tuple) and len(item) == 2:
+                    _apply_classifier(item[0], item[1])
+        elif isinstance(request, dict):
+            _apply_classifier(request.get("group", ""), request.get("id", ""))
+        elif isinstance(request, tuple) and len(request) == 2:
+            _apply_classifier(request[0], request[1])
+
+        st.session_state["selected_classifier_filters"] = current
     if "request_filter_risk" in st.session_state:
         st.session_state["filter_risk"] = st.session_state.pop("request_filter_risk")
     if "request_filter_activity" in st.session_state:
