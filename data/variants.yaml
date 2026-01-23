@@ -35,7 +35,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: support_service
+    role_family: SUPPORT
 - id: salary_admin
   title: Администратор офиса/сервиса
   kind: job
@@ -70,7 +70,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: admin_office
+    role_family: ADMIN
 - id: salary_junior_analyst
   title: Младший аналитик/ассистент
   kind: job
@@ -105,7 +105,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: salary_support
   title: Специалист поддержки/модерации
   kind: job
@@ -140,7 +140,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: support_service
+    role_family: SUPPORT
 - id: salary_shift_logistics
   title: Сменный сотрудник склада/логистики
   kind: job
@@ -175,7 +175,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: logistics
+    role_family: LOGISTICS
 - id: fee_result_consulting
   title: Разовая консультация с фикс-ценой
   kind: service
@@ -210,7 +210,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: fee_result_design
   title: Дизайн-проект под ключ
   kind: service
@@ -245,7 +245,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: fee_result_repair
   title: Ремонт/монтаж за фикс-цену
   kind: service
@@ -280,7 +280,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: maintenance
+    role_family: MAINTENANCE
 - id: fee_result_web_package
   title: Пакет лендингов/сайтов
   kind: service
@@ -316,7 +316,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: fee_result_ad_setup
   title: Настройка рекламы под KPI
   kind: service
@@ -351,7 +351,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: commission_sales
   title: Продажи за процент
   kind: service
@@ -387,7 +387,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: commission_real_estate
   title: Риэлторская комиссия
   kind: service
@@ -423,7 +423,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: commission_affiliate
   title: Партнёрские продажи (affiliate)
   kind: business_model
@@ -460,7 +460,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: commission_broker
   title: Брокерские сделки B2B
   kind: service
@@ -496,7 +496,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: commission_trade_rep
   title: Торговый представитель с %
   kind: job
@@ -532,7 +532,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: entrepreneurship_service_team
   title: Сервис с командой (услуга под ключ)
   kind: business_model
@@ -568,7 +568,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: entrepreneurship_resell
   title: Купил-улучшил-продал
   kind: business_model
@@ -604,7 +604,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: operations
+    role_family: OPS
 - id: entrepreneurship_subscription
   title: Подписка на сервис
   kind: business_model
@@ -639,7 +639,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: entrepreneurship_franchise
   title: Франшиза/масштабирование точки
   kind: business_model
@@ -675,7 +675,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: entrepreneurship_marketplace
   title: Запуск продажи на маркетплейсе
   kind: business_model
@@ -712,7 +712,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: operations
+    role_family: OPS
 - id: rent_access_flat
   title: Аренда квартиры/комнаты
   kind: asset_for_rent
@@ -748,7 +748,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: rent_access_equipment
   title: Аренда оборудования
   kind: asset_for_rent
@@ -784,7 +784,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: rent_access_workspace
   title: Коворкинг/рабочие места
   kind: asset_for_rent
@@ -820,7 +820,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: rent_access_storage
   title: Склад/хранение под аренду
   kind: asset_for_rent
@@ -856,7 +856,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: logistics
+    role_family: LOGISTICS
 - id: rent_access_license
   title: Лицензирование доступа
   kind: instrument
@@ -892,7 +892,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: admin_office
+    role_family: ADMIN
 - id: interest_dividends_bonds
   title: Облигации/купоны
   kind: instrument
@@ -927,7 +927,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: interest_dividends_deposit
   title: Банковский депозит
   kind: instrument
@@ -962,7 +962,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: interest_dividends_dividends
   title: Дивидендный портфель
   kind: instrument
@@ -997,7 +997,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: interest_dividends_loan
   title: Частное кредитование
   kind: instrument
@@ -1032,7 +1032,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: interest_dividends_note
   title: Нотные/структурные выплаты
   kind: instrument
@@ -1067,7 +1067,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: appreciation_growth_stocks
   title: Акции роста
   kind: instrument
@@ -1102,7 +1102,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: appreciation_crypto
   title: Крипто-активы
   kind: instrument
@@ -1137,7 +1137,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: appreciation_collectibles
   title: Коллекционные предметы
   kind: asset_for_rent
@@ -1172,7 +1172,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: appreciation_land
   title: Спекулятивная недвижимость/земля
   kind: asset_for_rent
@@ -1207,7 +1207,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: appreciation_startup_equity
   title: Доля в стартапе
   kind: instrument
@@ -1242,7 +1242,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: ip_product_course
   title: Онлайн-курс/гайд
   kind: ip_product
@@ -1278,7 +1278,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: ip_product_template
   title: Шаблоны/документы
   kind: ip_product
@@ -1314,7 +1314,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: ip_product_app
   title: Микро-приложение/SaaS
   kind: ip_product
@@ -1351,7 +1351,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: ip_product_music
   title: Музыка/стоковый контент
   kind: ip_product
@@ -1387,7 +1387,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: ip_product_book
   title: Книга/методичка
   kind: ip_product
@@ -1423,7 +1423,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: audience_youtube
   title: YouTube-канал с рекламой
   kind: audience_channel
@@ -1461,7 +1461,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: audience_newsletter
   title: Email-рассылка с подпиской
   kind: audience_channel
@@ -1497,7 +1497,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: audience_tg_channel
   title: Телеграм-канал с рекламой
   kind: audience_channel
@@ -1534,7 +1534,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: audience_community
   title: Платное сообщество/подписка
   kind: audience_channel
@@ -1570,7 +1570,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: management
+    role_family: UNKNOWN
 - id: audience_sponsorship
   title: Спонсорские интеграции
   kind: audience_channel
@@ -1607,7 +1607,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: sales
+    role_family: SALES
 - id: data_compute_analytics
   title: Аналитика/дашборды как услуга
   kind: service
@@ -1643,7 +1643,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: data_compute_api
   title: Платный API/доступ к данным
   kind: business_model
@@ -1679,7 +1679,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: data_compute_automation
   title: Автоматизация процессов
   kind: service
@@ -1715,7 +1715,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: operations
+    role_family: OPS
 - id: data_compute_cloud
   title: Доступ к вычислениям/серверу
   kind: business_model
@@ -1751,7 +1751,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: operations
+    role_family: OPS
 - id: data_compute_data_product
   title: Продукт данных (обновляемая база)
   kind: ip_product
@@ -1787,7 +1787,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: grants_prizes_grant
   title: Грантовая заявка на проект
   kind: grant_program
@@ -1822,7 +1822,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: admin_office
+    role_family: ADMIN
 - id: grants_prizes_competition
   title: Конкурс/премия в профессии
   kind: grant_program
@@ -1857,7 +1857,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: content_creative
+    role_family: CONTENT
 - id: grants_prizes_scholarship
   title: Стипендия на обучение
   kind: grant_program
@@ -1892,7 +1892,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: admin_office
+    role_family: ADMIN
 - id: grants_prizes_research
   title: Исследовательский грант
   kind: grant_program
@@ -1927,7 +1927,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: grants_prizes_innovation
   title: Приз за инновацию
   kind: grant_program
@@ -1962,7 +1962,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: transfers_insurance_unemployment
   title: Пособие по безработице
   kind: benefit_case
@@ -1996,7 +1996,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: transfers_insurance_health
   title: Страховая выплата по событию
   kind: insurance_case
@@ -2031,7 +2031,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: transfers_insurance_child
   title: Социальные выплаты на ребёнка
   kind: benefit_case
@@ -2065,7 +2065,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: transfers_insurance_subsidy
   title: Субсидия на жильё/коммуналку
   kind: benefit_case
@@ -2099,7 +2099,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: transfers_insurance_disaster
   title: Выплата при страховом случае
   kind: insurance_case
@@ -2133,7 +2133,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: gifts_inheritance_family
   title: Поддержка семьи
   kind: benefit_case
@@ -2167,7 +2167,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: gifts_inheritance_sponsor
   title: Спонсорство/меценатство
   kind: benefit_case
@@ -2201,7 +2201,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: gifts_inheritance_gift
   title: Разовый подарок/донат
   kind: benefit_case
@@ -2235,7 +2235,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: gifts_inheritance_inheritance
   title: Наследство
   kind: benefit_case
@@ -2269,7 +2269,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: gifts_inheritance_patron
   title: Патроны/подписчики поддержки
   kind: benefit_case
@@ -2303,7 +2303,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: unknown
+    role_family: UNKNOWN
 - id: savings_effect_budget
   title: Бюджетирование и контроль расходов
   kind: saving_strategy
@@ -2335,7 +2335,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: savings_effect_subscriptions
   title: Оптимизация подписок
   kind: saving_strategy
@@ -2367,7 +2367,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: savings_effect_tariffs
   title: Пересмотр тарифов и условий
   kind: saving_strategy
@@ -2399,7 +2399,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS
 - id: savings_effect_energy
   title: Энергоэффективность дома
   kind: saving_strategy
@@ -2431,7 +2431,7 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: maintenance
+    role_family: MAINTENANCE
 - id: savings_effect_debt
   title: Снижение переплат по долгам
   kind: saving_strategy
@@ -2463,4 +2463,4 @@ variants:
     task_profile: []
     environment: null
     social_intensity: null
-    role_family: analytics
+    role_family: ANALYTICS

@@ -121,8 +121,9 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_library_mechanism", "all")
     st.session_state.setdefault("variants_library_cell", "all")
     st.session_state.setdefault("variants_library_kind", "all")
-    st.session_state.setdefault("activity_role_family_ids", [])
+    st.session_state.setdefault("activity_role_families", [])
     st.session_state.setdefault("activity_role_family_multi", False)
+    st.session_state.setdefault("activity_role_family_mode", "single")
     st.session_state.setdefault("activity_role_family_multi_select", [])
     st.session_state.setdefault("activity_role_family_single", None)
     st.session_state.setdefault("shortlist", {})
@@ -135,7 +136,7 @@ def init_session_state() -> None:
             "selected_mechanism_ids": [],
             "selected_route_id": None,
             "selected_bridge_ids": [],
-            "activity_role_family_ids": [],
+            "activity_role_families": [],
             "risk": "all",
             "activity": "all",
             "scalability": "all",
@@ -204,12 +205,12 @@ def sync_selection_context() -> dict[str, object]:
     selection.setdefault("selected_matrix_cell", None)
     selection.setdefault("selected_transition", None)
     selection.setdefault("selected_route_id", None)
-    selection.setdefault("activity_role_family_ids", [])
+    selection.setdefault("activity_role_families", [])
 
     selection["selected_matrix_cell"] = st.session_state.get("selected_cell_id")
     selection["selected_transition"] = st.session_state.get("selected_transition")
     selection["selected_route_id"] = st.session_state.get("selected_route_id")
-    selection["activity_role_family_ids"] = st.session_state.get("activity_role_family_ids", [])
+    selection["activity_role_families"] = st.session_state.get("activity_role_families", [])
     selection["risk"] = st.session_state.get("filter_risk", "all")
     selection["activity"] = st.session_state.get("filter_activity", "all")
     selection["scalability"] = st.session_state.get("filter_scalability", "all")
