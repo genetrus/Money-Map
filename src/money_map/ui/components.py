@@ -52,6 +52,8 @@ def reset_cache() -> None:
 
 def init_session_state() -> None:
     st.session_state.setdefault("page", DEFAULT_PAGE)
+    st.session_state.setdefault("nav_section", DEFAULT_PAGE)
+    st.session_state.setdefault("nav_payload", None)
     st.session_state.setdefault("current_page", DEFAULT_PAGE)
     st.session_state.setdefault("active_section", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
@@ -75,9 +77,11 @@ def init_session_state() -> None:
     st.session_state.setdefault("search_selected_result", None)
     st.session_state.setdefault("search_results_limit", 10)
     st.session_state.setdefault("active_tab", "Карта")
+    st.session_state.setdefault("ways_tab", "Карта")
     st.session_state.setdefault("last_click_id", None)
     st.session_state.setdefault("matrix_focus_cell", None)
     st.session_state.setdefault("ways_highlight_node_id", None)
+    st.session_state.setdefault("ways_map_focus_id", None)
     st.session_state.setdefault("ways_last_click_id", None)
     st.session_state.setdefault("ways_last_click_ts", None)
     st.session_state.setdefault("ways_last_click_is_double", False)
@@ -242,6 +246,7 @@ def axis_label(axis: str, value: str) -> str:
 def set_page(page: str) -> None:
     st.session_state["page"] = page
     st.session_state["active_section"] = page
+    st.session_state["nav_section"] = page
 
 
 def set_selected_cell(cell_id: Optional[str]) -> None:
@@ -503,6 +508,126 @@ def render_taxonomy_details_card(
             st.caption("Как меряется")
             st.markdown(_chips(item.value))
 
+        def _show_more_key(suffix: str) -> str:
+            return f"ways-links-{item.id}-{suffix}-more"
+
+        def _toggle_show_more(suffix: str) -> None:
+            st.session_state[_show_more_key(suffix)] = True
+
+        def _render_link_group(
+            title: str,
+            entries: list[tuple[str, dict[str, object]]],
+            suffix: str,
+        ) -> None:
+            st.markdown(f"**{title}**")
+            if not entries:
+                st.caption("—")
+                return
+            show_all = bool(st.session_state.get(_show_more_key(suffix), False))
+            visible = entries if show_all else entries[:5]
+            cols = st.columns(len(visible)) if visible else []
+            for idx, (label, payload) in enumerate(visible):
+                cols[idx].button(
+                    label,
+                    key=f"ways-links-{item.id}-{suffix}-{idx}-{label}",
+                    on_click=go_to_section,
+                    args=(payload.get("section", ""),),
+                    kwargs={k: v for k, v in payload.items() if k != "section"},
+                    use_container_width=True,
+                )
+            if not show_all and len(entries) > 5:
+                st.button(
+                    "Показать ещё",
+                    key=f"ways-links-{item.id}-{suffix}-show",
+                    on_click=_toggle_show_more,
+                    args=(suffix,),
+                )
+
+        st.markdown("#### Идеальная схема связей")
+        matrix_entries = [
+            (cell_id, {"section": "Матрица", "cell_id": cell_id})
+            for cell_id in item.typical_cells
+        ]
+        _render_link_group(
+            "Матрица",
+            matrix_entries,
+            "matrix",
+        )
+
+        sell_labels = [
+            (app_data.mappings.sell_items.get(tag).label if tag in app_data.mappings.sell_items else tag, tag)
+            for tag in item.sell
+        ]
+        to_whom_labels = [
+            (
+                app_data.mappings.to_whom_items.get(tag).label if tag in app_data.mappings.to_whom_items else tag,
+                tag,
+            )
+            for tag in item.to_whom
+        ]
+        value_labels = [
+            (
+                app_data.mappings.value_measures.get(tag).label if tag in app_data.mappings.value_measures else tag,
+                tag,
+            )
+            for tag in item.value
+        ]
+        classifier_entries: list[tuple[str, dict[str, object]]] = []
+        classifier_entries.extend(
+            [
+                (label, {"section": "Классификатор", "classifier": {"group": "what_sell", "id": tag}})
+                for label, tag in sell_labels
+            ]
+        )
+        classifier_entries.extend(
+            [
+                (label, {"section": "Классификатор", "classifier": {"group": "to_whom", "id": tag}})
+                for label, tag in to_whom_labels
+            ]
+        )
+        classifier_entries.extend(
+            [
+                (label, {"section": "Классификатор", "classifier": {"group": "value_measure", "id": tag}})
+                for label, tag in value_labels
+            ]
+        )
+        _render_link_group("Классификатор", classifier_entries, "classifier")
+
+        bridges = taxonomy_related_bridges(app_data, item)
+        bridge_entries = [
+            (bridge.name, {"section": "Мосты", "bridge_id": bridge.id})
+            for bridge in bridges
+        ]
+        _render_link_group("Мосты", bridge_entries, "bridges")
+
+        paths = taxonomy_related_paths(app_data, item)
+        route_entries = [
+            (path.name, {"section": "Маршруты", "route_id": path.id})
+            for path in paths
+        ]
+        _render_link_group("Маршруты", route_entries, "routes")
+
+        classifier_payload = []
+        classifier_payload.extend(
+            [{"group": "what_sell", "id": tag} for tag in item.sell]
+        )
+        classifier_payload.extend(
+            [{"group": "to_whom", "id": tag} for tag in item.to_whom]
+        )
+        classifier_payload.extend(
+            [{"group": "value_measure", "id": tag} for tag in item.value]
+        )
+        if st.button(
+            "Добавить в Варианты (конкретика)",
+            key=f"ways-links-{item.id}-variants",
+        ):
+            go_to_section(
+                "Варианты (конкретика)",
+                way_id=item.id,
+                variant_cell_filter=item.typical_cells[0] if item.typical_cells else "all",
+                classifier=classifier_payload if classifier_payload else None,
+            )
+
         st.markdown("#### Связанные ячейки матрицы (A1..P4)")
         if not item.typical_cells:
             st.caption("Нет типовых ячеек.")
@@ -535,7 +660,6 @@ def render_taxonomy_details_card(
                     go_to_section("Варианты (конкретика)", variant_id=variant.id, way_id=item.id)
 
         st.markdown("#### Связанные мосты")
-        bridges = taxonomy_related_bridges(app_data, item)
         if not bridges:
             st.caption("Нет связанных мостов.")
         else:

@@ -88,6 +88,14 @@ def _filter_routes(
 
 
 def render(data: AppData, filters: components.Filters) -> None:
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Маршруты":
+        route_id = payload.get("route_id")
+        if isinstance(route_id, str):
+            st.session_state["selected_route_id"] = route_id
+            st.session_state["selected_path"] = route_id
+        st.session_state["nav_payload"] = None
+
     st.title("Маршруты")
 
     cell_lookup = components.cell_lookup(data)

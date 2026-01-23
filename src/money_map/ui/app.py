@@ -36,6 +36,16 @@ def main() -> None:
             st.write(f"- {err}")
         st.stop()
 
+    if "nav_intent" in st.session_state:
+        intent = st.session_state.pop("nav_intent")
+        if isinstance(intent, dict):
+            section = intent.get("section")
+            payload = intent.get("payload")
+            if isinstance(section, str):
+                st.session_state["nav_section"] = section
+            if isinstance(payload, dict):
+                st.session_state["nav_payload"] = payload
+
     st.sidebar.title("Money Map")
     if st.sidebar.button("Обновить данные"):
         components.reset_cache()
@@ -92,13 +102,15 @@ def main() -> None:
         st.session_state["matrix_axis_scalability"] = st.session_state.pop("request_matrix_axis_scalability")
 
     st.sidebar.markdown("### Навигация")
-    current_page = st.session_state.get("page", components.DEFAULT_PAGE)
+    current_page = st.session_state.get("nav_section", components.DEFAULT_PAGE)
     if current_page not in components.PAGES:
         current_page = components.DEFAULT_PAGE
+        st.session_state["nav_section"] = current_page
     page = st.sidebar.radio(
         "Разделы",
         components.PAGES,
         index=components.PAGES.index(current_page),
+        key="nav_section",
     )
     components.set_page(page)
 

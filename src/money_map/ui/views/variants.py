@@ -114,6 +114,22 @@ def render(data: AppData, filters: components.Filters) -> None:
     def _clear_classifier_filters() -> None:
         components.clear_classifier_selections()
 
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Варианты (конкретика)":
+        way_id = payload.get("way_id")
+        cell_id = payload.get("cell_id")
+        classifier = payload.get("classifier")
+        variant_cell_filter = payload.get("variant_cell_filter")
+        if isinstance(way_id, str):
+            st.session_state["selected_way_id"] = way_id
+        if isinstance(cell_id, str):
+            st.session_state["selected_cell_id"] = cell_id
+        if isinstance(variant_cell_filter, str):
+            st.session_state["variants_filter_cell"] = variant_cell_filter
+        if classifier is not None:
+            components.apply_classifier_filter_request(classifier)
+        st.session_state["nav_payload"] = None
+
     if "request_clear_variants_context" in st.session_state:
         st.session_state.pop("request_clear_variants_context")
         st.session_state["selected_cell_id"] = None

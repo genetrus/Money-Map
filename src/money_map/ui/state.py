@@ -40,24 +40,24 @@ def go_to_section(
     if open_tab is not None:
         target_tab = tab_aliases.get(open_tab, open_tab)
 
-    st.session_state["request_nav_section"] = target_section
+    payload: dict[str, object] = {"section": target_section}
     if way_id is not None:
-        st.session_state["request_selected_way_id"] = way_id
+        payload["way_id"] = way_id
     if cell_id is not None:
-        st.session_state["request_selected_cell_id"] = cell_id
-        st.session_state["request_matrix_focus_cell"] = cell_id
+        payload["cell_id"] = cell_id
     if transition is not None:
-        st.session_state["request_selected_transition"] = transition
+        payload["transition"] = transition
     if bridge_id is not None:
-        st.session_state["request_selected_bridge_id"] = bridge_id
+        payload["bridge_id"] = bridge_id
     if route_id is not None:
-        st.session_state["request_selected_route_id"] = route_id
+        payload["route_id"] = route_id
     if variant_id is not None:
-        st.session_state["request_selected_variant_id"] = variant_id
+        payload["variant_id"] = variant_id
     if classifier is not None:
-        st.session_state["request_classifier_filters"] = classifier
+        payload["classifier"] = classifier
     if variant_cell_filter is not None:
-        st.session_state["request_variant_cell_filter"] = variant_cell_filter
+        payload["variant_cell_filter"] = variant_cell_filter
     if target_tab is not None:
-        st.session_state["request_tab"] = target_tab
+        payload["tab"] = target_tab
+    st.session_state["nav_intent"] = {"section": target_section, "payload": payload}
     st.rerun()
