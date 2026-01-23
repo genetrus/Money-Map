@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from money_map.core.model import Variant
+from money_map.domain.activity_profile import role_family_label
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,7 @@ class NormalizedVariant:
     success_metrics: list[str]
     related_variant_ids: list[str]
     notes: str | None
+    activity_role_family: str
     raw: Variant
 
 
@@ -73,6 +75,7 @@ def normalize_variant(variant: Variant) -> NormalizedVariant:
         success_metrics=list(variant.success_metrics),
         related_variant_ids=list(variant.related_variant_ids),
         notes=variant.notes,
+        activity_role_family=variant.activity_profile.role_family,
         raw=variant,
     )
 
@@ -123,6 +126,7 @@ def match_score(
     selected_classifiers: dict[str, list[str]],
     selected_route_cells: list[str] | None,
     selected_bridge_ids: list[str],
+    selected_role_family_ids: list[str],
     strict: bool,
 ) -> MatchResult | None:
     score = 0.0
@@ -178,6 +182,17 @@ def match_score(
             reasons.append(f"Есть пересечение по мостам: {len(matched)}")
         elif strict:
             return None
+
+    if selected_role_family_ids:
+        if variant.activity_role_family in selected_role_family_ids:
+            score += 3
+            reasons.append(
+                f"Совпадает профиль деятельности: {role_family_label(variant.activity_role_family)}",
+            )
+        elif strict:
+            return None
+        else:
+            score -= 1
 
     return MatchResult(
         variant=variant,

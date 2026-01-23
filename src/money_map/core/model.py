@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from money_map.domain.activity_profile import DEFAULT_ROLE_FAMILY
 
 class Axis(BaseModel):
     id: str
@@ -46,6 +47,13 @@ class TaxonomyItem(BaseModel):
     examples: List[str]
 
 
+class ActivityProfile(BaseModel):
+    role_family: str = DEFAULT_ROLE_FAMILY
+    task_profile: List[str] = Field(default_factory=list)
+    environment: Optional[str] = None
+    social_intensity: Optional[str] = None
+
+
 class Variant(BaseModel):
     id: str
     title: str
@@ -65,6 +73,7 @@ class Variant(BaseModel):
     related_variant_ids: List[str]
     notes: Optional[str] = None
     bridge_ids: List[str] = Field(default_factory=list)
+    activity_profile: ActivityProfile = Field(default_factory=ActivityProfile)
 
 
 class PathItem(BaseModel):
