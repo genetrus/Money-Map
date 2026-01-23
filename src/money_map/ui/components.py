@@ -90,9 +90,118 @@ def init_session_state() -> None:
         "selected_classifier_filters",
         {"what_sell": [], "to_whom": [], "value_measure": []},
     )
+    st.session_state.setdefault("classifier_selected_what_sell", set())
+    st.session_state.setdefault("classifier_selected_to_whom", set())
+    st.session_state.setdefault("classifier_selected_value_measure", set())
+    st.session_state.setdefault("classifier_mode", "panel")
+    st.session_state.setdefault("classifier_selection_snapshot", {})
+    st.session_state.setdefault("classifier_directory_search", "")
+    st.session_state.setdefault("classifier_directory_group", "all")
     st.session_state.setdefault("matrix_axis_risk", "low")
     st.session_state.setdefault("matrix_axis_activity", "active")
     st.session_state.setdefault("matrix_axis_scalability", "linear")
+
+
+CLASSIFIER_SELECTION_KEYS = {
+    "what_sell": "classifier_selected_what_sell",
+    "to_whom": "classifier_selected_to_whom",
+    "value_measure": "classifier_selected_value_measure",
+}
+
+CLASSIFIER_GROUP_ALIASES = {
+    "sell": "what_sell",
+    "what_sell": "what_sell",
+    "to": "to_whom",
+    "to_whom": "to_whom",
+    "value": "value_measure",
+    "value_measure": "value_measure",
+}
+
+
+def normalize_classifier_group_key(group: str) -> Optional[str]:
+    if not group:
+        return None
+    normalized = CLASSIFIER_GROUP_ALIASES.get(group, group)
+    if normalized in CLASSIFIER_SELECTION_KEYS:
+        return normalized
+    return None
+
+
+def get_classifier_selection_state() -> dict[str, set[str]]:
+    return {
+        group: set(st.session_state.get(key, set()))
+        for group, key in CLASSIFIER_SELECTION_KEYS.items()
+    }
+
+
+def sync_classifier_filters_from_state() -> dict[str, list[str]]:
+    selections = get_classifier_selection_state()
+    filters = {group: sorted(selections[group]) for group in CLASSIFIER_SELECTION_KEYS}
+    st.session_state["selected_classifier_filters"] = filters
+    return filters
+
+
+def clear_classifier_selections() -> None:
+    for key in CLASSIFIER_SELECTION_KEYS.values():
+        st.session_state[key] = set()
+    sync_classifier_filters_from_state()
+
+
+def add_classifier_selection(group: str, value: str) -> None:
+    normalized = normalize_classifier_group_key(group)
+    if not normalized or not value:
+        return
+    key = CLASSIFIER_SELECTION_KEYS[normalized]
+    selected = set(st.session_state.get(key, set()))
+    if value not in selected:
+        selected.add(value)
+        st.session_state[key] = selected
+
+
+def apply_classifier_filter_request(request: object) -> None:
+    def _apply(group: str, value: str) -> None:
+        add_classifier_selection(group, value)
+
+    if isinstance(request, list):
+        for item in request:
+            if isinstance(item, dict):
+                _apply(item.get("group", ""), item.get("id", ""))
+            elif isinstance(item, tuple) and len(item) == 2:
+                _apply(item[0], item[1])
+    elif isinstance(request, dict):
+        _apply(request.get("group", ""), request.get("id", ""))
+    elif isinstance(request, tuple) and len(request) == 2:
+        _apply(request[0], request[1])
+
+    sync_classifier_filters_from_state()
+
+
+def score_variant_against_classifiers(
+    variant: Variant,
+    selections: dict[str, set[str]],
+) -> Optional[float]:
+    if not selections or not any(selections.values()):
+        return 0.0
+
+    total_score = 0.0
+    penalty = 0.0
+    group_to_tags = {
+        "what_sell": variant.sell_tags,
+        "to_whom": variant.to_whom_tags,
+        "value_measure": variant.value_tags,
+    }
+    for group, selected in selections.items():
+        if not selected:
+            continue
+        tags = group_to_tags.get(group, [])
+        if tags:
+            overlap = selected.intersection(tags)
+            if not overlap:
+                return None
+            total_score += len(overlap) * 2.0
+        else:
+            penalty += 0.5
+    return total_score - penalty
 
 
 MATRIX_AXES_TO_CELL = {
