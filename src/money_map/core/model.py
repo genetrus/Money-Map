@@ -73,6 +73,8 @@ class Variant(BaseModel):
     related_variant_ids: List[str]
     notes: Optional[str] = None
     bridge_ids: List[str] = Field(default_factory=list)
+    route_ids: List[str] = Field(default_factory=list)
+    channel_state: Dict[str, bool] = Field(default_factory=dict)
     activity_profile: ActivityProfile = Field(default_factory=ActivityProfile)
 
 

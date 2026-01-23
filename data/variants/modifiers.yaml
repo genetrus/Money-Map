@@ -1,0 +1,110 @@
+---
+modifiers:
+  - id: channel_direct_single
+    category: channel
+    label: "Прямой клиент"
+    changes:
+      to_whom_add: ["single_client"]
+      measure_add: ["rate"]
+      title_suffix: " — прямой клиент"
+      desc_suffix: "Фокус на прямой работе с одним клиентом."
+  - id: channel_direct_many
+    category: channel
+    label: "Прямой массовый поток"
+    changes:
+      to_whom_add: ["many_people"]
+      measure_add: ["price"]
+      title_suffix: " — массовый поток"
+      desc_suffix: "Продажа широкому потоку людей."
+  - id: channel_platform
+    category: channel
+    label: "Платформа"
+    changes:
+      to_whom_add: ["platform"]
+      measure_add: ["percent"]
+      title_suffix: " — через платформу"
+      desc_suffix: "Зависимость от правил и алгоритмов платформы."
+  - id: channel_market
+    category: channel
+    label: "Рынок"
+    changes:
+      to_whom_add: ["market"]
+      measure_add: ["appreciation"]
+      title_suffix: " — рыночный формат"
+      desc_suffix: "Результат зависит от рыночной динамики."
+  - id: channel_state
+    category: channel
+    label: "Государство"
+    applies_to:
+      mechanisms: ["grants_prizes", "transfers_insurance"]
+    changes:
+      to_whom_add: ["state"]
+      measure_add: ["payout"]
+      title_suffix: " — через госпрограмму"
+      desc_suffix: "Условия регулируются государственными правилами."
+
+  - id: packaged_offer
+    category: packaging
+    label: "Пакетирование"
+    changes:
+      bridges_add: ["A1_to_A2_packaging"]
+      matrix_add: ["A2"]
+      measure_add: ["price"]
+      title_suffix: " — пакет"
+      desc_suffix: "Пакетирование в фиксированный результат."
+  - id: subscription
+    category: packaging
+    label: "Подписка"
+    changes:
+      bridges_add: ["A1_to_A2_retainer"]
+      matrix_add: ["A2", "P2"]
+      measure_add: ["rent"]
+      title_suffix: " — подписка"
+      desc_suffix: "Регулярная оплата за доступ или сервис."
+  - id: automation
+    category: packaging
+    label: "Автоматизация"
+    changes:
+      bridges_add: ["A1_to_A2_automation"]
+      matrix_add: ["A2"]
+      title_suffix: " — автоматизация"
+      desc_suffix: "Часть процесса автоматизирована."
+  - id: delegation
+    category: packaging
+    label: "Делегирование"
+    changes:
+      bridges_add: ["A1_to_A2_delegation"]
+      matrix_add: ["A2"]
+      title_suffix: " — делегирование"
+      desc_suffix: "Часть задач выполняет команда/подрядчик."
+  - id: channel_system
+    category: packaging
+    label: "Системный канал"
+    changes:
+      bridges_add: ["A1_to_A2_channel"]
+      matrix_add: ["A2"]
+      title_suffix: " — системный канал"
+      desc_suffix: "Появляется повторяемый канал продаж."
+
+  - id: performance_kpi
+    category: risk
+    label: "KPI/процент"
+    applies_to:
+      mechanisms: ["commission", "salary", "fee_for_result", "grants_prizes"]
+    changes:
+      bridges_add: ["A1_to_A3_commission_jump"]
+      matrix_add: ["A3"]
+      measure_add: ["percent", "payout"]
+      title_suffix: " — KPI/процент"
+      desc_suffix: "Часть дохода зависит от KPI или процента."
+  - id: leverage_risky
+    category: risk
+    label: "Риск/рычаг"
+    applies_to:
+      mechanisms: ["appreciation", "entrepreneurship_margin", "rent_access", "interest_dividends"]
+    changes:
+      bridges_add: ["P1_to_P3_leverage", "A2_to_A4_scale_aggressive"]
+      matrix_add: ["P3", "P4", "A4"]
+      measure_add: ["appreciation"]
+      title_suffix: " — с рычагом"
+      desc_suffix: "Используется кредитное плечо или высокий риск."

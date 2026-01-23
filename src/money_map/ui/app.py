@@ -73,8 +73,7 @@ def main() -> None:
     if "request_nav_section" in st.session_state:
         requested = st.session_state.pop("request_nav_section")
         if isinstance(requested, str):
-            st.session_state["pending_nav_section"] = requested
-            st.rerun()
+            components.request_navigation(section=requested)
     if "request_selected_way_id" in st.session_state:
         way_id = st.session_state.pop("request_selected_way_id")
         st.session_state["selected_way_id"] = way_id

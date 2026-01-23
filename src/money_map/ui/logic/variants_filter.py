@@ -66,7 +66,7 @@ def normalize_variant(variant: Variant) -> NormalizedVariant:
         summary=summary,
         description=description,
         linked_bridges=list(variant.bridge_ids),
-        linked_route=None,
+        linked_route=variant.route_ids[0] if variant.route_ids else None,
         hints_fit=list(variant.requirements),
         hints_not_fit=[],
         first_steps=list(variant.first_steps),

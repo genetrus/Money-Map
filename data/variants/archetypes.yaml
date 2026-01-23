@@ -1,0 +1,2847 @@
+archetypes:
+- arch_id: salary_ops_picker
+  mechanism_id: salary
+  kind: job
+  base_title: Складские операции (picker/packer)
+  base_desc: Сборка и упаковка заказов по нормам и регламентам.
+  role_family: OPS
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    - result
+    to_whom:
+    - platform
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_automation
+  - A1_to_A2_delegation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_delivery
+  mechanism_id: salary
+  kind: job
+  base_title: Доставка/курьер
+  base_desc: Доставка заказов по маршрутам с соблюдением сроков.
+  role_family: LOGISTICS
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    to_whom:
+    - platform
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_channel
+  - A1_to_A2_automation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_reception
+  mechanism_id: salary
+  kind: job
+  base_title: Ресепшен/админка офиса
+  base_desc: Приём посетителей и координация офисных процессов.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    to_whom:
+    - single_client
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_packaging
+  - A1_to_A2_segmentation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_support
+  mechanism_id: salary
+  kind: job
+  base_title: Клиентская поддержка (чат/телефон)
+  base_desc: Ответы на обращения и решение типовых вопросов.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    to_whom:
+    - platform
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_channel
+  - A1_to_A2_automation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_sales_base
+  mechanism_id: salary
+  kind: job
+  base_title: Продажи фикс+бонус
+  base_desc: Продажи с базовой ставкой и бонусом за результат.
+  role_family: SALES
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - rate
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_maintenance
+  mechanism_id: salary
+  kind: job
+  base_title: Техник на объекте (обслуживание)
+  base_desc: Регулярное обслуживание оборудования по чек-листам.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    - risk
+    to_whom:
+    - single_client
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_packaging
+  - A1_to_A2_delegation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_night_audit
+  mechanism_id: salary
+  kind: job
+  base_title: Ночной аудит/дежурство (присутствие)
+  base_desc: Контроль процессов и реагирование на инциденты в ночные смены.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    to_whom:
+    - single_client
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_retainer
+  - A1_to_A2_segmentation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: salary_line_operator
+  mechanism_id: salary
+  kind: job
+  base_title: Оператор линии/производства
+  base_desc: Работа на линии с фиксацией качества и объёма.
+  role_family: OPS
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - time
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - rate
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_automation
+  - A1_to_A2_delegation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_installation
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Ремонт/монтаж за заказ
+  base_desc: Выполнение разовых работ с фиксированной ценой.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_channel
+  - A1_to_A2_standardize
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_cleaning
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Клининг за объект
+  base_desc: Уборка объекта по стандарту с фиксированным результатом.
+  role_family: OPS
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_standardize
+  - A1_to_A2_channel
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_logistics_delivery
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Доставка/перевозка за заказ
+  base_desc: Разовые логистические задачи с фиксированной оплатой.
+  role_family: LOGISTICS
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_standardize
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_photo_video
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Фото/видео съёмка
+  base_desc: Съёмка по ТЗ с фиксированным результатом.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_design
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Дизайн/верстка
+  base_desc: Создание визуальных материалов по ТЗ.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_segmentation
+  - A1_to_A2_standardize
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_copywriting
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Тексты/перевод
+  base_desc: Подготовка текстов или переводов с фиксированным объёмом.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_channel
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_reports_setup
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Автоматизация/настройка отчётов
+  base_desc: Настройка отчётности и дашбордов под KPI.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A1_to_A2_packaging
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_consulting
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Консультации/наставничество
+  base_desc: Разбор задач и рекомендации по шагам.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - access
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_segmentation
+  - A1_to_A2_packaging
+  - A1_to_A2_channel
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: fee_ops_package
+  mechanism_id: fee_for_result
+  kind: service
+  base_title: Поддержка бизнес-процессов по пакету
+  base_desc: Операционное сопровождение с фиксированным результатом.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_packaging
+  - A1_to_A2_standardize
+  - A1_to_A2_delegation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: commission_recruiting
+  mechanism_id: commission
+  kind: service
+  base_title: Рекрутинг за %
+  base_desc: Закрытие вакансий с оплатой за результат.
+  role_family: SALES
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_real_estate
+  mechanism_id: commission
+  kind: service
+  base_title: Риэлтор за %
+  base_desc: Сделки с недвижимостью за процент от сделки.
+  role_family: SALES
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_finance
+  mechanism_id: commission
+  kind: service
+  base_title: Страхование/финансовые продукты за %
+  base_desc: Продажи финпродуктов с комиссией.
+  role_family: SALES
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_b2b_agent
+  mechanism_id: commission
+  kind: service
+  base_title: B2B агент/привлечение клиентов
+  base_desc: Привлечение клиентов с оплатой за закрытие сделки.
+  role_family: SALES
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_partner_program
+  mechanism_id: commission
+  kind: service
+  base_title: Партнёрки/рефералки
+  base_desc: Реферальные программы с выплатой за результат.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A4
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - platform
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_P4_viral_lottery
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_closer
+  mechanism_id: commission
+  kind: service
+  base_title: Closer/переговорщик за %
+  base_desc: Закрытие сделок за процент от результата.
+  role_family: SALES
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_segmentation
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_marketplace
+  mechanism_id: commission
+  kind: service
+  base_title: Маркетплейс-посредник
+  base_desc: Посредничество через платформу с комиссией.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A4
+  base_classifiers:
+    sell:
+    - access
+    - result
+    to_whom:
+    - platform
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: commission_affiliate_content
+  mechanism_id: commission
+  kind: service
+  base_title: Комиссия через контент (affiliate)
+  base_desc: Монетизация контента через партнёрские офферы.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A4
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - platform
+    measure:
+    - percent
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_P4_viral_lottery
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_micro_team
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Сервис с подрядчиками (микро-команда)
+  base_desc: Продажа услуги с распределением задач между подрядчиками.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - risk
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_delegation
+  - A1_to_A2_standardize
+  - A2_to_A4_scale_aggressive
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_repackage
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Перепаковка/маржа (закупка→упаковка→продажа)
+  base_desc: Закупка, упаковка и продажа с маржой.
+  role_family: OPS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - risk
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_channel
+  - A2_to_A4_scale_aggressive
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_workshop
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Мастерская/мини-производство
+  base_desc: Производство небольших партий с контролем качества.
+  role_family: OPS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - risk
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_delegation
+  - A2_to_A4_scale_aggressive
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_ecommerce
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: E-commerce нишевый магазин
+  base_desc: Продажа нишевых товаров через интернет-каналы.
+  role_family: SALES
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - risk
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  - A2_to_A4_scale_aggressive
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_rental_service
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Сервис аренды + обслуживание
+  base_desc: Аренда с обслуживанием и контролем состояния.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - risk
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_standardize
+  - A1_to_A2_delegation
+  - A2_to_A4_scale_aggressive
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_agency
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Агентство (контент/реклама/автоматизация)
+  base_desc: Командная реализация проектов с маржой.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - risk
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_delegation
+  - A1_to_A2_channel
+  - A2_to_A4_scale_aggressive
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_franchise
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Франшиза оператор
+  base_desc: Управление точкой по правилам франшизы.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A4
+  base_classifiers:
+    sell:
+    - risk
+    - access
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_standardize
+  - A2_to_A4_scale_aggressive
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: entrepreneur_subscription_local
+  mechanism_id: entrepreneurship_margin
+  kind: business_model
+  base_title: Локальный сервис по подписке
+  base_desc: Регулярный сервис с оплатой по подписке.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - risk
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - entrepreneur_growth
+  default_bridges:
+  - A1_to_A2_retainer
+  - A1_to_A2_channel
+  - A1_to_A2_standardize
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_space
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Сдача помещения/места
+  base_desc: Сдача пространства по регулярной ставке.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - single_client
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_tools
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Сдача инструмента/оборудования
+  base_desc: Аренда оборудования с контролем состояния.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - single_client
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_transport
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Сдача транспорта
+  base_desc: Аренда транспорта с учётом рисков и страхования.
+  role_family: LOGISTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - single_client
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_sublease
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Субаренда
+  base_desc: Переподписание аренды с маржой.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - property
+    - risk
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - P1_to_P3_leverage
+  - A2_to_P1_auto_save
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_storage
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Склад/ячейка хранения
+  base_desc: Предоставление мест хранения по тарифу.
+  role_family: LOGISTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - property
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_license
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Лицензия/право использования
+  base_desc: Передача права пользования ресурсом за плату.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - access
+    - property
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_risky_renovation
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Рискованный ремонт-проект под сдачу
+  base_desc: Вложение в улучшение объекта ради более высокой ренты.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - property
+    to_whom:
+    - single_client
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - P1_to_P3_leverage
+  - A2_to_P1_auto_save
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: rent_equipment_service
+  mechanism_id: rent_access
+  kind: asset_for_rent
+  base_title: Пакет 'оборудование как сервис'
+  base_desc: Аренда оборудования с сервисной поддержкой.
+  role_family: OPS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - access
+    - property
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_deposit
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Депозит/проценты
+  base_desc: Размещение средств под фиксированный процент.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_bonds
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Облигации/купоны
+  base_desc: Покупка облигаций с регулярным купоном.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_dividend_stocks
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Дивидендные акции
+  base_desc: Покупка акций ради регулярных выплат.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    to_whom:
+    - market
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_business_share
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Доля в бизнесе (консервативно)
+  base_desc: Покупка доли ради стабильных выплат.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    - risk
+    to_whom:
+    - market
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_p2p
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: P2P кредитование
+  base_desc: Выдача займов с процентом через платформу.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - capital
+    - risk
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P1_auto_save
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_high_yield
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: High-yield (повышенный риск)
+  base_desc: Инструменты с высокой доходностью и риском.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - capital
+    - risk
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P1_auto_save
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_preferred
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Привилегированные выплаты
+  base_desc: Фиксированные выплаты по привилегированным условиям.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    to_whom:
+    - market
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: interest_portfolio_mix
+  mechanism_id: interest_dividends
+  kind: instrument
+  base_title: Смешанный портфель
+  base_desc: Комбинация инструментов для стабильного процента.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - capital
+    to_whom:
+    - market
+    measure:
+    - percent
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - P1_to_P3_leverage
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_flip_goods
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Перепродажа товаров (флип)
+  base_desc: Покупка и перепродажа с приростом стоимости.
+  role_family: OPS
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_auto_flip
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Авто-флип
+  base_desc: Покупка/продажа транспорта с маржой.
+  role_family: LOGISTICS
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_collectibles
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Коллекционные вещи
+  base_desc: Ставка на рост стоимости коллекционных предметов.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_real_estate
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Недвижимость на рост
+  base_desc: Покупка недвижимости ради роста стоимости.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - capital
+    - risk
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_trading
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Трейдинг/спекуляции
+  base_desc: Краткосрочные сделки на рост/падение.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - capital
+    - risk
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_restoration
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Реставрация→продажа
+  base_desc: Восстановление актива для продажи дороже.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_arbitrage
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Арбитраж цены
+  base_desc: Покупка там, где дешевле, продажа там, где дороже.
+  role_family: SALES
+  base_matrix_cells:
+  - P3
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: appreciation_trend
+  mechanism_id: appreciation
+  kind: instrument
+  base_title: Ставка на тренд
+  base_desc: Ставка на рост цен в трендовой нише.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - risk
+    - capital
+    to_whom:
+    - market
+    measure:
+    - appreciation
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - P1_to_P3_leverage
+  - A1_to_P4_viral_lottery
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_templates
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Шаблоны/пакеты документов
+  base_desc: Готовые документы и шаблоны для повторного использования.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_course
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Курс/гайд
+  base_desc: Обучающий продукт с чёткой структурой.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    - attention
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_tool
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Софт-утилита
+  base_desc: Инструмент, экономящий время и упрощающий задачу.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    - access
+    to_whom:
+    - platform
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_asset_pack
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Ассет-пак/графика/звук
+  base_desc: Наборы ассетов для повторного использования.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_music
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Музыка/сэмплы
+  base_desc: Лицензирование музыкальных треков и сэмплов.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_photo_pack
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Фото-пак
+  base_desc: Наборы фото для коммерческого использования.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    to_whom:
+    - platform
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_book
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Книга/электронная
+  base_desc: Книга или руководство в цифровом формате.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    - attention
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  - A2_to_P2_artifact
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: ip_catalog_license
+  mechanism_id: intellectual_property
+  kind: ip_product
+  base_title: Лицензирование каталога
+  base_desc: Передача прав на использование каталога материалов.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - property
+    - access
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_youtube
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: YouTube канал
+  base_desc: Регулярный контент с монетизацией аудитории.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_shorts
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Shorts/TikTok
+  base_desc: Короткие ролики для широкого охвата.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_newsletter
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Newsletter
+  base_desc: Регулярная рассылка с удержанием аудитории.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  - A1_to_P4_viral_lottery
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_paid_community
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Платное сообщество
+  base_desc: Сообщество с доступом по подписке.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  - A1_to_P4_viral_lottery
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_streams
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Стримы/донаты
+  base_desc: Прямые эфиры с донатами.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_sponsorship
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Спонсорство
+  base_desc: Договоры со спонсорами за доступ к аудитории.
+  role_family: SALES
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - percent
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_ads
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Реклама
+  base_desc: Продажа рекламных размещений в канале.
+  role_family: SALES
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: attention_affiliate_content
+  mechanism_id: attention_audience
+  kind: audience_channel
+  base_title: Контент+партнёрки
+  base_desc: Контент с партнёрскими интеграциями.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P4
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - platform
+    measure:
+    - percent
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_reports_service
+  mechanism_id: data_compute
+  kind: service
+  base_title: Отчёты как сервис
+  base_desc: Регулярные отчёты и аналитика по подписке.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_reporting_automation
+  mechanism_id: data_compute
+  kind: service
+  base_title: Автоматизация отчётности
+  base_desc: Автоматизация отчётов и рутинных расчётов.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A1_to_A2_standardize
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_monitoring_alerts
+  mechanism_id: data_compute
+  kind: service
+  base_title: Мониторинг/алерты
+  base_desc: Системы мониторинга и оповещений.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_database_product
+  mechanism_id: data_compute
+  kind: service
+  base_title: База данных как продукт
+  base_desc: Доступ к структурированным данным по подписке.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - property
+    - access
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_artifact
+  - A2_to_P2_productize
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_api_access
+  mechanism_id: data_compute
+  kind: service
+  base_title: API доступ
+  base_desc: Оплачиваемый доступ к API.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - platform
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_micro_saas
+  mechanism_id: data_compute
+  kind: service
+  base_title: Микро-SaaS
+  base_desc: Небольшой SaaS с узкой функцией.
+  role_family: OPS
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - access
+    - property
+    to_whom:
+    - many_people
+    measure:
+    - rent
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  - A2_to_P2_funnel
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_optimization_tool
+  mechanism_id: data_compute
+  kind: service
+  base_title: Инструмент для оптимизации
+  base_desc: Инструмент для повышения эффективности процесса.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - single_client
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A2_to_P2_productize
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: data_integrations_etl
+  mechanism_id: data_compute
+  kind: service
+  base_title: Интеграции/ETL мини-сервис
+  base_desc: Сбор и доставка данных между системами.
+  role_family: OPS
+  base_matrix_cells:
+  - A2
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - platform
+    measure:
+    - price
+  default_routes:
+  - healthy_default
+  default_bridges:
+  - A1_to_A2_automation
+  - A1_to_A2_standardize
+  - A2_to_P2_artifact
+  risk_level: medium
+  activity: active
+  scalability: scalable
+  outside_market: false
+- arch_id: grants_hackathons
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Хакатоны
+  base_desc: Участие в хакатонах ради призовых мест.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_creative_contests
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Творческие конкурсы
+  base_desc: Участие в конкурсах с денежными призами.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_project_grants
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Гранты на проект
+  base_desc: Подготовка заявки на финансирование проекта.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_awards
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Премии/стипендии
+  base_desc: Участие в конкурсах на премии или стипендии.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_competitions
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Призовые соревнования
+  base_desc: Соревнования с денежными наградами.
+  role_family: OPS
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_foundation_support
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Фондовая поддержка
+  base_desc: Получение поддержки от фондов и институтов.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_sponsor_contests
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Спонсорские конкурсы
+  base_desc: Конкурсы под бренды со спонсорскими призами.
+  role_family: CONTENT
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - platform
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: medium
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: grants_education
+  mechanism_id: grants_prizes
+  kind: grant_program
+  base_title: Гранты на обучение
+  base_desc: Получение гранта на обучение и развитие.
+  role_family: ADMIN
+  base_matrix_cells:
+  - A3
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - fast_cash
+  default_bridges:
+  - A1_to_A3_commission_jump
+  - A1_to_A2_channel
+  - A1_to_A2_segmentation
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+- arch_id: transfer_insurance
+  mechanism_id: transfers_insurance
+  kind: insurance_case
+  base_title: Страховые выплаты
+  base_desc: Выплаты по страховым случаям.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_compensation
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Компенсации/возвраты
+  base_desc: Компенсации за услуги или ошибки.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_subsidy
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Субсидии
+  base_desc: Государственные субсидии по программам.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_expense_refund
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Возмещение расходов
+  base_desc: Возврат расходов по правилам программы.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_overpayment
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Переплаты/возвраты
+  base_desc: Возврат переплат и ошибок расчётов.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_legal
+  mechanism_id: transfers_insurance
+  kind: insurance_case
+  base_title: Юр.компенсации
+  base_desc: Компенсации по юридическим основаниям.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: medium
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_social
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Соц.выплаты
+  base_desc: Социальные выплаты и пособия.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: transfer_mixed
+  mechanism_id: transfers_insurance
+  kind: benefit_case
+  base_title: Смешанные выплаты
+  base_desc: Комбинация выплат и компенсаций.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - risk
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  risk_level: medium
+  activity: passive
+  scalability: linear
+  outside_market: true
+- arch_id: gifts_donations
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Донаты
+  base_desc: Добровольные пожертвования от аудитории.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_patrons
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Патроны/подписка
+  base_desc: Регулярные пожертвования от постоянных сторонников.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  - A1_to_P4_viral_lottery
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_sponsor
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Спонсор
+  base_desc: Поддержка со стороны спонсора или бренда.
+  role_family: SALES
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_crowdfunding
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Краудфандинг
+  base_desc: Сбор средств на проект через аудиторию.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_one_off
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Разовые подарки
+  base_desc: Разовые поступления от окружения.
+  role_family: SUPPORT
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A1_to_A2_channel
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_patronage
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Меценатство
+  base_desc: Поддержка от меценатов и фондов.
+  role_family: CONTENT
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - attention
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_partner_guardian
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Партнёр-покровитель
+  base_desc: Поддержка от партнёра при совместном продвижении.
+  role_family: SALES
+  base_matrix_cells:
+  - P2
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A2_to_P2_funnel
+  - A1_to_A2_channel
+  risk_level: medium
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: gifts_inheritance_case
+  mechanism_id: gifts_inheritance
+  kind: benefit_case
+  base_title: Наследство
+  base_desc: Разовое поступление по наследству.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - many_people
+    measure:
+    - payout
+  default_routes:
+  - platform_lottery
+  default_bridges:
+  - A1_to_P4_viral_lottery
+  - A1_to_A2_channel
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+- arch_id: savings_contracts
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Оптимизация контрактов
+  base_desc: Пересмотр условий и поиск более выгодных вариантов.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_fixed_costs
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Снижение постоянных расходов
+  base_desc: Оптимизация регулярных затрат и подписок.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_repair
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Ремонт вместо покупки
+  base_desc: Восстановление и продление срока службы активов.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_used_resale
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Покупка б/у и перепродажа разницы
+  base_desc: Покупка дешевле и возврат части стоимости.
+  role_family: OPS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    - risk
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: medium
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_tax
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Налоговая оптимизация (как экономия)
+  base_desc: Использование льгот и вычетов.
+  role_family: ADMIN
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - access
+    to_whom:
+    - state
+    measure:
+    - payout
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_tariff_compare
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Сравнение тарифов
+  base_desc: Выбор более выгодных тарифов и условий.
+  role_family: ANALYTICS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_energy
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Энергоэффективность
+  base_desc: Снижение расходов за счёт энергоэффективности.
+  role_family: MAINTENANCE
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+- arch_id: savings_procurement
+  mechanism_id: savings_effect
+  kind: saving_strategy
+  base_title: Система закупок/скидки
+  base_desc: Оптимизация закупок и получение скидок.
+  role_family: OPS
+  base_matrix_cells:
+  - P1
+  base_classifiers:
+    sell:
+    - result
+    - access
+    to_whom:
+    - market
+    measure:
+    - price
+  default_routes:
+  - investor_conservative
+  default_bridges:
+  - A1_to_P1_auto_save
+  - A2_to_P1_auto_save
+  - A1_to_A2_standardize
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
