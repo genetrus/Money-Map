@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
 import streamlit as st
 
@@ -15,6 +15,7 @@ def _filter_variants(
     kind: str,
     cell_id: str,
     outside_only: bool,
+    transition: Optional[Tuple[str, str]],
 ) -> List[Variant]:
     filtered = variants
     if way_id != "all":
@@ -27,6 +28,13 @@ def _filter_variants(
         ]
     if outside_only:
         filtered = [variant for variant in filtered if variant.outside_market]
+    if transition:
+        from_cell, to_cell = transition
+        filtered = [
+            variant
+            for variant in filtered
+            if from_cell in variant.matrix_cells and to_cell in variant.matrix_cells
+        ]
     return filtered
 
 
@@ -70,6 +78,21 @@ def _variant_card(variant: Variant, way_lookup: Dict[str, str]) -> None:
 
 
 def render(data: AppData, filters: components.Filters) -> None:
+    if "request_clear_variants_context" in st.session_state:
+        st.session_state.pop("request_clear_variants_context")
+        st.session_state["selected_cell_id"] = None
+        st.session_state["selected_transition"] = None
+        st.session_state["selected_bridge_id"] = None
+        st.session_state["variants_filter_cell"] = "all"
+
+    selected_cell_id = st.session_state.get("selected_cell_id")
+    selected_transition = st.session_state.get("selected_transition")
+    selected_bridge_id = st.session_state.get("selected_bridge_id")
+    transition_pair = None
+    if selected_transition and "->" in selected_transition:
+        from_cell, to_cell = selected_transition.split("->", maxsplit=1)
+        transition_pair = (from_cell, to_cell)
+
     st.title("Варианты (конкретика)")
     st.markdown("Фильтруйте варианты по способам, ячейкам и типам конкретики.")
 
@@ -77,6 +100,30 @@ def render(data: AppData, filters: components.Filters) -> None:
     way_options = ["all"] + sorted(way_lookup.keys())
     kind_options = ["all"] + sorted({variant.kind for variant in data.variants})
     cell_options = ["all"] + sorted({cell.id for cell in data.cells})
+
+    if selected_cell_id and st.session_state.get("variants_filter_cell") != selected_cell_id:
+        st.session_state["variants_filter_cell"] = selected_cell_id
+
+    if selected_cell_id:
+        axes = components.cell_to_axes(selected_cell_id) or {}
+        axis_labels = [
+            selected_cell_id,
+            components.axis_label("risk", axes.get("risk", "low")),
+            components.axis_label("activity", axes.get("activity", "active")),
+            components.axis_label("scalability", axes.get("scalability", "linear")),
+        ]
+        chip_row = st.columns([4, 1])
+        chip_row[0].markdown(f"**Контекст:** {' · '.join(axis_labels)}")
+        if selected_transition:
+            chip_row[0].caption(f"Переход: {selected_transition}")
+        if selected_bridge_id:
+            bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
+            bridge = bridge_lookup.get(selected_bridge_id)
+            if bridge:
+                chip_row[0].caption(f"Мост: {bridge.name}")
+        if chip_row[1].button("Сбросить", key="variants-clear-context"):
+            st.session_state["request_clear_variants_context"] = True
+            st.rerun()
 
     filter_cols = st.columns(4)
     way_id = filter_cols[0].selectbox(
@@ -103,7 +150,14 @@ def render(data: AppData, filters: components.Filters) -> None:
     )
 
     filtered_variants = components.apply_global_filters_to_variants(data.variants, filters)
-    filtered_variants = _filter_variants(filtered_variants, way_id, kind, cell_id, outside_only)
+    filtered_variants = _filter_variants(
+        filtered_variants,
+        way_id,
+        kind,
+        cell_id,
+        outside_only,
+        transition_pair,
+    )
 
     if not filtered_variants:
         st.info("Ничего не найдено по фильтрам.")

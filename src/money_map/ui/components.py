@@ -55,6 +55,8 @@ def init_session_state() -> None:
     st.session_state.setdefault("active_section", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
     st.session_state.setdefault("selected_cell_id", None)
+    st.session_state.setdefault("selected_transition", None)
+    st.session_state.setdefault("selected_bridge_id", None)
     st.session_state.setdefault("selected_taxonomy", None)
     st.session_state.setdefault("selected_tax_id", None)
     st.session_state.setdefault("selected_way_id", None)
@@ -76,6 +78,44 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_filter_kind", "all")
     st.session_state.setdefault("variants_filter_cell", "all")
     st.session_state.setdefault("variants_filter_outside", False)
+    st.session_state.setdefault("matrix_axis_risk", "low")
+    st.session_state.setdefault("matrix_axis_activity", "active")
+    st.session_state.setdefault("matrix_axis_scalability", "linear")
+
+
+MATRIX_AXES_TO_CELL = {
+    ("low", "active", "linear"): "A1",
+    ("low", "active", "scalable"): "A2",
+    ("low", "passive", "linear"): "P1",
+    ("low", "passive", "scalable"): "P2",
+    ("high", "active", "linear"): "A3",
+    ("high", "active", "scalable"): "A4",
+    ("high", "passive", "linear"): "P3",
+    ("high", "passive", "scalable"): "P4",
+}
+
+MATRIX_CELL_TO_AXES = {
+    cell_id: {"risk": risk, "activity": activity, "scalability": scalability}
+    for (risk, activity, scalability), cell_id in MATRIX_AXES_TO_CELL.items()
+}
+
+AXIS_LABELS = {
+    "risk": {"low": "Низкий риск", "high": "Высокий риск"},
+    "activity": {"active": "Активно", "passive": "Пассивно"},
+    "scalability": {"linear": "Линейно", "scalable": "Масштабируемо"},
+}
+
+
+def axes_to_cell_id(risk: str, activity: str, scalability: str) -> Optional[str]:
+    return MATRIX_AXES_TO_CELL.get((risk, activity, scalability))
+
+
+def cell_to_axes(cell_id: str) -> Optional[dict[str, str]]:
+    return MATRIX_CELL_TO_AXES.get(cell_id)
+
+
+def axis_label(axis: str, value: str) -> str:
+    return AXIS_LABELS.get(axis, {}).get(value, value)
 
 
 def set_page(page: str) -> None:
