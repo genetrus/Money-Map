@@ -8,6 +8,7 @@ import streamlit as st
 from money_map.core.model import AppData, TaxonomyItem
 from money_map.core.taxonomy_graph import build_taxonomy_star
 from money_map.ui import components, cyto_graph
+from money_map.ui.state import go_to_section
 
 
 WAYS_TABS = ("Карта", "Справочник")
@@ -21,40 +22,8 @@ def _ensure_ways_state_defaults() -> None:
     st.session_state.setdefault("ways_last_tap", {"node_id": None, "timestamp_ms": 0.0})
 
 
-def _consume_nav_payload() -> None:
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Способы получения денег":
-        st.session_state["pending_nav"] = payload
-        st.session_state["nav_payload"] = None
-        st.rerun()
-
-
-def _apply_pending_ways_navigation() -> None:
-    pending = st.session_state.get("pending_nav")
-    if not isinstance(pending, dict):
-        return
-    if pending.get("section") not in (None, "Способы получения денег"):
-        return
-
-    tab = pending.get("tab")
-    way_id = pending.get("way_id")
-    if isinstance(tab, str) and tab in WAYS_TABS:
-        st.session_state["ways_ui_tab"] = tab
-    if isinstance(way_id, str):
-        st.session_state["selected_way_id"] = way_id
-        st.session_state["selected_tax_id"] = way_id
-        st.session_state["ways_selected_way_id"] = way_id
-    st.session_state["pending_nav"] = None
-    st.rerun()
-
-
 def _request_directory_navigation(way_id: str) -> None:
-    st.session_state["pending_nav"] = {
-        "section": "Способы получения денег",
-        "tab": "Справочник",
-        "way_id": way_id,
-    }
-    st.rerun()
+    go_to_section("Способы получения денег", way_id=way_id, tab="Справочник")
 
 
 def _extract_selected_node_id(selection: object) -> str | None:
@@ -405,8 +374,17 @@ def _render_directory(
 
 def render(data: AppData, filters: components.Filters) -> None:
     _ensure_ways_state_defaults()
-    _consume_nav_payload()
-    _apply_pending_ways_navigation()
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Способы получения денег":
+        tab = payload.get("tab")
+        way_id = payload.get("way_id")
+        if isinstance(tab, str) and tab in WAYS_TABS:
+            st.session_state["ways_ui_tab"] = tab
+        if isinstance(way_id, str):
+            st.session_state["selected_way_id"] = way_id
+            st.session_state["selected_tax_id"] = way_id
+            st.session_state["ways_selected_way_id"] = way_id
+        st.session_state["nav_payload"] = None
 
     if st.session_state.get("ways_ui_tab") not in WAYS_TABS:
         st.session_state["ways_ui_tab"] = "Карта"
