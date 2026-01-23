@@ -34,6 +34,7 @@ def validate_app_data(data: AppData) -> List[str]:
 
     _validate_mappings(data, errors)
     _validate_taxonomy(data, errors)
+    _validate_variants(data, axis_values, errors)
     _validate_paths(data, errors)
     _validate_bridges(data, errors)
 
@@ -86,6 +87,54 @@ def _validate_taxonomy(data: AppData, errors: List[str]) -> None:
         if invalid_cells:
             errors.append(
                 f"Таксономия {item.id}: неизвестные ячейки {', '.join(invalid_cells)}"
+            )
+
+
+def _validate_variants(
+    data: AppData,
+    axis_values: dict[str, set[str]],
+    errors: List[str],
+) -> None:
+    cell_ids = {cell.id for cell in data.cells}
+    taxonomy_ids = {item.id for item in data.taxonomy}
+    sell_keys = set(data.mappings.sell_items)
+    to_whom_keys = set(data.mappings.to_whom_items)
+    value_keys = set(data.mappings.value_measures)
+
+    for variant in data.variants:
+        if variant.primary_way_id not in taxonomy_ids:
+            errors.append(
+                f"Вариант {variant.id}: неизвестный primary_way_id {variant.primary_way_id}"
+            )
+        invalid_cells = sorted(set(variant.matrix_cells) - cell_ids)
+        if invalid_cells:
+            errors.append(
+                f"Вариант {variant.id}: неизвестные ячейки {', '.join(invalid_cells)}"
+            )
+        invalid_sell = sorted(set(variant.sell_tags) - sell_keys)
+        invalid_to = sorted(set(variant.to_whom_tags) - to_whom_keys)
+        invalid_value = sorted(set(variant.value_tags) - value_keys)
+        if invalid_sell:
+            errors.append(f"Вариант {variant.id}: неизвестные sell_tags {', '.join(invalid_sell)}")
+        if invalid_to:
+            errors.append(
+                f"Вариант {variant.id}: неизвестные to_whom_tags {', '.join(invalid_to)}"
+            )
+        if invalid_value:
+            errors.append(
+                f"Вариант {variant.id}: неизвестные value_tags {', '.join(invalid_value)}"
+            )
+        if variant.risk_level not in axis_values.get("risk", set()):
+            errors.append(
+                f"Вариант {variant.id}: неверное значение risk_level {variant.risk_level}"
+            )
+        if variant.activity not in axis_values.get("activity", set()):
+            errors.append(
+                f"Вариант {variant.id}: неверное значение activity {variant.activity}"
+            )
+        if variant.scalability not in axis_values.get("scalability", set()):
+            errors.append(
+                f"Вариант {variant.id}: неверное значение scalability {variant.scalability}"
             )
 
 

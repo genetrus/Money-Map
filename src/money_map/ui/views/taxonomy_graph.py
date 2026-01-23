@@ -68,4 +68,9 @@ def render(data: AppData) -> None:
     )
     if selected_id:
         components.set_selected_taxonomy(selected_id)
-    components.render_taxonomy_details_card(data, selected_id)
+    components.render_taxonomy_details_card(
+        data,
+        selected_id,
+        components.get_filters(),
+        outside_only,
+    )

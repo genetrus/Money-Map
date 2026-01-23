@@ -10,5 +10,6 @@ __all__ = [
     "overview",
     "paths",
     "search",
+    "variants",
     "ways_money",
 ]

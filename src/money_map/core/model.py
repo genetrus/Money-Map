@@ -46,6 +46,26 @@ class TaxonomyItem(BaseModel):
     examples: List[str]
 
 
+class Variant(BaseModel):
+    id: str
+    title: str
+    kind: str
+    primary_way_id: str
+    matrix_cells: List[str]
+    sell_tags: List[str]
+    to_whom_tags: List[str]
+    value_tags: List[str]
+    risk_level: str
+    activity: str
+    scalability: str
+    outside_market: bool
+    requirements: List[str]
+    first_steps: List[str]
+    success_metrics: List[str]
+    related_variant_ids: List[str]
+    notes: Optional[str] = None
+
+
 class PathItem(BaseModel):
     id: str
     name: str
@@ -82,3 +102,7 @@ class AppData(BaseModel):
     bridges: List[BridgeItem]
     diagrams: DiagramConfig
     keywords: Keywords
+    variants: List[Variant] = Field(default_factory=list)
+    variants_by_way_id: Dict[str, List[Variant]] = Field(default_factory=dict)
+    variants_by_cell_id: Dict[str, List[Variant]] = Field(default_factory=dict)
+    variant_by_id: Dict[str, Variant] = Field(default_factory=dict)

@@ -7,6 +7,7 @@ import streamlit as st
 from money_map.core.model import AppData, Cell
 from money_map.core.query import list_bridges
 from money_map.ui import components
+from money_map.ui.state import go_to_section
 
 
 def _find_cell(data: AppData, risk: str, activity: str, scalability: str) -> Optional[Cell]:
@@ -115,10 +116,28 @@ def render(data: AppData, filters: components.Filters) -> None:
                 f"{item.name} ({item.id})",
                 key=f"goto_way_from_cell_{cell.id}_{item.id}",
             ):
-                st.session_state["request_nav_section"] = "Способы получения денег"
-                st.session_state["pending_selected_tax_id"] = item.id
-                st.session_state["request_tab"] = "Справочник"
-                st.rerun()
+                go_to_section(
+                    "Способы получения денег",
+                    way_id=item.id,
+                    tab="Справочник",
+                )
+
+    st.markdown("#### Подходящие варианты (конкретика)")
+    variants = data.variants_by_cell_id.get(cell.id, [])
+    variants = components.apply_global_filters_to_variants(variants, filters)
+    if not variants:
+        st.caption("Нет вариантов для этой ячейки.")
+    else:
+        for variant in variants[:8]:
+            if st.button(
+                f"{variant.title} · {variant.kind}",
+                key=f"cell-variant-{cell.id}-{variant.id}",
+            ):
+                go_to_section(
+                    "Варианты (конкретика)",
+                    variant_id=variant.id,
+                    way_id=variant.primary_way_id,
+                )
 
     st.markdown("#### Мини-диаграмма")
     st.code(components.ascii_focus_diagram(cell.id, outgoing), language="text")

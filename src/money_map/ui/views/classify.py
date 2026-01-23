@@ -10,7 +10,7 @@ def _render_results(result) -> None:
     st.markdown("### Результаты")
     st.write("**Теги:**", result.tags)
 
-    st.markdown("**Таксономия:**")
+    st.markdown("**Способы получения денег:**")
     if not result.taxonomy_scores:
         st.caption("Совпадений нет.")
     else:
@@ -36,7 +36,7 @@ def _render_results(result) -> None:
 
 def render(data: AppData) -> None:
     st.title("Классификатор")
-    st.markdown("Сопоставьте описание с таксономией и ячейками матрицы.")
+    st.markdown("Сопоставьте описание со способами получения денег и ячейками матрицы.")
 
     tab_structured, tab_text = st.tabs(["Структурированные теги", "Текстовый режим"])
 
