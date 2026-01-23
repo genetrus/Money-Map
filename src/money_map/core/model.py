@@ -64,6 +64,7 @@ class Variant(BaseModel):
     success_metrics: List[str]
     related_variant_ids: List[str]
     notes: Optional[str] = None
+    bridge_ids: List[str] = Field(default_factory=list)
 
 
 class PathItem(BaseModel):
@@ -81,6 +82,11 @@ class BridgeItem(BaseModel):
     mechanisms: List[str]
     checks: List[str]
     notes: str
+    short_summary: Optional[str] = None
+    effects: List[str] = Field(default_factory=list)
+    linked_way_ids: List[str] = Field(default_factory=list)
+    linked_route_ids: List[str] = Field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
 
     model_config = {"populate_by_name": True}
 
