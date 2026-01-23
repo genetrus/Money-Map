@@ -101,6 +101,9 @@ def init_session_state() -> None:
     st.session_state.setdefault("active_tab", "Карта")
     st.session_state.setdefault("ways_ui_tab", "Карта")
     st.session_state.setdefault("pending_nav_section", None)
+    st.session_state.setdefault("pending_graph_tab", None)
+    st.session_state.setdefault("pending_anchor", None)
+    st.session_state.setdefault("pending_payload", None)
     st.session_state.setdefault("pending_nav", None)
     st.session_state.setdefault("last_click_id", None)
     st.session_state.setdefault("matrix_focus_cell", None)
@@ -167,6 +170,22 @@ def _apply_pending_nav_state() -> None:
 
 def apply_pending_navigation() -> None:
     _apply_pending_nav_state()
+    pending_graph_tab = st.session_state.pop("pending_graph_tab", None)
+    if isinstance(pending_graph_tab, str) and pending_graph_tab:
+        st.session_state["graph_tab"] = pending_graph_tab
+
+    pending_anchor = st.session_state.pop("pending_anchor", None)
+    if isinstance(pending_anchor, str) and pending_anchor:
+        st.session_state["nav_anchor"] = pending_anchor
+
+    pending_payload = st.session_state.pop("pending_payload", None)
+    if isinstance(pending_payload, dict):
+        payload = st.session_state.get("nav_payload")
+        if not isinstance(payload, dict):
+            payload = {}
+        payload.update(pending_payload)
+        st.session_state["nav_payload"] = payload
+
     pending_nav = st.session_state.pop("pending_nav", None)
     if isinstance(pending_nav, dict):
         section = pending_nav.get("section")
@@ -180,19 +199,40 @@ def apply_pending_navigation() -> None:
             payload.update(params)
             st.session_state["nav_payload"] = payload
             st.session_state["nav_intent"] = {"section": section, "params": params}
-        st.rerun()
 
     pending_section = st.session_state.pop("pending_nav_section", None)
     if isinstance(pending_section, str) and pending_section:
-        if pending_section != st.session_state.get("nav_section"):
-            st.session_state["nav_section"] = pending_section
-            st.rerun()
+        st.session_state["nav_section"] = pending_section
 
     if st.session_state.get("nav_mode") == "Конструктор пути":
         section = st.session_state.get("nav_section")
         step = NAV_SECTION_TO_STEP.get(section)
         if step:
             st.session_state["nav_step"] = step
+
+
+def request_navigation(
+    *,
+    section: str | None = None,
+    graph_tab: str | None = None,
+    anchor: str | None = None,
+    payload: dict | None = None,
+) -> None:
+    changed = False
+    if section is not None and section != st.session_state.get("nav_section"):
+        st.session_state["pending_nav_section"] = section
+        changed = True
+    if graph_tab is not None and graph_tab != st.session_state.get("graph_tab"):
+        st.session_state["pending_graph_tab"] = graph_tab
+        changed = True
+    if anchor is not None:
+        st.session_state["pending_anchor"] = anchor
+        changed = True
+    if payload is not None:
+        st.session_state["pending_payload"] = payload
+        changed = True
+    if changed:
+        st.rerun()
 
 
 def sync_selection_context() -> dict[str, object]:
@@ -518,8 +558,7 @@ def axis_label(axis: str, value: str) -> str:
 def set_page(page: str) -> None:
     st.session_state["page"] = page
     st.session_state["active_section"] = page
-    if page != st.session_state.get("nav_section"):
-        st.session_state["pending_nav_section"] = page
+    request_navigation(section=page)
 
 
 def set_selected_cell(cell_id: Optional[str]) -> None:

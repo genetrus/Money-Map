@@ -26,6 +26,8 @@ ROLE_FAMILIES = [
     "ANALYTICS",
 ]
 
+CHANNEL_STATE_KEYS = ["automation", "channel_system", "delegation", "subscription"]
+
 ALLOWED_BY_MECHANISM = {
     "salary": {
         "to_whom": {"single_client", "platform"},
@@ -116,6 +118,25 @@ def _cap(items: Iterable[str], limit: int) -> List[str]:
 
 def _filter_allowed(items: Iterable[str], allowed: set[str]) -> List[str]:
     return [item for item in _unique(items) if item in allowed]
+
+
+def normalize_risk_level(value: str, mod_set: List[Dict[str, Any]]) -> str:
+    if value == "high":
+        return "high"
+    if value == "medium":
+        if any(mod.get("category") == "risk" for mod in mod_set):
+            return "high"
+        return "low"
+    return "low"
+
+
+def build_channel_state(mod_set: List[Dict[str, Any]]) -> Dict[str, bool]:
+    state = {key: False for key in CHANNEL_STATE_KEYS}
+    for mod in mod_set:
+        mod_id = mod.get("id")
+        if mod_id in state:
+            state[mod_id] = True
+    return state
 
 
 def select_mod_sets(archetype: Dict[str, Any], modifiers: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
@@ -243,6 +264,8 @@ def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, A
         for mod_set in mod_sets:
             mod_key = "base" if not mod_set else ".".join(mod["id"] for mod in mod_set)
             payload = apply_modifiers(arch, mod_set)
+            risk_level = normalize_risk_level(arch["risk_level"], mod_set)
+            channel_state = build_channel_state(mod_set)
             variant_id = f"{arch['mechanism_id']}.{arch['arch_id']}.{mod_key}"
             dedup_key = (
                 arch["mechanism_id"],
@@ -266,7 +289,7 @@ def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, A
                     "sell_tags": payload["sell_tags"],
                     "to_whom_tags": payload["to_whom_tags"],
                     "value_tags": payload["value_tags"],
-                    "risk_level": arch["risk_level"],
+                    "risk_level": risk_level,
                     "activity": arch["activity"],
                     "scalability": arch["scalability"],
                     "outside_market": arch["outside_market"],
@@ -277,6 +300,7 @@ def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, A
                     "notes": payload["notes"],
                     "bridge_ids": payload["bridge_ids"],
                     "route_ids": payload["routes"],
+                    "channel_state": channel_state,
                     "activity_profile": {
                         "task_profile": [],
                         "environment": None,
