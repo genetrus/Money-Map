@@ -12,10 +12,11 @@ dependencies = [
   "typer>=0.9",
   "rich>=13.7",
   "networkx>=3.2",
+  "streamlit>=1.30",
 ]
 
 [project.optional-dependencies]
-ui = ["streamlit>=1.30", "pyvis>=0.3.2", "pandas>=2.0", "streamlit-agraph>=0.0.45"]
+ui = ["pyvis>=0.3.2", "pandas>=2.0", "streamlit-agraph>=0.0.45"]
 
 [project.scripts]
 money-map = "money_map.app.cli:app"
