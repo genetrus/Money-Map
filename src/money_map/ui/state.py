@@ -59,5 +59,7 @@ def go_to_section(
         payload["variant_cell_filter"] = variant_cell_filter
     if target_tab is not None:
         payload["tab"] = target_tab
-    st.session_state["nav_intent"] = {"section": target_section, "payload": payload}
+    params = dict(payload)
+    params.pop("section", None)
+    st.session_state["pending_nav"] = {"section": target_section, "params": params}
     st.rerun()

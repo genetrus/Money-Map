@@ -92,6 +92,28 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_filter_kind", "all")
     st.session_state.setdefault("variants_filter_cell", "all")
     st.session_state.setdefault("variants_filter_outside", False)
+    st.session_state.setdefault("variants_mode", "Подбор")
+    st.session_state.setdefault("variants_scope", "strict")
+    st.session_state.setdefault("variants_library_search", "")
+    st.session_state.setdefault("variants_library_sort", "title")
+    st.session_state.setdefault("variants_library_mechanism", "all")
+    st.session_state.setdefault("variants_library_cell", "all")
+    st.session_state.setdefault("variants_library_kind", "all")
+    st.session_state.setdefault("shortlist", {})
+    st.session_state.setdefault(
+        "selection",
+        {
+            "selected_matrix_cell": None,
+            "selected_transition": None,
+            "selected_classifiers": {"sell": [], "to_whom": [], "measure": []},
+            "selected_mechanism_ids": [],
+            "selected_route_id": None,
+            "selected_bridge_ids": [],
+            "risk": "all",
+            "activity": "all",
+            "scalability": "all",
+        },
+    )
     st.session_state.setdefault(
         "selected_classifier_filters",
         {"what_sell": [], "to_whom": [], "value_measure": []},
@@ -109,11 +131,70 @@ def init_session_state() -> None:
 
 
 def apply_pending_navigation() -> None:
+    pending_nav = st.session_state.pop("pending_nav", None)
+    if isinstance(pending_nav, dict):
+        section = pending_nav.get("section")
+        params = pending_nav.get("params", {})
+        if isinstance(section, str) and section:
+            st.session_state["nav_section"] = section
+        if isinstance(params, dict):
+            payload = {"section": section}
+            payload.update(params)
+            st.session_state["nav_payload"] = payload
+        st.rerun()
+
     pending_section = st.session_state.pop("pending_nav_section", None)
     if isinstance(pending_section, str) and pending_section:
         if pending_section != st.session_state.get("nav_section"):
             st.session_state["nav_section"] = pending_section
             st.rerun()
+
+
+def sync_selection_context() -> dict[str, object]:
+    selection = st.session_state.get("selection")
+    if not isinstance(selection, dict):
+        selection = {}
+    selection.setdefault("selected_classifiers", {"sell": [], "to_whom": [], "measure": []})
+    selection.setdefault("selected_mechanism_ids", [])
+    selection.setdefault("selected_bridge_ids", [])
+    selection.setdefault("selected_matrix_cell", None)
+    selection.setdefault("selected_transition", None)
+    selection.setdefault("selected_route_id", None)
+
+    selection["selected_matrix_cell"] = st.session_state.get("selected_cell_id")
+    selection["selected_transition"] = st.session_state.get("selected_transition")
+    selection["selected_route_id"] = st.session_state.get("selected_route_id")
+    selection["risk"] = st.session_state.get("filter_risk", "all")
+    selection["activity"] = st.session_state.get("filter_activity", "all")
+    selection["scalability"] = st.session_state.get("filter_scalability", "all")
+
+    classifier_state = get_classifier_selection_state()
+    selection["selected_classifiers"] = {
+        "sell": sorted(classifier_state.get("what_sell", set())),
+        "to_whom": sorted(classifier_state.get("to_whom", set())),
+        "measure": sorted(classifier_state.get("value_measure", set())),
+    }
+
+    mechanism_ids: list[str] = []
+    for key in ("selected_way_id", "ways_selected_way_id", "selected_tax_id"):
+        way_id = st.session_state.get(key)
+        if isinstance(way_id, str) and way_id and way_id not in mechanism_ids:
+            mechanism_ids.append(way_id)
+    selection["selected_mechanism_ids"] = mechanism_ids
+
+    bridge_ids: list[str] = []
+    selected_bridge_id = st.session_state.get("selected_bridge_id")
+    if isinstance(selected_bridge_id, str) and selected_bridge_id:
+        bridge_ids.append(selected_bridge_id)
+    chosen_bridges = st.session_state.get("chosen_bridges_by_transition", {})
+    if isinstance(chosen_bridges, dict):
+        for bridge_id in chosen_bridges.values():
+            if isinstance(bridge_id, str) and bridge_id and bridge_id not in bridge_ids:
+                bridge_ids.append(bridge_id)
+    selection["selected_bridge_ids"] = bridge_ids
+
+    st.session_state["selection"] = selection
+    return selection
 
 
 def request_page(page: str) -> None:
