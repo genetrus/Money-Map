@@ -106,6 +106,19 @@ def init_session_state() -> None:
     st.session_state.setdefault("matrix_axis_scalability", "linear")
 
 
+def apply_pending_navigation() -> None:
+    if "nav_section_next" in st.session_state:
+        st.session_state["nav_section"] = st.session_state["nav_section_next"]
+        del st.session_state["nav_section_next"]
+
+
+def request_page(page: str) -> None:
+    current = st.session_state.get("nav_section")
+    if page != current:
+        st.session_state["nav_section_next"] = page
+        st.rerun()
+
+
 CLASSIFIER_SELECTION_KEYS = {
     "what_sell": "classifier_selected_what_sell",
     "to_whom": "classifier_selected_to_whom",
@@ -246,7 +259,6 @@ def axis_label(axis: str, value: str) -> str:
 def set_page(page: str) -> None:
     st.session_state["page"] = page
     st.session_state["active_section"] = page
-    st.session_state["nav_section"] = page
 
 
 def set_selected_cell(cell_id: Optional[str]) -> None:

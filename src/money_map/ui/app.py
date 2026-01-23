@@ -27,6 +27,7 @@ def _sidebar_status(data) -> None:
 def main() -> None:
     st.set_page_config(page_title="Money Map — интерфейс", layout="wide")
     components.init_session_state()
+    components.apply_pending_navigation()
     components.load_css()
 
     data, errors = components.load_data()
