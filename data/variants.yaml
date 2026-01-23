@@ -1,1137 +1,2466 @@
----
 variants:
-  - id: salary_call_center
-    title: "Оператор call-центра"
-    kind: "job"
-    primary_way_id: "salary"
-    matrix_cells: ["A1"]
-    sell_tags: ["time"]
-    to_whom_tags: ["platform"]
-    value_tags: ["rate"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["грамотная речь", "базовые навыки CRM", "устойчивость к рутине"]
-    first_steps: ["составить резюме", "пройти тест на дикцию", "подать 5-7 откликов", "пройти интервью", "выйти на смену"]
-    success_metrics: ["1-2 оффера", "стабильный график", "выполнение KPI по звонкам"]
-    related_variant_ids: []
-    notes: "Подходит для старта и быстрого кэша."
-  - id: salary_admin
-    title: "Администратор офиса/сервиса"
-    kind: "job"
-    primary_way_id: "salary"
-    matrix_cells: ["A1"]
-    sell_tags: ["time"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["rate"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["организованность", "вежливость", "базовые офисные навыки"]
-    first_steps: ["подготовить резюме", "описать опыт сервиса", "поиск вакансий рядом", "пройти собеседование"]
-    success_metrics: ["получен оклад", "понятные обязанности", "стабильные смены"]
-    related_variant_ids: []
-  - id: salary_junior_analyst
-    title: "Младший аналитик/ассистент"
-    kind: "job"
-    primary_way_id: "salary"
-    matrix_cells: ["A1"]
-    sell_tags: ["time"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["rate"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["Excel/Sheets", "базовая логика", "внимательность"]
-    first_steps: ["собрать портфолио из 1-2 кейсов", "пройти тестовое", "откликнуться на стажировки", "пройти интервью"]
-    success_metrics: ["оффер на стажировку", "первые задачи закрыты", "обратная связь от руководителя"]
-    related_variant_ids: []
-  - id: salary_support
-    title: "Специалист поддержки/модерации"
-    kind: "job"
-    primary_way_id: "salary"
-    matrix_cells: ["A1"]
-    sell_tags: ["time"]
-    to_whom_tags: ["platform"]
-    value_tags: ["rate"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["аккуратность", "стрессоустойчивость", "скорость набора"]
-    first_steps: ["подготовить резюме", "сдать тест на внимательность", "пройти обучение", "выйти на смены"]
-    success_metrics: ["выполнение SLA", "низкий процент ошибок", "стабильные смены"]
-    related_variant_ids: []
-  - id: salary_shift_logistics
-    title: "Сменный сотрудник склада/логистики"
-    kind: "job"
-    primary_way_id: "salary"
-    matrix_cells: ["A1"]
-    sell_tags: ["time"]
-    to_whom_tags: ["platform"]
-    value_tags: ["rate"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["физическая выносливость", "дисциплина", "готовность к сменам"]
-    first_steps: ["получить допуск/медсправку", "заполнить анкету", "пройти инструктаж", "выйти на первую смену"]
-    success_metrics: ["нормативы выполнены", "регулярные смены", "повышение ставки"]
-    related_variant_ids: []
-
-  - id: fee_result_consulting
-    title: "Разовая консультация с фикс-ценой"
-    kind: "service"
-    primary_way_id: "fee_for_result"
-    matrix_cells: ["A1"]
-    sell_tags: ["result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["экспертиза в теме", "умение структурировать", "портфолио кейсов"]
-    first_steps: ["описать пакет консультации", "подготовить чек-лист", "найти 3-5 клиентов", "провести 1-2 сессии"]
-    success_metrics: ["первые оплаты", "повторные запросы", "положительные отзывы"]
-    related_variant_ids: []
-  - id: fee_result_design
-    title: "Дизайн-проект под ключ"
-    kind: "service"
-    primary_way_id: "fee_for_result"
-    matrix_cells: ["A1"]
-    sell_tags: ["result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["портфолио", "навыки коммуникации", "умение оценивать сроки"]
-    first_steps: ["собрать 3-5 работ", "определить стоимость", "подготовить договор", "взять первый проект"]
-    success_metrics: ["проект сдан", "клиент оплатил", "появился повторный заказ"]
-    related_variant_ids: []
-  - id: fee_result_repair
-    title: "Ремонт/монтаж за фикс-цену"
-    kind: "service"
-    primary_way_id: "fee_for_result"
-    matrix_cells: ["A1"]
-    sell_tags: ["result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["технические навыки", "инструмент", "умение оценивать объём"]
-    first_steps: ["подготовить список услуг", "оценить прайс", "разместить объявление", "выполнить 1 заказ"]
-    success_metrics: ["1-2 заказа в неделю", "соблюдение сроков", "рекомендации"]
-    related_variant_ids: []
-  - id: fee_result_web_package
-    title: "Пакет лендингов/сайтов"
-    kind: "service"
-    primary_way_id: "fee_for_result"
-    matrix_cells: ["A2"]
-    sell_tags: ["result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["шаблоны/процессы", "умение делегировать", "канал лидов"]
-    first_steps: ["собрать типовой пакет", "описать бриф", "подготовить шаблоны", "найти 2-3 клиента"]
-    success_metrics: ["пакет закрывается за 1-2 недели", "маржа > 30%", "есть очередь заказов"]
-    related_variant_ids: []
-    notes: "Пакетные услуги дают масштаб за счёт стандартизации."
-  - id: fee_result_ad_setup
-    title: "Настройка рекламы под KPI"
-    kind: "service"
-    primary_way_id: "fee_for_result"
-    matrix_cells: ["A2"]
-    sell_tags: ["result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["навыки performance", "доступ к кабинетам", "кейсы"]
-    first_steps: ["описать KPI", "подготовить шаблон отчёта", "найти 1-2 клиента", "запустить тесты"]
-    success_metrics: ["достижение KPI", "продление контракта", "второй клиент"]
-    related_variant_ids: []
-
-  - id: commission_sales
-    title: "Продажи за процент"
-    kind: "service"
-    primary_way_id: "commission"
-    matrix_cells: ["A3"]
-    sell_tags: ["result", "risk"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["percent"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["навыки продаж", "устойчивость к отказам", "CRM/скрипты"]
-    first_steps: ["выбрать продукт", "согласовать %", "получить скрипт", "сделать 30-50 касаний"]
-    success_metrics: ["первые сделки", "конверсия > целевой", "регулярный поток лидов"]
-    related_variant_ids: []
-  - id: commission_real_estate
-    title: "Риэлторская комиссия"
-    kind: "service"
-    primary_way_id: "commission"
-    matrix_cells: ["A3"]
-    sell_tags: ["result", "risk"]
-    to_whom_tags: ["market"]
-    value_tags: ["percent"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["знание рынка", "контакты", "готовность к длинным циклам"]
-    first_steps: ["выбрать сегмент", "получить допуски", "собрать 10-20 объектов", "провести показы"]
-    success_metrics: ["1 сделка в месяц", "рост базы клиентов", "рекомендации"]
-    related_variant_ids: []
-  - id: commission_affiliate
-    title: "Партнёрские продажи (affiliate)"
-    kind: "business_model"
-    primary_way_id: "commission"
-    matrix_cells: ["A3"]
-    sell_tags: ["result", "risk"]
-    to_whom_tags: ["platform", "market"]
-    value_tags: ["percent"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["канал трафика", "умение тестировать офферы", "аналитика"]
-    first_steps: ["выбрать оффер", "подключить трекинг", "запустить 2-3 теста", "оптимизировать"]
-    success_metrics: ["первые выплаты", "CAC ниже комиссии", "стабильный ROI"]
-    related_variant_ids: []
-  - id: commission_broker
-    title: "Брокерские сделки B2B"
-    kind: "service"
-    primary_way_id: "commission"
-    matrix_cells: ["A3"]
-    sell_tags: ["result", "risk"]
-    to_whom_tags: ["market"]
-    value_tags: ["percent"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["сеть контактов", "умение вести переговоры", "юридическая база"]
-    first_steps: ["собрать 5-10 лидов", "описать выгоду", "подписать соглашение", "закрыть первую сделку"]
-    success_metrics: ["закрыта сделка", "комиссия получена", "повторные запросы"]
-    related_variant_ids: []
-  - id: commission_trade_rep
-    title: "Торговый представитель с %"
-    kind: "job"
-    primary_way_id: "commission"
-    matrix_cells: ["A3"]
-    sell_tags: ["result", "risk"]
-    to_whom_tags: ["platform"]
-    value_tags: ["percent"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["автомобиль/мобильность", "умение общаться", "навыки презентации"]
-    first_steps: ["выбрать компанию", "пройти обучение", "получить маршрут", "сделать 20 визитов"]
-    success_metrics: ["первая сделка", "выполнение плана", "рост среднего чека"]
-    related_variant_ids: []
-
-  - id: entrepreneurship_service_team
-    title: "Сервис с командой (услуга под ключ)"
-    kind: "business_model"
-    primary_way_id: "entrepreneurship_margin"
-    matrix_cells: ["A2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["процессы", "набор команды", "канал заявок"]
-    first_steps: ["описать услугу", "найти 1-2 подрядчика", "собрать регламент", "привести 3 клиента"]
-    success_metrics: ["маржа > 25%", "есть повторные сделки", "работает без личного участия"]
-    related_variant_ids: []
-  - id: entrepreneurship_resell
-    title: "Купил-улучшил-продал"
-    kind: "business_model"
-    primary_way_id: "entrepreneurship_margin"
-    matrix_cells: ["A2"]
-    sell_tags: ["access", "risk"]
-    to_whom_tags: ["market"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["умение оценивать ценность", "минимальный капитал", "каналы продаж"]
-    first_steps: ["найти 3-5 недооценённых лотов", "оценить маржу", "сделать улучшения", "продать"]
-    success_metrics: ["прибыльная сделка", "оборачиваемость < 30 дней", "рост объёма"]
-    related_variant_ids: []
-  - id: entrepreneurship_subscription
-    title: "Подписка на сервис"
-    kind: "business_model"
-    primary_way_id: "entrepreneurship_margin"
-    matrix_cells: ["A2"]
-    sell_tags: ["access"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["ясная ценность", "поддержка клиентов", "маркетинг"]
-    first_steps: ["описать проблему", "собрать MVP", "получить 5 платящих", "настроить поддержку"]
-    success_metrics: ["retention > 60%", "MRR растёт", "LTV > CAC"]
-    related_variant_ids: []
-  - id: entrepreneurship_franchise
-    title: "Франшиза/масштабирование точки"
-    kind: "business_model"
-    primary_way_id: "entrepreneurship_margin"
-    matrix_cells: ["A4"]
-    sell_tags: ["access", "risk"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["система", "капитал", "управление операциями"]
-    first_steps: ["описать стандарты", "посчитать юнит-экономику", "найти партнёра", "открыть пилот"]
-    success_metrics: ["окупаемость < 12 мес", "повторяемость модели", "второй запуск"]
-    related_variant_ids: []
-  - id: entrepreneurship_marketplace
-    title: "Запуск продажи на маркетплейсе"
-    kind: "business_model"
-    primary_way_id: "entrepreneurship_margin"
-    matrix_cells: ["A4"]
-    sell_tags: ["access", "risk"]
-    to_whom_tags: ["platform", "market"]
-    value_tags: ["price"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["капитал на закупку", "аналитика спроса", "логистика"]
-    first_steps: ["выбрать нишу", "заказать первую партию", "оформить карточку", "запустить рекламу"]
-    success_metrics: ["оборот растёт", "маржинальность > 20%", "нет кассовых разрывов"]
-    related_variant_ids: []
-
-  - id: rent_access_flat
-    title: "Аренда квартиры/комнаты"
-    kind: "asset_for_rent"
-    primary_way_id: "rent_access"
-    matrix_cells: ["P1"]
-    sell_tags: ["access", "property"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["доступ к объекту", "договор", "обслуживание"]
-    first_steps: ["оценить рынок", "подготовить объект", "сделать фото", "найти арендатора"]
-    success_metrics: ["занятость > 80%", "аренда покрывает расходы", "минимум простоев"]
-    related_variant_ids: []
-  - id: rent_access_equipment
-    title: "Аренда оборудования"
-    kind: "asset_for_rent"
-    primary_way_id: "rent_access"
-    matrix_cells: ["P1"]
-    sell_tags: ["access", "property"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["капитал на покупку", "сервис/обслуживание", "учёт"]
-    first_steps: ["выбрать востребованный актив", "купить 1-2 единицы", "подготовить договор", "запустить объявления"]
-    success_metrics: ["первый арендатор", "окупаемость по плану", "безопасность актива"]
-    related_variant_ids: []
-  - id: rent_access_workspace
-    title: "Коворкинг/рабочие места"
-    kind: "asset_for_rent"
-    primary_way_id: "rent_access"
-    matrix_cells: ["P1"]
-    sell_tags: ["access", "property"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["помещение", "управление доступом", "маркетинг"]
-    first_steps: ["подготовить зону", "настроить тарифы", "сделать лендинг", "привлечь первых резидентов"]
-    success_metrics: ["загрузка > 60%", "покрытие аренды", "повторные оплаты"]
-    related_variant_ids: []
-  - id: rent_access_storage
-    title: "Склад/хранение под аренду"
-    kind: "asset_for_rent"
-    primary_way_id: "rent_access"
-    matrix_cells: ["P1"]
-    sell_tags: ["access", "property"]
-    to_whom_tags: ["market"]
-    value_tags: ["rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["помещение", "страхование", "безопасность"]
-    first_steps: ["оценить спрос", "подготовить склад", "сделать договор", "найти арендаторов"]
-    success_metrics: ["минимум просрочек", "стабильные платежи", "загрузка"]
-    related_variant_ids: []
-  - id: rent_access_license
-    title: "Лицензирование доступа"
-    kind: "instrument"
-    primary_way_id: "rent_access"
-    matrix_cells: ["P1"]
-    sell_tags: ["access", "property"]
-    to_whom_tags: ["market"]
-    value_tags: ["rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["право собственности", "договоры", "контроль использования"]
-    first_steps: ["описать права", "подготовить лицензии", "найти 1-2 партнёра", "запустить оплату"]
-    success_metrics: ["регулярные платежи", "минимум споров", "рост количества лицензий"]
-    related_variant_ids: []
-
-  - id: interest_dividends_bonds
-    title: "Облигации/купоны"
-    kind: "instrument"
-    primary_way_id: "interest_dividends"
-    matrix_cells: ["P1"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["инвестсчёт", "понимание срока", "подушка"]
-    first_steps: ["открыть счёт", "выбрать облигации", "купить минимальный лот", "отслеживать выплаты"]
-    success_metrics: ["получен купон", "стабильный график выплат", "нет дефолтов"]
-    related_variant_ids: []
-  - id: interest_dividends_deposit
-    title: "Банковский депозит"
-    kind: "instrument"
-    primary_way_id: "interest_dividends"
-    matrix_cells: ["P1"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["platform"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["капитал", "банк", "понимание условий"]
-    first_steps: ["сравнить ставки", "выбрать срок", "разместить сумму", "отслеживать начисления"]
-    success_metrics: ["начислены проценты", "сохранность капитала", "планируемый доход"]
-    related_variant_ids: []
-  - id: interest_dividends_dividends
-    title: "Дивидендный портфель"
-    kind: "instrument"
-    primary_way_id: "interest_dividends"
-    matrix_cells: ["P1"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["понимание риска", "диверсификация", "долгий горизонт"]
-    first_steps: ["составить список эмитентов", "купить 3-5 бумаг", "отслеживать дивиденды", "реинвестировать"]
-    success_metrics: ["дивиденды растут", "нет сильной просадки", "портфель диверсифицирован"]
-    related_variant_ids: []
-  - id: interest_dividends_loan
-    title: "Частное кредитование"
-    kind: "instrument"
-    primary_way_id: "interest_dividends"
-    matrix_cells: ["P1"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["оценка риска", "договор", "залог"]
-    first_steps: ["определить условия", "проверить заёмщика", "подписать договор", "отслеживать платежи"]
-    success_metrics: ["платежи вовремя", "процент выплачивается", "обеспечение покрывает риск"]
-    related_variant_ids: []
-  - id: interest_dividends_note
-    title: "Нотные/структурные выплаты"
-    kind: "instrument"
-    primary_way_id: "interest_dividends"
-    matrix_cells: ["P1"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["platform"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["понимание условий", "прочитать оферту", "сумма входа"]
-    first_steps: ["изучить риск", "проверить эмитента", "купить минимальный объём", "оценить выплаты"]
-    success_metrics: ["получены выплаты", "прозрачность условий", "выплаты по графику"]
-    related_variant_ids: []
-
-  - id: appreciation_growth_stocks
-    title: "Акции роста"
-    kind: "instrument"
-    primary_way_id: "appreciation"
-    matrix_cells: ["P3"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["appreciation"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["высокий риск-профиль", "диверсификация", "долгий горизонт"]
-    first_steps: ["выбрать 5-7 компаний", "разбить входы", "поставить лимиты", "отслеживать новости"]
-    success_metrics: ["рост портфеля", "контроль риска", "план ребалансировки"]
-    related_variant_ids: []
-  - id: appreciation_crypto
-    title: "Крипто-активы"
-    kind: "instrument"
-    primary_way_id: "appreciation"
-    matrix_cells: ["P4"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["appreciation"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["безопасность кошелька", "понимание волатильности", "лимиты"]
-    first_steps: ["создать кошелёк", "выбрать активы", "установить риск-лимит", "постепенно входить"]
-    success_metrics: ["прирост за период", "соблюдение лимитов", "нет потери доступа"]
-    related_variant_ids: []
-  - id: appreciation_collectibles
-    title: "Коллекционные предметы"
-    kind: "asset_for_rent"
-    primary_way_id: "appreciation"
-    matrix_cells: ["P3"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["appreciation"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["экспертиза в нише", "каналы продаж", "хранение"]
-    first_steps: ["выбрать сегмент", "найти 3-5 лотов", "проверить подлинность", "оформить хранение"]
-    success_metrics: ["рост цены", "ликвидность", "минимум подделок"]
-    related_variant_ids: []
-  - id: appreciation_land
-    title: "Спекулятивная недвижимость/земля"
-    kind: "asset_for_rent"
-    primary_way_id: "appreciation"
-    matrix_cells: ["P3"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["appreciation"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: false
-    requirements: ["капитал", "юридическая проверка", "долгий горизонт"]
-    first_steps: ["оценить район", "проверить документы", "купить объект", "отслеживать динамику"]
-    success_metrics: ["рост стоимости", "спрос на лот", "продажа без убытка"]
-    related_variant_ids: []
-  - id: appreciation_startup_equity
-    title: "Доля в стартапе"
-    kind: "instrument"
-    primary_way_id: "appreciation"
-    matrix_cells: ["P4"]
-    sell_tags: ["capital"]
-    to_whom_tags: ["market"]
-    value_tags: ["appreciation"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["доступ к сделкам", "долгий горизонт", "портфельный подход"]
-    first_steps: ["найти 3-5 проектов", "проверить команду", "разбить инвестпул", "подписать документы"]
-    success_metrics: ["диверсификация", "рост оценок", "прозрачные отчёты"]
-    related_variant_ids: []
-
-  - id: ip_product_course
-    title: "Онлайн-курс/гайд"
-    kind: "ip_product"
-    primary_way_id: "intellectual_property"
-    matrix_cells: ["P2"]
-    sell_tags: ["property", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["экспертиза", "контент", "платформа продажи"]
-    first_steps: ["сформировать программу", "записать 5-7 модулей", "упаковать лендинг", "запустить продажи"]
-    success_metrics: ["первые продажи", "конверсия лендинга", "низкий возврат"]
-    related_variant_ids: []
-  - id: ip_product_template
-    title: "Шаблоны/документы"
-    kind: "ip_product"
-    primary_way_id: "intellectual_property"
-    matrix_cells: ["P2"]
-    sell_tags: ["property", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["понимание спроса", "упаковка", "канал продаж"]
-    first_steps: ["найти боль", "создать 3-5 шаблонов", "сделать описание", "разместить на маркетплейсе"]
-    success_metrics: ["10+ продаж", "отзывы", "минимальная поддержка"]
-    related_variant_ids: []
-  - id: ip_product_app
-    title: "Микро-приложение/SaaS"
-    kind: "ip_product"
-    primary_way_id: "intellectual_property"
-    matrix_cells: ["P2"]
-    sell_tags: ["property", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price", "rent"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["разработка", "поддержка", "маркетинг"]
-    first_steps: ["собрать MVP", "запустить beta", "настроить платежи", "собрать обратную связь"]
-    success_metrics: ["MRR растёт", "низкий churn", "устойчивый трафик"]
-    related_variant_ids: []
-  - id: ip_product_music
-    title: "Музыка/стоковый контент"
-    kind: "ip_product"
-    primary_way_id: "intellectual_property"
-    matrix_cells: ["P2"]
-    sell_tags: ["property", "result"]
-    to_whom_tags: ["platform"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["портфолио", "регулярный выпуск", "площадки"]
-    first_steps: ["подготовить 5-10 треков", "загрузить на стоки", "оформить метаданные", "наблюдать продажи"]
-    success_metrics: ["регулярные продажи", "рост каталога", "повторные покупки"]
-    related_variant_ids: []
-  - id: ip_product_book
-    title: "Книга/методичка"
-    kind: "ip_product"
-    primary_way_id: "intellectual_property"
-    matrix_cells: ["P2"]
-    sell_tags: ["property", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["структура", "редактура", "канал продаж"]
-    first_steps: ["сделать план", "написать 3-5 глав", "найти редактора", "опубликовать"]
-    success_metrics: ["первые продажи", "отзывы", "рост органики"]
-    related_variant_ids: []
-
-  - id: audience_youtube
-    title: "YouTube-канал с рекламой"
-    kind: "audience_channel"
-    primary_way_id: "attention_audience"
-    matrix_cells: ["P4"]
-    sell_tags: ["attention", "access"]
-    to_whom_tags: ["platform", "many_people"]
-    value_tags: ["payout", "percent"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["контент-план", "монтаж", "регулярность"]
-    first_steps: ["выбрать нишу", "записать 5 роликов", "оформить канал", "опубликовать по графику"]
-    success_metrics: ["рост подписчиков", "удержание > 40%", "монетизация включена"]
-    related_variant_ids: []
-  - id: audience_newsletter
-    title: "Email-рассылка с подпиской"
-    kind: "audience_channel"
-    primary_way_id: "attention_audience"
-    matrix_cells: ["P2"]
-    sell_tags: ["attention", "access"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["экспертиза", "контент", "email-платформа"]
-    first_steps: ["выбрать тему", "сделать лид-магнит", "собрать 100 подписчиков", "запустить платный доступ"]
-    success_metrics: ["open rate > 35%", "рост платных", "низкий отток"]
-    related_variant_ids: []
-  - id: audience_tg_channel
-    title: "Телеграм-канал с рекламой"
-    kind: "audience_channel"
-    primary_way_id: "attention_audience"
-    matrix_cells: ["P4"]
-    sell_tags: ["attention", "access"]
-    to_whom_tags: ["platform"]
-    value_tags: ["payout", "price"]
-    risk_level: "high"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["контент", "рост аудитории", "продажи рекламы"]
-    first_steps: ["определить формат", "выпустить 20 постов", "подключить статистику", "привлечь 1 рекламодателя"]
-    success_metrics: ["рост аудитории", "регулярные размещения", "CTR реклам"]
-    related_variant_ids: []
-  - id: audience_community
-    title: "Платное сообщество/подписка"
-    kind: "audience_channel"
-    primary_way_id: "attention_audience"
-    matrix_cells: ["P2"]
-    sell_tags: ["attention", "access"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["ценность для участников", "модерация", "контент"]
-    first_steps: ["описать пользу", "создать ядро", "запустить подписку", "провести первый созвон"]
-    success_metrics: ["первые подписчики", "retention > 70%", "органические рекомендации"]
-    related_variant_ids: []
-  - id: audience_sponsorship
-    title: "Спонсорские интеграции"
-    kind: "audience_channel"
-    primary_way_id: "attention_audience"
-    matrix_cells: ["P2"]
-    sell_tags: ["attention", "access"]
-    to_whom_tags: ["platform", "many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["медиа-кит", "доверие аудитории", "регулярный контент"]
-    first_steps: ["собрать статистику", "сделать медиа-кит", "написать 10 брендам", "сделать интеграцию"]
-    success_metrics: ["1-2 спонсора", "рост CPM", "долгосрочные контракты"]
-    related_variant_ids: []
-
-  - id: data_compute_analytics
-    title: "Аналитика/дашборды как услуга"
-    kind: "service"
-    primary_way_id: "data_compute"
-    matrix_cells: ["A2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["аналитические навыки", "BI-инструменты", "процессы"]
-    first_steps: ["подготовить шаблоны", "найти 2 клиента", "сделать MVP отчёт", "перейти на абонплату"]
-    success_metrics: ["MRR растёт", "отчёты обновляются", "клиент продлевает"]
-    related_variant_ids: []
-  - id: data_compute_api
-    title: "Платный API/доступ к данным"
-    kind: "business_model"
-    primary_way_id: "data_compute"
-    matrix_cells: ["P2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["данные", "инфраструктура", "документация"]
-    first_steps: ["описать API", "настроить биллинг", "дать бесплатный лимит", "получить первых пользователей"]
-    success_metrics: ["рост активных ключей", "MRR", "стабильная нагрузка"]
-    related_variant_ids: []
-  - id: data_compute_automation
-    title: "Автоматизация процессов"
-    kind: "service"
-    primary_way_id: "data_compute"
-    matrix_cells: ["A2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["single_client"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["технические навыки", "понимание бизнеса", "документация"]
-    first_steps: ["выбрать нишу", "описать процесс", "сделать пилот", "подписать контракт"]
-    success_metrics: ["экономия времени клиента", "повторные сделки", "поддержка на абонентке"]
-    related_variant_ids: []
-  - id: data_compute_cloud
-    title: "Доступ к вычислениям/серверу"
-    kind: "business_model"
-    primary_way_id: "data_compute"
-    matrix_cells: ["P2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["platform"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["серверы", "поддержка", "биллинг"]
-    first_steps: ["выбрать нишу", "настроить инфраструктуру", "описать SLA", "подключить 3 клиентов"]
-    success_metrics: ["стабильность > 99%", "MRR", "минимальные простои"]
-    related_variant_ids: []
-  - id: data_compute_data_product
-    title: "Продукт данных (обновляемая база)"
-    kind: "ip_product"
-    primary_way_id: "data_compute"
-    matrix_cells: ["P2"]
-    sell_tags: ["access", "result"]
-    to_whom_tags: ["many_people"]
-    value_tags: ["price"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "scalable"
-    outside_market: false
-    requirements: ["качество данных", "обновление", "дистрибуция"]
-    first_steps: ["собрать набор", "проверить качество", "сделать витрину", "получить первые оплаты"]
-    success_metrics: ["повторные подписки", "низкий churn", "рост базы"]
-    related_variant_ids: []
-
-  - id: grants_prizes_grant
-    title: "Грантовая заявка на проект"
-    kind: "grant_program"
-    primary_way_id: "grants_prizes"
-    matrix_cells: ["A1"]
-    sell_tags: ["result"]
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["описание проекта", "смета", "сроки"]
-    first_steps: ["найти подходящий грант", "описать цель", "собрать документы", "подать заявку"]
-    success_metrics: ["заявка принята", "пройден отбор", "получено финансирование"]
-    related_variant_ids: []
-  - id: grants_prizes_competition
-    title: "Конкурс/премия в профессии"
-    kind: "grant_program"
-    primary_way_id: "grants_prizes"
-    matrix_cells: ["A3"]
-    sell_tags: ["result"]
-    to_whom_tags: ["platform"]
-    value_tags: ["payout"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["портфолио", "регламент", "высокий уровень"]
-    first_steps: ["выбрать конкурс", "подготовить работу", "собрать рекомендации", "подать заявку"]
-    success_metrics: ["прохождение в шорт-лист", "получена премия", "публичное признание"]
-    related_variant_ids: []
-  - id: grants_prizes_scholarship
-    title: "Стипендия на обучение"
-    kind: "grant_program"
-    primary_way_id: "grants_prizes"
-    matrix_cells: ["A1"]
-    sell_tags: ["result"]
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "active"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["достижения", "рекомендации", "заявка"]
-    first_steps: ["изучить условия", "подготовить документы", "получить рекомендации", "подать заявку"]
-    success_metrics: ["стипендия назначена", "сохранение статуса", "получение выплат"]
-    related_variant_ids: []
-  - id: grants_prizes_research
-    title: "Исследовательский грант"
-    kind: "grant_program"
-    primary_way_id: "grants_prizes"
-    matrix_cells: ["A3"]
-    sell_tags: ["result"]
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["научный трек", "партнёры", "смета"]
-    first_steps: ["сформировать гипотезу", "найти соисполнителей", "написать заявку", "защитить"]
-    success_metrics: ["получено финансирование", "отчёт принят", "продление проекта"]
-    related_variant_ids: []
-  - id: grants_prizes_innovation
-    title: "Приз за инновацию"
-    kind: "grant_program"
-    primary_way_id: "grants_prizes"
-    matrix_cells: ["A3"]
-    sell_tags: ["result"]
-    to_whom_tags: ["platform"]
-    value_tags: ["payout"]
-    risk_level: "high"
-    activity: "active"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["прототип", "презентация", "демо"]
-    first_steps: ["подготовить демо", "собрать питч", "подать заявку", "выступить"]
-    success_metrics: ["попадание в финал", "призовые", "новые контакты"]
-    related_variant_ids: []
-
-  - id: transfers_insurance_unemployment
-    title: "Пособие по безработице"
-    kind: "benefit_case"
-    primary_way_id: "transfers_insurance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["статус безработного", "сроки подачи", "документы"]
-    first_steps: ["узнать требования", "подать заявление", "пройти регистрацию", "подтвердить статус"]
-    success_metrics: ["назначение выплат", "своевременные выплаты", "сохранение статуса"]
-    related_variant_ids: []
-  - id: transfers_insurance_health
-    title: "Страховая выплата по событию"
-    kind: "insurance_case"
-    primary_way_id: "transfers_insurance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["state", "platform"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["договор страхования", "медицинские документы", "сроки подачи"]
-    first_steps: ["собрать документы", "уведомить страховую", "подать заявление", "следить за статусом"]
-    success_metrics: ["выплата получена", "сроки соблюдены", "документы приняты"]
-    related_variant_ids: []
-  - id: transfers_insurance_child
-    title: "Социальные выплаты на ребёнка"
-    kind: "benefit_case"
-    primary_way_id: "transfers_insurance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["подтверждение статуса", "документы семьи", "сроки"]
-    first_steps: ["уточнить условия", "подать заявление", "прикрепить документы", "получить решение"]
-    success_metrics: ["назначена выплата", "без задержек", "продление по графику"]
-    related_variant_ids: []
-  - id: transfers_insurance_subsidy
-    title: "Субсидия на жильё/коммуналку"
-    kind: "benefit_case"
-    primary_way_id: "transfers_insurance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["state"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["соответствие критериям", "документы", "расходы"]
-    first_steps: ["проверить критерии", "собрать квитанции", "подать заявку", "дождаться решения"]
-    success_metrics: ["субсидия назначена", "ежемесячные выплаты", "отсутствие долгов"]
-    related_variant_ids: []
-  - id: transfers_insurance_disaster
-    title: "Выплата при страховом случае"
-    kind: "insurance_case"
-    primary_way_id: "transfers_insurance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["platform"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["полис", "акт страхового случая", "сроки уведомления"]
-    first_steps: ["зафиксировать событие", "уведомить страховую", "подать документы", "получить выплату"]
-    success_metrics: ["выплата получена", "без отказов", "документы приняты"]
-    related_variant_ids: []
-
-  - id: gifts_inheritance_family
-    title: "Поддержка семьи"
-    kind: "benefit_case"
-    primary_way_id: "gifts_inheritance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["single_client"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["доверие", "договорённости", "прозрачность"]
-    first_steps: ["обсудить поддержку", "согласовать формат", "зафиксировать сроки", "получить перевод"]
-    success_metrics: ["регулярность помощи", "понятные условия", "отсутствие конфликтов"]
-    related_variant_ids: []
-  - id: gifts_inheritance_sponsor
-    title: "Спонсорство/меценатство"
-    kind: "benefit_case"
-    primary_way_id: "gifts_inheritance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["single_client"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["репутация", "ценность проекта", "отчётность"]
-    first_steps: ["описать проект", "найти 3-5 спонсоров", "подготовить смету", "провести встречу"]
-    success_metrics: ["получено финансирование", "долгосрочные отношения", "прозрачность расходов"]
-    related_variant_ids: []
-  - id: gifts_inheritance_gift
-    title: "Разовый подарок/донат"
-    kind: "benefit_case"
-    primary_way_id: "gifts_inheritance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["many_people"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["публичная коммуникация", "объяснение цели", "доверие"]
-    first_steps: ["описать цель", "выбрать площадку", "опубликовать историю", "обновлять статус"]
-    success_metrics: ["первые донаты", "рост доверия", "выполнение цели"]
-    related_variant_ids: []
-  - id: gifts_inheritance_inheritance
-    title: "Наследство"
-    kind: "benefit_case"
-    primary_way_id: "gifts_inheritance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["single_client"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["юридическое оформление", "документы", "сроки вступления"]
-    first_steps: ["получить свидетельство", "подготовить документы", "вступить в наследство", "оформить активы"]
-    success_metrics: ["активы оформлены", "нет споров", "соблюдены сроки"]
-    related_variant_ids: []
-  - id: gifts_inheritance_patron
-    title: "Патроны/подписчики поддержки"
-    kind: "benefit_case"
-    primary_way_id: "gifts_inheritance"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: ["many_people"]
-    value_tags: ["payout"]
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["комьюнити", "регулярный контакт", "прозрачные условия"]
-    first_steps: ["создать страницу поддержки", "объяснить формат", "пригласить 20 людей", "обновлять отчёты"]
-    success_metrics: ["регулярные взносы", "рост патронов", "низкий отток"]
-    related_variant_ids: []
-
-  - id: savings_effect_budget
-    title: "Бюджетирование и контроль расходов"
-    kind: "saving_strategy"
-    primary_way_id: "savings_effect"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: []
-    value_tags: []
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["учёт расходов", "дисциплина", "прозрачность"]
-    first_steps: ["собрать расходы за месяц", "разделить категории", "установить лимиты", "сократить 1-2 статьи"]
-    success_metrics: ["экономия 10-15%", "рост подушки", "устойчивый бюджет"]
-    related_variant_ids: []
-  - id: savings_effect_subscriptions
-    title: "Оптимизация подписок"
-    kind: "saving_strategy"
-    primary_way_id: "savings_effect"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: []
-    value_tags: []
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["инвентаризация", "приоритеты", "дисциплина"]
-    first_steps: ["список подписок", "отменить ненужные", "перейти на годовые", "следить за автоплатежами"]
-    success_metrics: ["снижение расходов", "отсутствие лишних списаний", "прозрачность затрат"]
-    related_variant_ids: []
-  - id: savings_effect_tariffs
-    title: "Пересмотр тарифов и условий"
-    kind: "saving_strategy"
-    primary_way_id: "savings_effect"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: []
-    value_tags: []
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["сбор предложений", "готовность торговаться", "документы"]
-    first_steps: ["сравнить тарифы", "позвонить провайдерам", "перейти на лучший", "подписать новые условия"]
-    success_metrics: ["снижение счетов", "сохранение качества", "нет штрафов"]
-    related_variant_ids: []
-  - id: savings_effect_energy
-    title: "Энергоэффективность дома"
-    kind: "saving_strategy"
-    primary_way_id: "savings_effect"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: []
-    value_tags: []
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["мини-инвестиции", "контроль потребления", "план"]
-    first_steps: ["поставить LED", "установить терморегуляторы", "снять показатели", "оптимизировать режим"]
-    success_metrics: ["снижение счетов", "окупаемость 3-6 мес", "стабильный эффект"]
-    related_variant_ids: []
-  - id: savings_effect_debt
-    title: "Снижение переплат по долгам"
-    kind: "saving_strategy"
-    primary_way_id: "savings_effect"
-    matrix_cells: ["P1"]
-    sell_tags: []
-    to_whom_tags: []
-    value_tags: []
-    risk_level: "low"
-    activity: "passive"
-    scalability: "linear"
-    outside_market: true
-    requirements: ["понимание условий", "переговоры", "дисциплина"]
-    first_steps: ["собрать кредиты", "посчитать ставки", "рефинансировать", "настроить досрочные платежи"]
-    success_metrics: ["снижение процентной ставки", "ускорение выплат", "уменьшение ежемесячной нагрузки"]
-    related_variant_ids: []
+- id: salary_call_center
+  title: Оператор call-центра
+  kind: job
+  primary_way_id: salary
+  matrix_cells:
+  - A1
+  sell_tags:
+  - time
+  to_whom_tags:
+  - platform
+  value_tags:
+  - rate
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - грамотная речь
+  - базовые навыки CRM
+  - устойчивость к рутине
+  first_steps:
+  - составить резюме
+  - пройти тест на дикцию
+  - подать 5-7 откликов
+  - пройти интервью
+  - выйти на смену
+  success_metrics:
+  - 1-2 оффера
+  - стабильный график
+  - выполнение KPI по звонкам
+  related_variant_ids: []
+  notes: Подходит для старта и быстрого кэша.
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: support_service
+- id: salary_admin
+  title: Администратор офиса/сервиса
+  kind: job
+  primary_way_id: salary
+  matrix_cells:
+  - A1
+  sell_tags:
+  - time
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - rate
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - организованность
+  - вежливость
+  - базовые офисные навыки
+  first_steps:
+  - подготовить резюме
+  - описать опыт сервиса
+  - поиск вакансий рядом
+  - пройти собеседование
+  success_metrics:
+  - получен оклад
+  - понятные обязанности
+  - стабильные смены
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: admin_office
+- id: salary_junior_analyst
+  title: Младший аналитик/ассистент
+  kind: job
+  primary_way_id: salary
+  matrix_cells:
+  - A1
+  sell_tags:
+  - time
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - rate
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - Excel/Sheets
+  - базовая логика
+  - внимательность
+  first_steps:
+  - собрать портфолио из 1-2 кейсов
+  - пройти тестовое
+  - откликнуться на стажировки
+  - пройти интервью
+  success_metrics:
+  - оффер на стажировку
+  - первые задачи закрыты
+  - обратная связь от руководителя
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: salary_support
+  title: Специалист поддержки/модерации
+  kind: job
+  primary_way_id: salary
+  matrix_cells:
+  - A1
+  sell_tags:
+  - time
+  to_whom_tags:
+  - platform
+  value_tags:
+  - rate
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - аккуратность
+  - стрессоустойчивость
+  - скорость набора
+  first_steps:
+  - подготовить резюме
+  - сдать тест на внимательность
+  - пройти обучение
+  - выйти на смены
+  success_metrics:
+  - выполнение SLA
+  - низкий процент ошибок
+  - стабильные смены
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: support_service
+- id: salary_shift_logistics
+  title: Сменный сотрудник склада/логистики
+  kind: job
+  primary_way_id: salary
+  matrix_cells:
+  - A1
+  sell_tags:
+  - time
+  to_whom_tags:
+  - platform
+  value_tags:
+  - rate
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - физическая выносливость
+  - дисциплина
+  - готовность к сменам
+  first_steps:
+  - получить допуск/медсправку
+  - заполнить анкету
+  - пройти инструктаж
+  - выйти на первую смену
+  success_metrics:
+  - нормативы выполнены
+  - регулярные смены
+  - повышение ставки
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: logistics
+- id: fee_result_consulting
+  title: Разовая консультация с фикс-ценой
+  kind: service
+  primary_way_id: fee_for_result
+  matrix_cells:
+  - A1
+  sell_tags:
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - экспертиза в теме
+  - умение структурировать
+  - портфолио кейсов
+  first_steps:
+  - описать пакет консультации
+  - подготовить чек-лист
+  - найти 3-5 клиентов
+  - провести 1-2 сессии
+  success_metrics:
+  - первые оплаты
+  - повторные запросы
+  - положительные отзывы
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: fee_result_design
+  title: Дизайн-проект под ключ
+  kind: service
+  primary_way_id: fee_for_result
+  matrix_cells:
+  - A1
+  sell_tags:
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - портфолио
+  - навыки коммуникации
+  - умение оценивать сроки
+  first_steps:
+  - собрать 3-5 работ
+  - определить стоимость
+  - подготовить договор
+  - взять первый проект
+  success_metrics:
+  - проект сдан
+  - клиент оплатил
+  - появился повторный заказ
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: fee_result_repair
+  title: Ремонт/монтаж за фикс-цену
+  kind: service
+  primary_way_id: fee_for_result
+  matrix_cells:
+  - A1
+  sell_tags:
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - технические навыки
+  - инструмент
+  - умение оценивать объём
+  first_steps:
+  - подготовить список услуг
+  - оценить прайс
+  - разместить объявление
+  - выполнить 1 заказ
+  success_metrics:
+  - 1-2 заказа в неделю
+  - соблюдение сроков
+  - рекомендации
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: maintenance
+- id: fee_result_web_package
+  title: Пакет лендингов/сайтов
+  kind: service
+  primary_way_id: fee_for_result
+  matrix_cells:
+  - A2
+  sell_tags:
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - шаблоны/процессы
+  - умение делегировать
+  - канал лидов
+  first_steps:
+  - собрать типовой пакет
+  - описать бриф
+  - подготовить шаблоны
+  - найти 2-3 клиента
+  success_metrics:
+  - пакет закрывается за 1-2 недели
+  - маржа > 30%
+  - есть очередь заказов
+  related_variant_ids: []
+  notes: Пакетные услуги дают масштаб за счёт стандартизации.
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: fee_result_ad_setup
+  title: Настройка рекламы под KPI
+  kind: service
+  primary_way_id: fee_for_result
+  matrix_cells:
+  - A2
+  sell_tags:
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - навыки performance
+  - доступ к кабинетам
+  - кейсы
+  first_steps:
+  - описать KPI
+  - подготовить шаблон отчёта
+  - найти 1-2 клиента
+  - запустить тесты
+  success_metrics:
+  - достижение KPI
+  - продление контракта
+  - второй клиент
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: commission_sales
+  title: Продажи за процент
+  kind: service
+  primary_way_id: commission
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  - risk
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - percent
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - навыки продаж
+  - устойчивость к отказам
+  - CRM/скрипты
+  first_steps:
+  - выбрать продукт
+  - согласовать %
+  - получить скрипт
+  - сделать 30-50 касаний
+  success_metrics:
+  - первые сделки
+  - конверсия > целевой
+  - регулярный поток лидов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: commission_real_estate
+  title: Риэлторская комиссия
+  kind: service
+  primary_way_id: commission
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  - risk
+  to_whom_tags:
+  - market
+  value_tags:
+  - percent
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - знание рынка
+  - контакты
+  - готовность к длинным циклам
+  first_steps:
+  - выбрать сегмент
+  - получить допуски
+  - собрать 10-20 объектов
+  - провести показы
+  success_metrics:
+  - 1 сделка в месяц
+  - рост базы клиентов
+  - рекомендации
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: commission_affiliate
+  title: Партнёрские продажи (affiliate)
+  kind: business_model
+  primary_way_id: commission
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  - risk
+  to_whom_tags:
+  - platform
+  - market
+  value_tags:
+  - percent
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - канал трафика
+  - умение тестировать офферы
+  - аналитика
+  first_steps:
+  - выбрать оффер
+  - подключить трекинг
+  - запустить 2-3 теста
+  - оптимизировать
+  success_metrics:
+  - первые выплаты
+  - CAC ниже комиссии
+  - стабильный ROI
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: commission_broker
+  title: Брокерские сделки B2B
+  kind: service
+  primary_way_id: commission
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  - risk
+  to_whom_tags:
+  - market
+  value_tags:
+  - percent
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - сеть контактов
+  - умение вести переговоры
+  - юридическая база
+  first_steps:
+  - собрать 5-10 лидов
+  - описать выгоду
+  - подписать соглашение
+  - закрыть первую сделку
+  success_metrics:
+  - закрыта сделка
+  - комиссия получена
+  - повторные запросы
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: commission_trade_rep
+  title: Торговый представитель с %
+  kind: job
+  primary_way_id: commission
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  - risk
+  to_whom_tags:
+  - platform
+  value_tags:
+  - percent
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: false
+  requirements:
+  - автомобиль/мобильность
+  - умение общаться
+  - навыки презентации
+  first_steps:
+  - выбрать компанию
+  - пройти обучение
+  - получить маршрут
+  - сделать 20 визитов
+  success_metrics:
+  - первая сделка
+  - выполнение плана
+  - рост среднего чека
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: entrepreneurship_service_team
+  title: Сервис с командой (услуга под ключ)
+  kind: business_model
+  primary_way_id: entrepreneurship_margin
+  matrix_cells:
+  - A2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - процессы
+  - набор команды
+  - канал заявок
+  first_steps:
+  - описать услугу
+  - найти 1-2 подрядчика
+  - собрать регламент
+  - привести 3 клиента
+  success_metrics:
+  - маржа > 25%
+  - есть повторные сделки
+  - работает без личного участия
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: entrepreneurship_resell
+  title: Купил-улучшил-продал
+  kind: business_model
+  primary_way_id: entrepreneurship_margin
+  matrix_cells:
+  - A2
+  sell_tags:
+  - access
+  - risk
+  to_whom_tags:
+  - market
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - умение оценивать ценность
+  - минимальный капитал
+  - каналы продаж
+  first_steps:
+  - найти 3-5 недооценённых лотов
+  - оценить маржу
+  - сделать улучшения
+  - продать
+  success_metrics:
+  - прибыльная сделка
+  - оборачиваемость < 30 дней
+  - рост объёма
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: operations
+- id: entrepreneurship_subscription
+  title: Подписка на сервис
+  kind: business_model
+  primary_way_id: entrepreneurship_margin
+  matrix_cells:
+  - A2
+  sell_tags:
+  - access
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - ясная ценность
+  - поддержка клиентов
+  - маркетинг
+  first_steps:
+  - описать проблему
+  - собрать MVP
+  - получить 5 платящих
+  - настроить поддержку
+  success_metrics:
+  - retention > 60%
+  - MRR растёт
+  - LTV > CAC
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: entrepreneurship_franchise
+  title: Франшиза/масштабирование точки
+  kind: business_model
+  primary_way_id: entrepreneurship_margin
+  matrix_cells:
+  - A4
+  sell_tags:
+  - access
+  - risk
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - система
+  - капитал
+  - управление операциями
+  first_steps:
+  - описать стандарты
+  - посчитать юнит-экономику
+  - найти партнёра
+  - открыть пилот
+  success_metrics:
+  - окупаемость < 12 мес
+  - повторяемость модели
+  - второй запуск
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: entrepreneurship_marketplace
+  title: Запуск продажи на маркетплейсе
+  kind: business_model
+  primary_way_id: entrepreneurship_margin
+  matrix_cells:
+  - A4
+  sell_tags:
+  - access
+  - risk
+  to_whom_tags:
+  - platform
+  - market
+  value_tags:
+  - price
+  risk_level: high
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - капитал на закупку
+  - аналитика спроса
+  - логистика
+  first_steps:
+  - выбрать нишу
+  - заказать первую партию
+  - оформить карточку
+  - запустить рекламу
+  success_metrics:
+  - оборот растёт
+  - маржинальность > 20%
+  - нет кассовых разрывов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: operations
+- id: rent_access_flat
+  title: Аренда квартиры/комнаты
+  kind: asset_for_rent
+  primary_way_id: rent_access
+  matrix_cells:
+  - P1
+  sell_tags:
+  - access
+  - property
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - доступ к объекту
+  - договор
+  - обслуживание
+  first_steps:
+  - оценить рынок
+  - подготовить объект
+  - сделать фото
+  - найти арендатора
+  success_metrics:
+  - занятость > 80%
+  - аренда покрывает расходы
+  - минимум простоев
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: rent_access_equipment
+  title: Аренда оборудования
+  kind: asset_for_rent
+  primary_way_id: rent_access
+  matrix_cells:
+  - P1
+  sell_tags:
+  - access
+  - property
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - капитал на покупку
+  - сервис/обслуживание
+  - учёт
+  first_steps:
+  - выбрать востребованный актив
+  - купить 1-2 единицы
+  - подготовить договор
+  - запустить объявления
+  success_metrics:
+  - первый арендатор
+  - окупаемость по плану
+  - безопасность актива
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: rent_access_workspace
+  title: Коворкинг/рабочие места
+  kind: asset_for_rent
+  primary_way_id: rent_access
+  matrix_cells:
+  - P1
+  sell_tags:
+  - access
+  - property
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - помещение
+  - управление доступом
+  - маркетинг
+  first_steps:
+  - подготовить зону
+  - настроить тарифы
+  - сделать лендинг
+  - привлечь первых резидентов
+  success_metrics:
+  - загрузка > 60%
+  - покрытие аренды
+  - повторные оплаты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: rent_access_storage
+  title: Склад/хранение под аренду
+  kind: asset_for_rent
+  primary_way_id: rent_access
+  matrix_cells:
+  - P1
+  sell_tags:
+  - access
+  - property
+  to_whom_tags:
+  - market
+  value_tags:
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - помещение
+  - страхование
+  - безопасность
+  first_steps:
+  - оценить спрос
+  - подготовить склад
+  - сделать договор
+  - найти арендаторов
+  success_metrics:
+  - минимум просрочек
+  - стабильные платежи
+  - загрузка
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: logistics
+- id: rent_access_license
+  title: Лицензирование доступа
+  kind: instrument
+  primary_way_id: rent_access
+  matrix_cells:
+  - P1
+  sell_tags:
+  - access
+  - property
+  to_whom_tags:
+  - market
+  value_tags:
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - право собственности
+  - договоры
+  - контроль использования
+  first_steps:
+  - описать права
+  - подготовить лицензии
+  - найти 1-2 партнёра
+  - запустить оплату
+  success_metrics:
+  - регулярные платежи
+  - минимум споров
+  - рост количества лицензий
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: admin_office
+- id: interest_dividends_bonds
+  title: Облигации/купоны
+  kind: instrument
+  primary_way_id: interest_dividends
+  matrix_cells:
+  - P1
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - инвестсчёт
+  - понимание срока
+  - подушка
+  first_steps:
+  - открыть счёт
+  - выбрать облигации
+  - купить минимальный лот
+  - отслеживать выплаты
+  success_metrics:
+  - получен купон
+  - стабильный график выплат
+  - нет дефолтов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: interest_dividends_deposit
+  title: Банковский депозит
+  kind: instrument
+  primary_way_id: interest_dividends
+  matrix_cells:
+  - P1
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - капитал
+  - банк
+  - понимание условий
+  first_steps:
+  - сравнить ставки
+  - выбрать срок
+  - разместить сумму
+  - отслеживать начисления
+  success_metrics:
+  - начислены проценты
+  - сохранность капитала
+  - планируемый доход
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: interest_dividends_dividends
+  title: Дивидендный портфель
+  kind: instrument
+  primary_way_id: interest_dividends
+  matrix_cells:
+  - P1
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - понимание риска
+  - диверсификация
+  - долгий горизонт
+  first_steps:
+  - составить список эмитентов
+  - купить 3-5 бумаг
+  - отслеживать дивиденды
+  - реинвестировать
+  success_metrics:
+  - дивиденды растут
+  - нет сильной просадки
+  - портфель диверсифицирован
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: interest_dividends_loan
+  title: Частное кредитование
+  kind: instrument
+  primary_way_id: interest_dividends
+  matrix_cells:
+  - P1
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - оценка риска
+  - договор
+  - залог
+  first_steps:
+  - определить условия
+  - проверить заёмщика
+  - подписать договор
+  - отслеживать платежи
+  success_metrics:
+  - платежи вовремя
+  - процент выплачивается
+  - обеспечение покрывает риск
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: interest_dividends_note
+  title: Нотные/структурные выплаты
+  kind: instrument
+  primary_way_id: interest_dividends
+  matrix_cells:
+  - P1
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - понимание условий
+  - прочитать оферту
+  - сумма входа
+  first_steps:
+  - изучить риск
+  - проверить эмитента
+  - купить минимальный объём
+  - оценить выплаты
+  success_metrics:
+  - получены выплаты
+  - прозрачность условий
+  - выплаты по графику
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: appreciation_growth_stocks
+  title: Акции роста
+  kind: instrument
+  primary_way_id: appreciation
+  matrix_cells:
+  - P3
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - appreciation
+  risk_level: high
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - высокий риск-профиль
+  - диверсификация
+  - долгий горизонт
+  first_steps:
+  - выбрать 5-7 компаний
+  - разбить входы
+  - поставить лимиты
+  - отслеживать новости
+  success_metrics:
+  - рост портфеля
+  - контроль риска
+  - план ребалансировки
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: appreciation_crypto
+  title: Крипто-активы
+  kind: instrument
+  primary_way_id: appreciation
+  matrix_cells:
+  - P4
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - appreciation
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - безопасность кошелька
+  - понимание волатильности
+  - лимиты
+  first_steps:
+  - создать кошелёк
+  - выбрать активы
+  - установить риск-лимит
+  - постепенно входить
+  success_metrics:
+  - прирост за период
+  - соблюдение лимитов
+  - нет потери доступа
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: appreciation_collectibles
+  title: Коллекционные предметы
+  kind: asset_for_rent
+  primary_way_id: appreciation
+  matrix_cells:
+  - P3
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - appreciation
+  risk_level: high
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - экспертиза в нише
+  - каналы продаж
+  - хранение
+  first_steps:
+  - выбрать сегмент
+  - найти 3-5 лотов
+  - проверить подлинность
+  - оформить хранение
+  success_metrics:
+  - рост цены
+  - ликвидность
+  - минимум подделок
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: appreciation_land
+  title: Спекулятивная недвижимость/земля
+  kind: asset_for_rent
+  primary_way_id: appreciation
+  matrix_cells:
+  - P3
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - appreciation
+  risk_level: high
+  activity: passive
+  scalability: linear
+  outside_market: false
+  requirements:
+  - капитал
+  - юридическая проверка
+  - долгий горизонт
+  first_steps:
+  - оценить район
+  - проверить документы
+  - купить объект
+  - отслеживать динамику
+  success_metrics:
+  - рост стоимости
+  - спрос на лот
+  - продажа без убытка
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: appreciation_startup_equity
+  title: Доля в стартапе
+  kind: instrument
+  primary_way_id: appreciation
+  matrix_cells:
+  - P4
+  sell_tags:
+  - capital
+  to_whom_tags:
+  - market
+  value_tags:
+  - appreciation
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - доступ к сделкам
+  - долгий горизонт
+  - портфельный подход
+  first_steps:
+  - найти 3-5 проектов
+  - проверить команду
+  - разбить инвестпул
+  - подписать документы
+  success_metrics:
+  - диверсификация
+  - рост оценок
+  - прозрачные отчёты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: ip_product_course
+  title: Онлайн-курс/гайд
+  kind: ip_product
+  primary_way_id: intellectual_property
+  matrix_cells:
+  - P2
+  sell_tags:
+  - property
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - экспертиза
+  - контент
+  - платформа продажи
+  first_steps:
+  - сформировать программу
+  - записать 5-7 модулей
+  - упаковать лендинг
+  - запустить продажи
+  success_metrics:
+  - первые продажи
+  - конверсия лендинга
+  - низкий возврат
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: ip_product_template
+  title: Шаблоны/документы
+  kind: ip_product
+  primary_way_id: intellectual_property
+  matrix_cells:
+  - P2
+  sell_tags:
+  - property
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - понимание спроса
+  - упаковка
+  - канал продаж
+  first_steps:
+  - найти боль
+  - создать 3-5 шаблонов
+  - сделать описание
+  - разместить на маркетплейсе
+  success_metrics:
+  - 10+ продаж
+  - отзывы
+  - минимальная поддержка
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: ip_product_app
+  title: Микро-приложение/SaaS
+  kind: ip_product
+  primary_way_id: intellectual_property
+  matrix_cells:
+  - P2
+  sell_tags:
+  - property
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  - rent
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - разработка
+  - поддержка
+  - маркетинг
+  first_steps:
+  - собрать MVP
+  - запустить beta
+  - настроить платежи
+  - собрать обратную связь
+  success_metrics:
+  - MRR растёт
+  - низкий churn
+  - устойчивый трафик
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: ip_product_music
+  title: Музыка/стоковый контент
+  kind: ip_product
+  primary_way_id: intellectual_property
+  matrix_cells:
+  - P2
+  sell_tags:
+  - property
+  - result
+  to_whom_tags:
+  - platform
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - портфолио
+  - регулярный выпуск
+  - площадки
+  first_steps:
+  - подготовить 5-10 треков
+  - загрузить на стоки
+  - оформить метаданные
+  - наблюдать продажи
+  success_metrics:
+  - регулярные продажи
+  - рост каталога
+  - повторные покупки
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: ip_product_book
+  title: Книга/методичка
+  kind: ip_product
+  primary_way_id: intellectual_property
+  matrix_cells:
+  - P2
+  sell_tags:
+  - property
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - структура
+  - редактура
+  - канал продаж
+  first_steps:
+  - сделать план
+  - написать 3-5 глав
+  - найти редактора
+  - опубликовать
+  success_metrics:
+  - первые продажи
+  - отзывы
+  - рост органики
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: audience_youtube
+  title: YouTube-канал с рекламой
+  kind: audience_channel
+  primary_way_id: attention_audience
+  matrix_cells:
+  - P4
+  sell_tags:
+  - attention
+  - access
+  to_whom_tags:
+  - platform
+  - many_people
+  value_tags:
+  - payout
+  - percent
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - контент-план
+  - монтаж
+  - регулярность
+  first_steps:
+  - выбрать нишу
+  - записать 5 роликов
+  - оформить канал
+  - опубликовать по графику
+  success_metrics:
+  - рост подписчиков
+  - удержание > 40%
+  - монетизация включена
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: audience_newsletter
+  title: Email-рассылка с подпиской
+  kind: audience_channel
+  primary_way_id: attention_audience
+  matrix_cells:
+  - P2
+  sell_tags:
+  - attention
+  - access
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - экспертиза
+  - контент
+  - email-платформа
+  first_steps:
+  - выбрать тему
+  - сделать лид-магнит
+  - собрать 100 подписчиков
+  - запустить платный доступ
+  success_metrics:
+  - open rate > 35%
+  - рост платных
+  - низкий отток
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: audience_tg_channel
+  title: Телеграм-канал с рекламой
+  kind: audience_channel
+  primary_way_id: attention_audience
+  matrix_cells:
+  - P4
+  sell_tags:
+  - attention
+  - access
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  - price
+  risk_level: high
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - контент
+  - рост аудитории
+  - продажи рекламы
+  first_steps:
+  - определить формат
+  - выпустить 20 постов
+  - подключить статистику
+  - привлечь 1 рекламодателя
+  success_metrics:
+  - рост аудитории
+  - регулярные размещения
+  - CTR реклам
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: audience_community
+  title: Платное сообщество/подписка
+  kind: audience_channel
+  primary_way_id: attention_audience
+  matrix_cells:
+  - P2
+  sell_tags:
+  - attention
+  - access
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - ценность для участников
+  - модерация
+  - контент
+  first_steps:
+  - описать пользу
+  - создать ядро
+  - запустить подписку
+  - провести первый созвон
+  success_metrics:
+  - первые подписчики
+  - retention > 70%
+  - органические рекомендации
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: management
+- id: audience_sponsorship
+  title: Спонсорские интеграции
+  kind: audience_channel
+  primary_way_id: attention_audience
+  matrix_cells:
+  - P2
+  sell_tags:
+  - attention
+  - access
+  to_whom_tags:
+  - platform
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - медиа-кит
+  - доверие аудитории
+  - регулярный контент
+  first_steps:
+  - собрать статистику
+  - сделать медиа-кит
+  - написать 10 брендам
+  - сделать интеграцию
+  success_metrics:
+  - 1-2 спонсора
+  - рост CPM
+  - долгосрочные контракты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: sales
+- id: data_compute_analytics
+  title: Аналитика/дашборды как услуга
+  kind: service
+  primary_way_id: data_compute
+  matrix_cells:
+  - A2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - аналитические навыки
+  - BI-инструменты
+  - процессы
+  first_steps:
+  - подготовить шаблоны
+  - найти 2 клиента
+  - сделать MVP отчёт
+  - перейти на абонплату
+  success_metrics:
+  - MRR растёт
+  - отчёты обновляются
+  - клиент продлевает
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: data_compute_api
+  title: Платный API/доступ к данным
+  kind: business_model
+  primary_way_id: data_compute
+  matrix_cells:
+  - P2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - данные
+  - инфраструктура
+  - документация
+  first_steps:
+  - описать API
+  - настроить биллинг
+  - дать бесплатный лимит
+  - получить первых пользователей
+  success_metrics:
+  - рост активных ключей
+  - MRR
+  - стабильная нагрузка
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: data_compute_automation
+  title: Автоматизация процессов
+  kind: service
+  primary_way_id: data_compute
+  matrix_cells:
+  - A2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - price
+  risk_level: low
+  activity: active
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - технические навыки
+  - понимание бизнеса
+  - документация
+  first_steps:
+  - выбрать нишу
+  - описать процесс
+  - сделать пилот
+  - подписать контракт
+  success_metrics:
+  - экономия времени клиента
+  - повторные сделки
+  - поддержка на абонентке
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: operations
+- id: data_compute_cloud
+  title: Доступ к вычислениям/серверу
+  kind: business_model
+  primary_way_id: data_compute
+  matrix_cells:
+  - P2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - platform
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - серверы
+  - поддержка
+  - биллинг
+  first_steps:
+  - выбрать нишу
+  - настроить инфраструктуру
+  - описать SLA
+  - подключить 3 клиентов
+  success_metrics:
+  - стабильность > 99%
+  - MRR
+  - минимальные простои
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: operations
+- id: data_compute_data_product
+  title: Продукт данных (обновляемая база)
+  kind: ip_product
+  primary_way_id: data_compute
+  matrix_cells:
+  - P2
+  sell_tags:
+  - access
+  - result
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - price
+  risk_level: low
+  activity: passive
+  scalability: scalable
+  outside_market: false
+  requirements:
+  - качество данных
+  - обновление
+  - дистрибуция
+  first_steps:
+  - собрать набор
+  - проверить качество
+  - сделать витрину
+  - получить первые оплаты
+  success_metrics:
+  - повторные подписки
+  - низкий churn
+  - рост базы
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: grants_prizes_grant
+  title: Грантовая заявка на проект
+  kind: grant_program
+  primary_way_id: grants_prizes
+  matrix_cells:
+  - A1
+  sell_tags:
+  - result
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: true
+  requirements:
+  - описание проекта
+  - смета
+  - сроки
+  first_steps:
+  - найти подходящий грант
+  - описать цель
+  - собрать документы
+  - подать заявку
+  success_metrics:
+  - заявка принята
+  - пройден отбор
+  - получено финансирование
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: admin_office
+- id: grants_prizes_competition
+  title: Конкурс/премия в профессии
+  kind: grant_program
+  primary_way_id: grants_prizes
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: true
+  requirements:
+  - портфолио
+  - регламент
+  - высокий уровень
+  first_steps:
+  - выбрать конкурс
+  - подготовить работу
+  - собрать рекомендации
+  - подать заявку
+  success_metrics:
+  - прохождение в шорт-лист
+  - получена премия
+  - публичное признание
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: content_creative
+- id: grants_prizes_scholarship
+  title: Стипендия на обучение
+  kind: grant_program
+  primary_way_id: grants_prizes
+  matrix_cells:
+  - A1
+  sell_tags:
+  - result
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: low
+  activity: active
+  scalability: linear
+  outside_market: true
+  requirements:
+  - достижения
+  - рекомендации
+  - заявка
+  first_steps:
+  - изучить условия
+  - подготовить документы
+  - получить рекомендации
+  - подать заявку
+  success_metrics:
+  - стипендия назначена
+  - сохранение статуса
+  - получение выплат
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: admin_office
+- id: grants_prizes_research
+  title: Исследовательский грант
+  kind: grant_program
+  primary_way_id: grants_prizes
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: true
+  requirements:
+  - научный трек
+  - партнёры
+  - смета
+  first_steps:
+  - сформировать гипотезу
+  - найти соисполнителей
+  - написать заявку
+  - защитить
+  success_metrics:
+  - получено финансирование
+  - отчёт принят
+  - продление проекта
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: grants_prizes_innovation
+  title: Приз за инновацию
+  kind: grant_program
+  primary_way_id: grants_prizes
+  matrix_cells:
+  - A3
+  sell_tags:
+  - result
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  risk_level: high
+  activity: active
+  scalability: linear
+  outside_market: true
+  requirements:
+  - прототип
+  - презентация
+  - демо
+  first_steps:
+  - подготовить демо
+  - собрать питч
+  - подать заявку
+  - выступить
+  success_metrics:
+  - попадание в финал
+  - призовые
+  - новые контакты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: transfers_insurance_unemployment
+  title: Пособие по безработице
+  kind: benefit_case
+  primary_way_id: transfers_insurance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - статус безработного
+  - сроки подачи
+  - документы
+  first_steps:
+  - узнать требования
+  - подать заявление
+  - пройти регистрацию
+  - подтвердить статус
+  success_metrics:
+  - назначение выплат
+  - своевременные выплаты
+  - сохранение статуса
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: transfers_insurance_health
+  title: Страховая выплата по событию
+  kind: insurance_case
+  primary_way_id: transfers_insurance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - state
+  - platform
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - договор страхования
+  - медицинские документы
+  - сроки подачи
+  first_steps:
+  - собрать документы
+  - уведомить страховую
+  - подать заявление
+  - следить за статусом
+  success_metrics:
+  - выплата получена
+  - сроки соблюдены
+  - документы приняты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: transfers_insurance_child
+  title: Социальные выплаты на ребёнка
+  kind: benefit_case
+  primary_way_id: transfers_insurance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - подтверждение статуса
+  - документы семьи
+  - сроки
+  first_steps:
+  - уточнить условия
+  - подать заявление
+  - прикрепить документы
+  - получить решение
+  success_metrics:
+  - назначена выплата
+  - без задержек
+  - продление по графику
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: transfers_insurance_subsidy
+  title: Субсидия на жильё/коммуналку
+  kind: benefit_case
+  primary_way_id: transfers_insurance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - state
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - соответствие критериям
+  - документы
+  - расходы
+  first_steps:
+  - проверить критерии
+  - собрать квитанции
+  - подать заявку
+  - дождаться решения
+  success_metrics:
+  - субсидия назначена
+  - ежемесячные выплаты
+  - отсутствие долгов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: transfers_insurance_disaster
+  title: Выплата при страховом случае
+  kind: insurance_case
+  primary_way_id: transfers_insurance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - platform
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - полис
+  - акт страхового случая
+  - сроки уведомления
+  first_steps:
+  - зафиксировать событие
+  - уведомить страховую
+  - подать документы
+  - получить выплату
+  success_metrics:
+  - выплата получена
+  - без отказов
+  - документы приняты
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: gifts_inheritance_family
+  title: Поддержка семьи
+  kind: benefit_case
+  primary_way_id: gifts_inheritance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - доверие
+  - договорённости
+  - прозрачность
+  first_steps:
+  - обсудить поддержку
+  - согласовать формат
+  - зафиксировать сроки
+  - получить перевод
+  success_metrics:
+  - регулярность помощи
+  - понятные условия
+  - отсутствие конфликтов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: gifts_inheritance_sponsor
+  title: Спонсорство/меценатство
+  kind: benefit_case
+  primary_way_id: gifts_inheritance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - репутация
+  - ценность проекта
+  - отчётность
+  first_steps:
+  - описать проект
+  - найти 3-5 спонсоров
+  - подготовить смету
+  - провести встречу
+  success_metrics:
+  - получено финансирование
+  - долгосрочные отношения
+  - прозрачность расходов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: gifts_inheritance_gift
+  title: Разовый подарок/донат
+  kind: benefit_case
+  primary_way_id: gifts_inheritance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - публичная коммуникация
+  - объяснение цели
+  - доверие
+  first_steps:
+  - описать цель
+  - выбрать площадку
+  - опубликовать историю
+  - обновлять статус
+  success_metrics:
+  - первые донаты
+  - рост доверия
+  - выполнение цели
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: gifts_inheritance_inheritance
+  title: Наследство
+  kind: benefit_case
+  primary_way_id: gifts_inheritance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - single_client
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - юридическое оформление
+  - документы
+  - сроки вступления
+  first_steps:
+  - получить свидетельство
+  - подготовить документы
+  - вступить в наследство
+  - оформить активы
+  success_metrics:
+  - активы оформлены
+  - нет споров
+  - соблюдены сроки
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: gifts_inheritance_patron
+  title: Патроны/подписчики поддержки
+  kind: benefit_case
+  primary_way_id: gifts_inheritance
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags:
+  - many_people
+  value_tags:
+  - payout
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - комьюнити
+  - регулярный контакт
+  - прозрачные условия
+  first_steps:
+  - создать страницу поддержки
+  - объяснить формат
+  - пригласить 20 людей
+  - обновлять отчёты
+  success_metrics:
+  - регулярные взносы
+  - рост патронов
+  - низкий отток
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: unknown
+- id: savings_effect_budget
+  title: Бюджетирование и контроль расходов
+  kind: saving_strategy
+  primary_way_id: savings_effect
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags: []
+  value_tags: []
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - учёт расходов
+  - дисциплина
+  - прозрачность
+  first_steps:
+  - собрать расходы за месяц
+  - разделить категории
+  - установить лимиты
+  - сократить 1-2 статьи
+  success_metrics:
+  - экономия 10-15%
+  - рост подушки
+  - устойчивый бюджет
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: savings_effect_subscriptions
+  title: Оптимизация подписок
+  kind: saving_strategy
+  primary_way_id: savings_effect
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags: []
+  value_tags: []
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - инвентаризация
+  - приоритеты
+  - дисциплина
+  first_steps:
+  - список подписок
+  - отменить ненужные
+  - перейти на годовые
+  - следить за автоплатежами
+  success_metrics:
+  - снижение расходов
+  - отсутствие лишних списаний
+  - прозрачность затрат
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: savings_effect_tariffs
+  title: Пересмотр тарифов и условий
+  kind: saving_strategy
+  primary_way_id: savings_effect
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags: []
+  value_tags: []
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - сбор предложений
+  - готовность торговаться
+  - документы
+  first_steps:
+  - сравнить тарифы
+  - позвонить провайдерам
+  - перейти на лучший
+  - подписать новые условия
+  success_metrics:
+  - снижение счетов
+  - сохранение качества
+  - нет штрафов
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics
+- id: savings_effect_energy
+  title: Энергоэффективность дома
+  kind: saving_strategy
+  primary_way_id: savings_effect
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags: []
+  value_tags: []
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - мини-инвестиции
+  - контроль потребления
+  - план
+  first_steps:
+  - поставить LED
+  - установить терморегуляторы
+  - снять показатели
+  - оптимизировать режим
+  success_metrics:
+  - снижение счетов
+  - окупаемость 3-6 мес
+  - стабильный эффект
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: maintenance
+- id: savings_effect_debt
+  title: Снижение переплат по долгам
+  kind: saving_strategy
+  primary_way_id: savings_effect
+  matrix_cells:
+  - P1
+  sell_tags: []
+  to_whom_tags: []
+  value_tags: []
+  risk_level: low
+  activity: passive
+  scalability: linear
+  outside_market: true
+  requirements:
+  - понимание условий
+  - переговоры
+  - дисциплина
+  first_steps:
+  - собрать кредиты
+  - посчитать ставки
+  - рефинансировать
+  - настроить досрочные платежи
+  success_metrics:
+  - снижение процентной ставки
+  - ускорение выплат
+  - уменьшение ежемесячной нагрузки
+  related_variant_ids: []
+  activity_profile:
+    task_profile: []
+    environment: null
+    social_intensity: null
+    role_family: analytics

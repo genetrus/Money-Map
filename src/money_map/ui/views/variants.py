@@ -6,6 +6,7 @@ from typing import Iterable
 import streamlit as st
 
 from money_map.core.model import AppData
+from money_map.domain.activity_profile import ROLE_FAMILY_IDS, ROLE_FAMILY_LABELS, role_family_label
 from money_map.ui import components
 from money_map.ui.logic.variants_filter import (
     MatchResult,
@@ -28,6 +29,7 @@ class SelectionContext:
     selected_route_id: str | None
     selected_route_cells: list[str] | None
     selected_bridge_ids: list[str]
+    selected_role_family_ids: list[str]
 
 
 VARIANT_MODES = ("Подбор", "Библиотека", "Сравнение")
@@ -89,6 +91,7 @@ def _selection_context(data: AppData) -> SelectionContext:
         selected_route_id=selected_route_id,
         selected_route_cells=route.sequence if route else None,
         selected_bridge_ids=selection.get("selected_bridge_ids", []),
+        selected_role_family_ids=selection.get("activity_role_family_ids", []),
     )
 
 
@@ -158,6 +161,9 @@ def _render_path_panel(data: AppData, context: SelectionContext) -> None:
             st.markdown(_chip_line("Мосты", bridge_labels))
         else:
             st.markdown("**Мосты:** `не выбрано`")
+
+        role_family_labels = [ROLE_FAMILY_LABELS.get(item, item) for item in context.selected_role_family_ids]
+        st.markdown(_chip_line("Профиль деятельности", role_family_labels))
 
 
 def _render_shortlist_panel(data: AppData, variants: dict[str, NormalizedVariant]) -> None:
@@ -232,6 +238,56 @@ def _request_variants_mode(mode: str) -> None:
     st.session_state["request_variants_mode"] = mode
 
 
+def _sync_activity_role_family_selection() -> None:
+    if st.session_state.get("activity_role_family_multi"):
+        selected = st.session_state.get("activity_role_family_multi_select", [])
+    else:
+        selected_value = st.session_state.get("activity_role_family_single")
+        selected = [selected_value] if selected_value else []
+    st.session_state["activity_role_family_ids"] = selected
+
+
+def _reset_activity_role_family() -> None:
+    st.session_state["activity_role_family_ids"] = []
+    st.session_state["activity_role_family_multi_select"] = []
+    st.session_state["activity_role_family_single"] = None
+
+
+def _render_activity_profile_filter() -> None:
+    st.session_state.setdefault("activity_role_family_ids", [])
+    st.session_state.setdefault("activity_role_family_multi", False)
+    st.session_state.setdefault("activity_role_family_multi_select", [])
+    st.session_state.setdefault("activity_role_family_single", None)
+
+    with st.container(border=True):
+        st.markdown("### Профиль деятельности")
+        st.caption(
+            "Матрица/классификаторы/способ описывают модель денег. "
+            "Профиль деятельности сужает варианты по содержанию работы/занятия.",
+        )
+        st.checkbox("Разрешить несколько", key="activity_role_family_multi")
+        if st.session_state.get("activity_role_family_multi"):
+            st.multiselect(
+                "Выберите семейство",
+                ROLE_FAMILY_IDS,
+                key="activity_role_family_multi_select",
+                format_func=lambda value: ROLE_FAMILY_LABELS.get(value, value),
+                on_change=_sync_activity_role_family_selection,
+            )
+        else:
+            st.selectbox(
+                "Выберите семейство",
+                [None, *ROLE_FAMILY_IDS],
+                key="activity_role_family_single",
+                format_func=lambda value: "—" if value is None else ROLE_FAMILY_LABELS.get(value, value),
+                on_change=_sync_activity_role_family_selection,
+            )
+        if st.button("Сбросить профиль", key="activity_role_family_reset"):
+            _reset_activity_role_family()
+        if not st.session_state.get("activity_role_family_ids"):
+            st.caption("Профиль деятельности: не выбран.")
+
+
 def _render_variant_card(
     variant: NormalizedVariant,
     *,
@@ -295,6 +351,7 @@ def _render_variant_card(
         f"**Способ:** {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}"
         f" · **Матрица:** {variant.matrix_cell or '—'}",
     )
+    st.markdown(f"**Профиль:** {role_family_label(variant.activity_role_family)}")
 
     tag_cols = st.columns(3)
     with tag_cols[0]:
@@ -376,6 +433,7 @@ def _render_variant_card(
         st.markdown(
             f"- Способ: {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}",
         )
+        st.markdown(f"- Профиль: {role_family_label(variant.activity_role_family)}")
         if variant.matrix_cell:
             st.markdown(f"- Матрица: {variant.matrix_cell}")
         if variant.linked_bridges:
@@ -447,6 +505,7 @@ def _render_comparison(
                         *variant.classifiers.get("measure", []),
                     ],
                 ),
+                "Профиль": role_family_label(variant.activity_role_family),
                 "Маршрут": variant.linked_route or "—",
                 "Мосты": ", ".join([bridges.get(item, item) for item in variant.linked_bridges]) or "—",
                 "Краткая суть": variant.summary,
@@ -475,6 +534,9 @@ def render(data: AppData, filters: components.Filters) -> None:
         "проекты, форматы сделок и виды бизнеса.",
     )
     components.render_path_wizard("Варианты")
+
+    _render_activity_profile_filter()
+    _sync_activity_role_family_selection()
 
     context = _selection_context(data)
     _render_path_panel(data, context)
@@ -534,6 +596,7 @@ def render(data: AppData, filters: components.Filters) -> None:
             selected_classifiers=context.selected_classifiers,
             selected_route_cells=context.selected_route_cells,
             selected_bridge_ids=context.selected_bridge_ids,
+            selected_role_family_ids=context.selected_role_family_ids,
             strict=strict,
         )
         if result is not None:
@@ -552,6 +615,14 @@ def render(data: AppData, filters: components.Filters) -> None:
         header[0].markdown(f"**Найдено вариантов:** {len(matches)}")
         if hidden_count:
             header[1].caption(f"Скрыто фильтрами: {hidden_count}")
+
+        if strict and context.selected_role_family_ids and not matches:
+            st.warning(
+                "По выбранному профилю нет вариантов. Переключитесь на 'Шире' или выберите другой профиль.",
+            )
+
+        if not context.selected_role_family_ids and len(matches) > 40:
+            st.info("Слишком много вариантов. Выберите 'Профиль деятельности', чтобы сузить список.")
 
         if st.session_state.pop("shortlist_notice", None):
             st.warning("Можно добавить не больше 5 вариантов.")
