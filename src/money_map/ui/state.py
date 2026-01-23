@@ -5,6 +5,12 @@ from typing import Optional
 import streamlit as st
 
 
+def request_nav(section_name: str, payload: Optional[dict[str, object]] = None) -> None:
+    params = payload or {}
+    st.session_state["pending_nav"] = {"section": section_name, "params": params}
+    st.rerun()
+
+
 def go_to_section(
     section_name: str,
     *,
@@ -61,5 +67,4 @@ def go_to_section(
         payload["tab"] = target_tab
     params = dict(payload)
     params.pop("section", None)
-    st.session_state["pending_nav"] = {"section": target_section, "params": params}
-    st.rerun()
+    request_nav(target_section, params)

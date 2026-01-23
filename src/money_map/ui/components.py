@@ -15,7 +15,7 @@ from money_map.core.query import list_bridges
 from money_map.core.taxonomy_graph import build_taxonomy_star
 from money_map.core.validate import validate_app_data
 from money_map.render.taxonomy_graph import render_taxonomy_graph_html
-from money_map.ui.state import go_to_section
+from money_map.ui.state import go_to_section, request_nav
 
 
 @dataclass
@@ -31,12 +31,30 @@ PAGES = [
     "Матрица",
     "Мосты",
     "Маршруты",
+    "Сравнение",
     "Поиск",
     "Классификатор",
     "Граф",
     "Способы получения денег",
     "Варианты (конкретика)",
 ]
+
+NAV_MODES = ["Исследование", "Конструктор пути", "Сравнение"]
+NAV_MODE_HINTS = {
+    "Исследование": "Смотри связи и открывай детали",
+    "Конструктор пути": "Двигайся по шагам к конкретике",
+    "Сравнение": "Собирай кандидатов и сравнивай",
+}
+NAV_STEPS = ["Матрица", "Классификатор", "Способы", "Маршрут", "Мосты", "Варианты"]
+NAV_STEP_TO_SECTION = {
+    "Матрица": "Матрица",
+    "Классификатор": "Классификатор",
+    "Способы": "Способы получения денег",
+    "Маршрут": "Маршруты",
+    "Мосты": "Мосты",
+    "Варианты": "Варианты (конкретика)",
+}
+NAV_SECTION_TO_STEP = {value: key for key, value in NAV_STEP_TO_SECTION.items()}
 
 
 @st.cache_data(show_spinner="Загрузка данных...")
@@ -53,7 +71,11 @@ def reset_cache() -> None:
 def init_session_state() -> None:
     st.session_state.setdefault("page", DEFAULT_PAGE)
     st.session_state.setdefault("nav_section", DEFAULT_PAGE)
-    st.session_state.setdefault("nav_payload", None)
+    st.session_state.setdefault("nav_payload", {})
+    st.session_state.setdefault("nav_mode", "Исследование")
+    st.session_state.setdefault("nav_step", "Матрица")
+    st.session_state.setdefault("compare_items", [])
+    st.session_state.setdefault("compare_selected_id", None)
     st.session_state.setdefault("current_page", DEFAULT_PAGE)
     st.session_state.setdefault("active_section", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
@@ -130,7 +152,15 @@ def init_session_state() -> None:
     st.session_state.setdefault("matrix_axis_scalability", "linear")
 
 
+def _apply_pending_nav_state() -> None:
+    if "nav_mode_next" in st.session_state:
+        st.session_state["nav_mode"] = st.session_state.pop("nav_mode_next")
+    if "nav_step_next" in st.session_state:
+        st.session_state["nav_step"] = st.session_state.pop("nav_step_next")
+
+
 def apply_pending_navigation() -> None:
+    _apply_pending_nav_state()
     pending_nav = st.session_state.pop("pending_nav", None)
     if isinstance(pending_nav, dict):
         section = pending_nav.get("section")
@@ -138,9 +168,12 @@ def apply_pending_navigation() -> None:
         if isinstance(section, str) and section:
             st.session_state["nav_section"] = section
         if isinstance(params, dict):
-            payload = {"section": section}
+            payload = st.session_state.get("nav_payload")
+            if not isinstance(payload, dict):
+                payload = {}
             payload.update(params)
             st.session_state["nav_payload"] = payload
+            st.session_state["nav_intent"] = {"section": section, "params": params}
         st.rerun()
 
     pending_section = st.session_state.pop("pending_nav_section", None)
@@ -148,6 +181,12 @@ def apply_pending_navigation() -> None:
         if pending_section != st.session_state.get("nav_section"):
             st.session_state["nav_section"] = pending_section
             st.rerun()
+
+    if st.session_state.get("nav_mode") == "Конструктор пути":
+        section = st.session_state.get("nav_section")
+        step = NAV_SECTION_TO_STEP.get(section)
+        if step:
+            st.session_state["nav_step"] = step
 
 
 def sync_selection_context() -> dict[str, object]:
@@ -194,7 +233,134 @@ def sync_selection_context() -> dict[str, object]:
     selection["selected_bridge_ids"] = bridge_ids
 
     st.session_state["selection"] = selection
+    update_nav_payload_from_state()
     return selection
+
+
+def update_nav_payload_from_state() -> dict[str, object]:
+    payload = st.session_state.get("nav_payload")
+    if not isinstance(payload, dict):
+        payload = {}
+    classifier_state = get_classifier_selection_state()
+    payload["selected_cell_id"] = st.session_state.get("selected_cell_id")
+    payload["classifier_selected_what_sell"] = set(classifier_state.get("what_sell", set()))
+    payload["classifier_selected_to_whom"] = set(classifier_state.get("to_whom", set()))
+    payload["classifier_selected_value_measure"] = set(classifier_state.get("value_measure", set()))
+    payload["selected_way_id"] = st.session_state.get("selected_way_id")
+    payload["selected_route_id"] = st.session_state.get("selected_route_id")
+    payload["selected_bridge_id"] = st.session_state.get("selected_bridge_id")
+    payload["selected_variant_id"] = st.session_state.get("selected_variant_id")
+    st.session_state["nav_payload"] = payload
+    return payload
+
+
+def consume_nav_intent(section: str) -> Optional[dict[str, object]]:
+    intent = st.session_state.get("nav_intent")
+    if not isinstance(intent, dict):
+        return None
+    if intent.get("section") != section:
+        return None
+    params = intent.get("params", {})
+    st.session_state.pop("nav_intent", None)
+    return params if isinstance(params, dict) else None
+
+
+def nav_step_complete(step: str) -> bool:
+    if step == "Матрица":
+        return bool(st.session_state.get("selected_cell_id"))
+    if step == "Классификатор":
+        selections = get_classifier_selection_state()
+        return any(selections.values())
+    if step == "Способы":
+        return bool(st.session_state.get("selected_way_id"))
+    if step == "Маршрут":
+        return bool(st.session_state.get("selected_route_id"))
+    if step == "Мосты":
+        return bool(st.session_state.get("selected_bridge_id"))
+    if step == "Варианты":
+        return bool(st.session_state.get("selected_variant_id"))
+    return False
+
+
+def render_path_wizard(current_step: str) -> None:
+    if st.session_state.get("nav_mode") != "Конструктор пути":
+        return
+    if current_step not in NAV_STEPS:
+        return
+
+    index = NAV_STEPS.index(current_step)
+    prev_step = NAV_STEPS[index - 1] if index > 0 else None
+    next_step = NAV_STEPS[index + 1] if index + 1 < len(NAV_STEPS) else None
+
+    step_status = []
+    for step in NAV_STEPS:
+        marker = "✅" if nav_step_complete(step) else "•"
+        step_status.append(f"{marker} {step}")
+
+    hints = {
+        "Матрица": ("Выберите ячейку матрицы.", "Дальше: уточним классификатор."),
+        "Классификатор": ("Выберите хотя бы один чип.", "Дальше: способы."),
+        "Способы": ("Выберите способ.", "Дальше: маршрут."),
+        "Маршрут": ("Выберите маршрут.", "Дальше: мосты."),
+        "Мосты": ("Выберите мост.", "Дальше: варианты."),
+        "Варианты": ("Выберите вариант и сохраните.", "Дальше: можно добавить в кандидаты."),
+    }
+    hint_now, hint_next = hints.get(current_step, ("", ""))
+
+    with st.container(border=True):
+        header_cols = st.columns([3, 2])
+        header_cols[0].markdown(f"**Шаг:** {current_step}")
+        header_cols[1].caption(" · ".join(step_status))
+
+        action_cols = st.columns([1, 1, 3])
+        if prev_step:
+            if action_cols[0].button("Назад", key=f"wizard-back-{current_step}"):
+                st.session_state["nav_step_next"] = prev_step
+                request_nav(NAV_STEP_TO_SECTION[prev_step])
+        else:
+            action_cols[0].button("Назад", key=f"wizard-back-{current_step}", disabled=True)
+
+        can_next = nav_step_complete(current_step) and next_step is not None
+        if action_cols[1].button(
+            "Дальше",
+            key=f"wizard-next-{current_step}",
+            disabled=not can_next,
+        ):
+            if next_step:
+                st.session_state["nav_step_next"] = next_step
+                request_nav(NAV_STEP_TO_SECTION[next_step])
+
+        if hint_now:
+            action_cols[2].caption(f"{hint_now} {hint_next}".strip())
+
+
+def add_compare_item(item: dict[str, object]) -> bool:
+    if not item or not item.get("type") or not item.get("id"):
+        return False
+    items = st.session_state.get("compare_items")
+    if not isinstance(items, list):
+        items = []
+    for existing in items:
+        if existing.get("type") == item.get("type") and existing.get("id") == item.get("id"):
+            return False
+    items.append(item)
+    st.session_state["compare_items"] = items
+    return True
+
+
+def remove_compare_item(item_type: str, item_id: str) -> None:
+    items = st.session_state.get("compare_items")
+    if not isinstance(items, list):
+        return
+    st.session_state["compare_items"] = [
+        item
+        for item in items
+        if item.get("type") != item_type or item.get("id") != item_id
+    ]
+
+
+def clear_compare_items() -> None:
+    st.session_state["compare_items"] = []
 
 
 def request_page(page: str) -> None:
@@ -586,6 +752,26 @@ def render_taxonomy_details_card(
             badge = f"{badge} · ⚠️ не рыночный механизм"
         with header_right:
             st.markdown(f"**{badge}**")
+
+        if st.session_state.get("nav_mode") == "Сравнение":
+            if st.button(
+                "+ В сравнение",
+                key=f"ways-compare-{item.id}",
+                use_container_width=True,
+            ):
+                add_compare_item(
+                    {
+                        "type": "way",
+                        "id": item.id,
+                        "name": item.name,
+                        "cell_id": item.typical_cells[0] if item.typical_cells else None,
+                        "classifier_tags": [
+                            *item.sell,
+                            *item.to_whom,
+                            *item.value,
+                        ],
+                    },
+                )
 
         st.markdown("#### Коротко")
         st.write(item.description)

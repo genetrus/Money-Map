@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = [
     "bridges",
     "classify",
+    "compare",
     "graph",
     "matrix",
     "overview",

@@ -4,7 +4,7 @@ import streamlit as st
 
 from money_map.core.model import AppData, BridgeItem
 from money_map.ui import components
-from money_map.ui.state import go_to_section
+from money_map.ui.state import go_to_section, request_nav
 
 
 def _transition_label(sequence: list[str]) -> list[str]:
@@ -88,15 +88,15 @@ def _filter_routes(
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Маршруты":
+    payload = components.consume_nav_intent("Маршруты")
+    if isinstance(payload, dict):
         route_id = payload.get("route_id")
         if isinstance(route_id, str):
             st.session_state["selected_route_id"] = route_id
             st.session_state["selected_path"] = route_id
-        st.session_state["nav_payload"] = None
 
     st.title("Маршруты")
+    components.render_path_wizard("Маршрут")
 
     cell_lookup = components.cell_lookup(data)
     bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
@@ -331,6 +331,22 @@ def render(data: AppData, filters: components.Filters) -> None:
                 type="primary",
             )
 
+            if st.session_state.get("nav_mode") == "Сравнение":
+                if st.button(
+                    "+ В сравнение",
+                    key=f"route-compare-{route['route_id']}",
+                    use_container_width=True,
+                ):
+                    components.add_compare_item(
+                        {
+                            "type": "route",
+                            "id": route["route_id"],
+                            "name": route["name"],
+                            "cell_id": route["cells"][0] if route["cells"] else None,
+                            "classifier_tags": [],
+                        },
+                    )
+
             if st.session_state.get("selected_transition"):
                 st.button(
                     f"Открыть мосты для шага {st.session_state['selected_transition'].replace('->', ' → ')}",
@@ -340,6 +356,14 @@ def render(data: AppData, filters: components.Filters) -> None:
                     kwargs={"transition": st.session_state["selected_transition"]},
                     use_container_width=True,
                 )
+            if st.session_state.get("nav_mode") == "Конструктор пути":
+                if st.button(
+                    "Дальше → Мосты",
+                    key=f"route-next-bridges-{route['route_id']}",
+                    use_container_width=True,
+                ):
+                    st.session_state["nav_step_next"] = "Мосты"
+                    request_nav("Мосты")
             st.button(
                 "Сбросить выбор мостов",
                 key=f"route-reset-bridges-{route['route_id']}",

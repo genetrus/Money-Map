@@ -34,8 +34,8 @@ VARIANT_MODES = ("Подбор", "Библиотека", "Сравнение")
 
 
 def _apply_nav_payload(data: AppData) -> None:
-    payload = st.session_state.get("nav_payload")
-    if not isinstance(payload, dict) or payload.get("section") != "Варианты (конкретика)":
+    payload = components.consume_nav_intent("Варианты (конкретика)")
+    if not isinstance(payload, dict):
         return
 
     way_id = payload.get("way_id")
@@ -66,8 +66,6 @@ def _apply_nav_payload(data: AppData) -> None:
         components.apply_classifier_filter_request(classifier)
     if isinstance(variant_id, str):
         st.session_state["selected_variant_id"] = variant_id
-
-    st.session_state["nav_payload"] = None
 
 
 def _apply_pending_local_requests() -> None:
@@ -266,6 +264,32 @@ def _render_variant_card(
                 args=(variant.id,),
                 use_container_width=True,
             )
+        if st.session_state.get("nav_mode") == "Сравнение":
+            if st.button(
+                "+ В сравнение",
+                key=f"variant-compare-{variant.id}",
+                use_container_width=True,
+            ):
+                components.add_compare_item(
+                    {
+                        "type": "variant",
+                        "id": variant.id,
+                        "name": variant.title,
+                        "cell_id": variant.matrix_cell,
+                        "classifier_tags": [
+                            *variant.classifiers.get("sell", []),
+                            *variant.classifiers.get("to_whom", []),
+                            *variant.classifiers.get("measure", []),
+                        ],
+                    },
+                )
+        if st.session_state.get("nav_mode") == "Конструктор пути":
+            if st.button(
+                "Сохранить выбор",
+                key=f"variant-select-{variant.id}",
+                use_container_width=True,
+            ):
+                st.session_state["selected_variant_id"] = variant.id
 
     st.markdown(
         f"**Способ:** {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}"
@@ -450,9 +474,19 @@ def render(data: AppData, filters: components.Filters) -> None:
         "Финальная точка, где абстракции превращаются в конкретные профессии, "
         "проекты, форматы сделок и виды бизнеса.",
     )
+    components.render_path_wizard("Варианты")
 
     context = _selection_context(data)
     _render_path_panel(data, context)
+
+    if st.session_state.get("nav_mode") == "Конструктор пути":
+        if st.button(
+            "Добавить в кандидаты",
+            key="variants-save-candidate",
+            use_container_width=True,
+            disabled=not bool(st.session_state.get("selected_variant_id")),
+        ):
+            st.session_state["compare_selected_id"] = st.session_state.get("selected_variant_id")
 
     mode_cols = st.columns([3, 2, 3])
     with mode_cols[0]:

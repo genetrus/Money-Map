@@ -3,9 +3,11 @@ from __future__ import annotations
 import streamlit as st
 
 from money_map.ui import components
+from money_map.ui.state import request_nav
 from money_map.ui.views import (
     bridges,
     classify,
+    compare,
     graph,
     matrix,
     overview,
@@ -43,6 +45,30 @@ def main() -> None:
         st.experimental_rerun()
 
     _sidebar_status(data)
+
+    st.sidebar.markdown("### Режим навигации")
+    current_mode = st.session_state.get("nav_mode", "Исследование")
+    if current_mode not in components.NAV_MODES:
+        current_mode = "Исследование"
+    st.sidebar.radio(
+        "Режим навигации",
+        components.NAV_MODES,
+        index=components.NAV_MODES.index(current_mode),
+        key="nav_mode",
+    )
+    st.sidebar.caption(components.NAV_MODE_HINTS.get(st.session_state.get("nav_mode"), ""))
+
+    if st.session_state.get("nav_mode") == "Сравнение":
+        compare_items = st.session_state.get("compare_items", [])
+        count = len(compare_items) if isinstance(compare_items, list) else 0
+        st.sidebar.markdown("### Кандидаты")
+        st.sidebar.caption(f"В корзине: {count}")
+        if isinstance(compare_items, list) and compare_items:
+            for item in compare_items[-5:]:
+                label = item.get("name") or item.get("id") or "—"
+                st.sidebar.markdown(f"- {label}")
+        if st.sidebar.button("Открыть сравнение", key="compare-open"):
+            request_nav("Сравнение")
 
     if "request_nav_section" in st.session_state:
         requested = st.session_state.pop("request_nav_section")
@@ -117,6 +143,8 @@ def main() -> None:
         bridges.render(data, filters)
     elif page == "Маршруты":
         paths.render(data, filters)
+    elif page == "Сравнение":
+        compare.render(data)
     elif page == "Поиск":
         search.render(data)
     elif page == "Классификатор":
