@@ -18,7 +18,7 @@ def _filter_variants(
     transition: Optional[Tuple[str, str]],
     bridge_id: Optional[str],
     bridge_filter_available: bool,
-    classifier_filters: Optional[Dict[str, List[str]]] = None,
+    classifier_selections: Optional[Dict[str, set[str]]] = None,
     route_cells: Optional[List[str]] = None,
     chosen_bridge_ids: Optional[List[str]] = None,
 ) -> List[Variant]:
@@ -57,28 +57,14 @@ def _filter_variants(
             for variant in filtered
             if any(bridge_id in variant.bridge_ids for bridge_id in chosen_bridge_ids)
         ]
-    if classifier_filters:
-        sell_tags = classifier_filters.get("what_sell", [])
-        to_whom_tags = classifier_filters.get("to_whom", [])
-        value_tags = classifier_filters.get("value_measure", [])
-        if sell_tags:
-            filtered = [
-                variant
-                for variant in filtered
-                if any(tag in variant.sell_tags for tag in sell_tags)
-            ]
-        if to_whom_tags:
-            filtered = [
-                variant
-                for variant in filtered
-                if any(tag in variant.to_whom_tags for tag in to_whom_tags)
-            ]
-        if value_tags:
-            filtered = [
-                variant
-                for variant in filtered
-                if any(tag in variant.value_tags for tag in value_tags)
-            ]
+    if classifier_selections and any(classifier_selections.values()):
+        scored: List[Tuple[float, Variant]] = []
+        for variant in filtered:
+            score = components.score_variant_against_classifiers(variant, classifier_selections)
+            if score is not None:
+                scored.append((score, variant))
+        scored.sort(key=lambda item: (-item[0], item[1].title))
+        filtered = [variant for _, variant in scored]
     return filtered
 
 
@@ -126,11 +112,7 @@ def render(data: AppData, filters: components.Filters) -> None:
         st.session_state["request_clear_variants_context"] = True
 
     def _clear_classifier_filters() -> None:
-        st.session_state["selected_classifier_filters"] = {
-            "what_sell": [],
-            "to_whom": [],
-            "value_measure": [],
-        }
+        components.clear_classifier_selections()
 
     if "request_clear_variants_context" in st.session_state:
         st.session_state.pop("request_clear_variants_context")
@@ -148,10 +130,7 @@ def render(data: AppData, filters: components.Filters) -> None:
     selected_route_id = st.session_state.get("selected_route_id")
     selected_way_id = st.session_state.get("selected_way_id")
     chosen_bridges_by_transition = st.session_state.get("chosen_bridges_by_transition", {})
-    classifier_filters = st.session_state.get(
-        "selected_classifier_filters",
-        {"what_sell": [], "to_whom": [], "value_measure": []},
-    )
+    classifier_selections = components.get_classifier_selection_state()
     bridge_filter_available = any(variant.bridge_ids for variant in data.variants)
     transition_pair = None
     if selected_transition and "->" in selected_transition:
@@ -213,7 +192,7 @@ def render(data: AppData, filters: components.Filters) -> None:
             on_click=_request_clear_context,
         )
 
-    classifier_labels = []
+    classifier_lines = []
     mappings = {
         "what_sell": data.mappings.sell_items,
         "to_whom": data.mappings.to_whom_items,
@@ -224,17 +203,19 @@ def render(data: AppData, filters: components.Filters) -> None:
         "to_whom": "Кому",
         "value_measure": "Мера ценности",
     }
-    for group, values in classifier_filters.items():
-        for value in values:
+    for group, values in classifier_selections.items():
+        if not values:
+            continue
+        labels = []
+        for value in sorted(values):
             label = mappings.get(group, {}).get(value)
-            classifier_labels.append(f"{group_titles.get(group, group)}: {label.label if label else value}")
-    if classifier_labels:
+            labels.append(label.label if label else value)
+        classifier_lines.append(f"**{group_titles.get(group, group)}:** {components.chips(labels)}")
+    if classifier_lines:
         classifier_row = st.columns([4, 1])
-        classifier_row[0].markdown(
-            f"**Классификаторы:** {' · '.join(classifier_labels)}",
-        )
+        classifier_row[0].markdown("\n\n".join(classifier_lines))
         classifier_row[1].button(
-            "Сбросить",
+            "Сбросить фильтры классификатора",
             key="variants-clear-classifiers",
             on_click=_clear_classifier_filters,
         )
@@ -273,7 +254,7 @@ def render(data: AppData, filters: components.Filters) -> None:
         transition_pair,
         selected_bridge_id,
         bridge_filter_available,
-        classifier_filters=classifier_filters,
+        classifier_selections=classifier_selections,
         route_cells=route.sequence if route else None,
         chosen_bridge_ids=list(chosen_bridges_by_transition.values()) if chosen_bridges_by_transition else None,
     )
