@@ -18,6 +18,7 @@ def _filter_variants(
     transition: Optional[Tuple[str, str]],
     bridge_id: Optional[str],
     bridge_filter_available: bool,
+    classifier_filters: Optional[Dict[str, List[str]]] = None,
     route_cells: Optional[List[str]] = None,
     chosen_bridge_ids: Optional[List[str]] = None,
 ) -> List[Variant]:
@@ -56,6 +57,28 @@ def _filter_variants(
             for variant in filtered
             if any(bridge_id in variant.bridge_ids for bridge_id in chosen_bridge_ids)
         ]
+    if classifier_filters:
+        sell_tags = classifier_filters.get("what_sell", [])
+        to_whom_tags = classifier_filters.get("to_whom", [])
+        value_tags = classifier_filters.get("value_measure", [])
+        if sell_tags:
+            filtered = [
+                variant
+                for variant in filtered
+                if any(tag in variant.sell_tags for tag in sell_tags)
+            ]
+        if to_whom_tags:
+            filtered = [
+                variant
+                for variant in filtered
+                if any(tag in variant.to_whom_tags for tag in to_whom_tags)
+            ]
+        if value_tags:
+            filtered = [
+                variant
+                for variant in filtered
+                if any(tag in variant.value_tags for tag in value_tags)
+            ]
     return filtered
 
 
@@ -102,12 +125,20 @@ def render(data: AppData, filters: components.Filters) -> None:
     def _request_clear_context() -> None:
         st.session_state["request_clear_variants_context"] = True
 
+    def _clear_classifier_filters() -> None:
+        st.session_state["selected_classifier_filters"] = {
+            "what_sell": [],
+            "to_whom": [],
+            "value_measure": [],
+        }
+
     if "request_clear_variants_context" in st.session_state:
         st.session_state.pop("request_clear_variants_context")
         st.session_state["selected_cell_id"] = None
         st.session_state["selected_transition"] = None
         st.session_state["selected_bridge_id"] = None
         st.session_state["selected_route_id"] = None
+        st.session_state["selected_way_id"] = None
         st.session_state["chosen_bridges_by_transition"] = {}
         st.session_state["variants_filter_cell"] = "all"
 
@@ -115,7 +146,12 @@ def render(data: AppData, filters: components.Filters) -> None:
     selected_transition = st.session_state.get("selected_transition")
     selected_bridge_id = st.session_state.get("selected_bridge_id")
     selected_route_id = st.session_state.get("selected_route_id")
+    selected_way_id = st.session_state.get("selected_way_id")
     chosen_bridges_by_transition = st.session_state.get("chosen_bridges_by_transition", {})
+    classifier_filters = st.session_state.get(
+        "selected_classifier_filters",
+        {"what_sell": [], "to_whom": [], "value_measure": []},
+    )
     bridge_filter_available = any(variant.bridge_ids for variant in data.variants)
     transition_pair = None
     if selected_transition and "->" in selected_transition:
@@ -133,8 +169,10 @@ def render(data: AppData, filters: components.Filters) -> None:
 
     if selected_cell_id and st.session_state.get("variants_filter_cell") != selected_cell_id:
         st.session_state["variants_filter_cell"] = selected_cell_id
+    if selected_way_id and st.session_state.get("variants_filter_way") != selected_way_id:
+        st.session_state["variants_filter_way"] = selected_way_id
 
-    if selected_cell_id or selected_transition or selected_bridge_id or route:
+    if selected_cell_id or selected_transition or selected_bridge_id or route or selected_way_id:
         axis_labels = []
         if selected_cell_id:
             axes = components.cell_to_axes(selected_cell_id) or {}
@@ -155,6 +193,8 @@ def render(data: AppData, filters: components.Filters) -> None:
             bridge = bridge_lookup.get(selected_bridge_id)
             if bridge:
                 context_chips.append(f"`Мост: {bridge.name}`")
+        if selected_way_id:
+            context_chips.append(f"`Способ: {way_lookup.get(selected_way_id, selected_way_id)}`")
         if route:
             route_line = " → ".join(route.sequence)
             context_chips.append(f"`Маршрут: {route.name} ({route_line})`")
@@ -171,6 +211,32 @@ def render(data: AppData, filters: components.Filters) -> None:
             "Сбросить",
             key="variants-clear-context",
             on_click=_request_clear_context,
+        )
+
+    classifier_labels = []
+    mappings = {
+        "what_sell": data.mappings.sell_items,
+        "to_whom": data.mappings.to_whom_items,
+        "value_measure": data.mappings.value_measures,
+    }
+    group_titles = {
+        "what_sell": "Что продаём",
+        "to_whom": "Кому",
+        "value_measure": "Мера ценности",
+    }
+    for group, values in classifier_filters.items():
+        for value in values:
+            label = mappings.get(group, {}).get(value)
+            classifier_labels.append(f"{group_titles.get(group, group)}: {label.label if label else value}")
+    if classifier_labels:
+        classifier_row = st.columns([4, 1])
+        classifier_row[0].markdown(
+            f"**Классификаторы:** {' · '.join(classifier_labels)}",
+        )
+        classifier_row[1].button(
+            "Сбросить",
+            key="variants-clear-classifiers",
+            on_click=_clear_classifier_filters,
         )
 
     filter_cols = st.columns(4)
@@ -207,6 +273,7 @@ def render(data: AppData, filters: components.Filters) -> None:
         transition_pair,
         selected_bridge_id,
         bridge_filter_available,
+        classifier_filters=classifier_filters,
         route_cells=route.sequence if route else None,
         chosen_bridge_ids=list(chosen_bridges_by_transition.values()) if chosen_bridges_by_transition else None,
     )

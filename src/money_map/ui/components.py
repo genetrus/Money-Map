@@ -71,6 +71,9 @@ def init_session_state() -> None:
     st.session_state.setdefault("graph_selected_node", None)
     st.session_state.setdefault("graph_selected_bridge", None)
     st.session_state.setdefault("search_query", "")
+    st.session_state.setdefault("search_type_filter", "all")
+    st.session_state.setdefault("search_selected_result", None)
+    st.session_state.setdefault("search_results_limit", 10)
     st.session_state.setdefault("active_tab", "Карта")
     st.session_state.setdefault("last_click_id", None)
     st.session_state.setdefault("matrix_focus_cell", None)
@@ -83,6 +86,10 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_filter_kind", "all")
     st.session_state.setdefault("variants_filter_cell", "all")
     st.session_state.setdefault("variants_filter_outside", False)
+    st.session_state.setdefault(
+        "selected_classifier_filters",
+        {"what_sell": [], "to_whom": [], "value_measure": []},
+    )
     st.session_state.setdefault("matrix_axis_risk", "low")
     st.session_state.setdefault("matrix_axis_activity", "active")
     st.session_state.setdefault("matrix_axis_scalability", "linear")
