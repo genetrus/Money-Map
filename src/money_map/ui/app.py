@@ -67,6 +67,22 @@ def main() -> None:
     if "request_variant_cell_filter" in st.session_state:
         cell_id = st.session_state.pop("request_variant_cell_filter")
         st.session_state["variants_filter_cell"] = cell_id
+    if "request_selected_transition" in st.session_state:
+        st.session_state["selected_transition"] = st.session_state.pop("request_selected_transition")
+    if "request_selected_bridge_id" in st.session_state:
+        st.session_state["selected_bridge_id"] = st.session_state.pop("request_selected_bridge_id")
+    if "request_filter_risk" in st.session_state:
+        st.session_state["filter_risk"] = st.session_state.pop("request_filter_risk")
+    if "request_filter_activity" in st.session_state:
+        st.session_state["filter_activity"] = st.session_state.pop("request_filter_activity")
+    if "request_filter_scalability" in st.session_state:
+        st.session_state["filter_scalability"] = st.session_state.pop("request_filter_scalability")
+    if "request_matrix_axis_risk" in st.session_state:
+        st.session_state["matrix_axis_risk"] = st.session_state.pop("request_matrix_axis_risk")
+    if "request_matrix_axis_activity" in st.session_state:
+        st.session_state["matrix_axis_activity"] = st.session_state.pop("request_matrix_axis_activity")
+    if "request_matrix_axis_scalability" in st.session_state:
+        st.session_state["matrix_axis_scalability"] = st.session_state.pop("request_matrix_axis_scalability")
 
     st.sidebar.markdown("### Навигация")
     current_page = st.session_state.get("page", components.DEFAULT_PAGE)

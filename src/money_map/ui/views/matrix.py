@@ -1,67 +1,199 @@
 from __future__ import annotations
 
-from typing import Optional
+from collections import defaultdict
+from typing import Iterable
 
 import streamlit as st
 
-from money_map.core.model import AppData, Cell
-from money_map.core.query import list_bridges
+from money_map.core.model import AppData, BridgeItem, PathItem, TaxonomyItem
 from money_map.ui import components
 from money_map.ui.state import go_to_section
 
 
-def _find_cell(data: AppData, risk: str, activity: str, scalability: str) -> Optional[Cell]:
-    for cell in data.cells:
-        if (
-            cell.risk == risk
-            and cell.activity == activity
-            and cell.scalability == scalability
-        ):
-            return cell
-    return None
+def _index_by_cell(items: Iterable[TaxonomyItem]) -> dict[str, list[TaxonomyItem]]:
+    grouped: dict[str, list[TaxonomyItem]] = defaultdict(list)
+    for item in items:
+        for cell_id in item.typical_cells:
+            grouped[cell_id].append(item)
+    return grouped
+
+
+def _index_paths_by_cell(paths: Iterable[PathItem]) -> dict[str, list[PathItem]]:
+    grouped: dict[str, list[PathItem]] = defaultdict(list)
+    for path in paths:
+        for cell_id in path.sequence:
+            grouped[cell_id].append(path)
+    return grouped
+
+
+def _index_bridges_by_from(
+    bridges: Iterable[BridgeItem],
+) -> tuple[dict[str, list[BridgeItem]], dict[tuple[str, str], list[BridgeItem]]]:
+    by_from: dict[str, list[BridgeItem]] = defaultdict(list)
+    by_transition: dict[tuple[str, str], list[BridgeItem]] = defaultdict(list)
+    for bridge in bridges:
+        by_from[bridge.from_cell].append(bridge)
+        by_transition[(bridge.from_cell, bridge.to_cell)].append(bridge)
+    return by_from, by_transition
+
+
+def _axis_defaults(
+    filters: components.Filters,
+    selected_cell_id: str | None,
+) -> dict[str, str]:
+    axes = components.cell_to_axes(selected_cell_id) if selected_cell_id else None
+    base = axes or {"risk": "low", "activity": "active", "scalability": "linear"}
+    return {
+        "risk": filters.risk if filters.risk != "all" else base["risk"],
+        "activity": filters.activity if filters.activity != "all" else base["activity"],
+        "scalability": filters.scalability if filters.scalability != "all" else base["scalability"],
+    }
+
+
+def _sync_axis_state(defaults: dict[str, str], selected_cell_id: str | None) -> None:
+    for axis in ("risk", "activity", "scalability"):
+        key = f"matrix_axis_{axis}"
+        desired = defaults[axis]
+        current = st.session_state.get(key)
+        if current not in components.AXIS_LABELS[axis]:
+            st.session_state[key] = desired
+        if selected_cell_id and current != desired:
+            st.session_state[key] = desired
+
+
+def _clear_transition_state() -> None:
+    st.session_state["selected_transition"] = None
+    st.session_state["selected_bridge_id"] = None
+
+
+def _queue_global_filter_updates(risk: str, activity: str, scalability: str) -> None:
+    if st.session_state.get("filter_risk") != risk:
+        st.session_state["request_filter_risk"] = risk
+    if st.session_state.get("filter_activity") != activity:
+        st.session_state["request_filter_activity"] = activity
+    if st.session_state.get("filter_scalability") != scalability:
+        st.session_state["request_filter_scalability"] = scalability
+
+
+def _select_cell(cell_id: str) -> None:
+    components.set_selected_cell(cell_id)
+    _clear_transition_state()
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    st.title("Матрица 2×2×2")
-    st.markdown("Нажмите на ячейку, чтобы открыть детали и связанные мосты.")
+    st.title("Матрица")
 
     focus_cell = st.session_state.get("matrix_focus_cell")
     if focus_cell and st.session_state.get("selected_cell") != focus_cell:
         components.set_selected_cell(focus_cell)
 
-    for risk_key, risk_label in [("low", "Низкий риск"), ("high", "Высокий риск")]:
-        if filters.risk != "all" and filters.risk != risk_key:
-            continue
-        st.subheader(risk_label)
-        st.markdown("**Активность × Масштабируемость**")
+    selected_cell_id = st.session_state.get("selected_cell_id")
+    defaults = _axis_defaults(filters, selected_cell_id)
+    _sync_axis_state(defaults, selected_cell_id)
 
-        for activity_key, activity_label in [("active", "Активно"), ("passive", "Пассивно")]:
-            row_cols = st.columns(2)
-            for idx, scale_key in enumerate(["linear", "scalable"]):
-                cell = _find_cell(data, risk_key, activity_key, scale_key)
-                with row_cols[idx]:
-                    if not cell:
-                        st.info("Ячейка не найдена")
-                        continue
-                    if filters.activity != "all" and cell.activity != filters.activity:
-                        st.caption("Скрыто фильтром активности")
-                        continue
-                    if filters.scalability != "all" and cell.scalability != filters.scalability:
-                        st.caption("Скрыто фильтром масштабируемости")
-                        continue
-                    with st.container(border=cell.id == focus_cell):
-                        st.markdown(components.render_cell_card(cell))
-                        if cell.id == focus_cell:
-                            st.caption("Фокусная ячейка")
-                    if st.button(
-                        f"Открыть {cell.id}",
-                        key=f"cell-{cell.id}",
-                        use_container_width=True,
-                    ):
-                        components.set_selected_cell(cell.id)
-            st.divider()
+    with st.container(border=True):
+        st.markdown("### Координаты мира")
+        axis_cols = st.columns([1, 1, 1, 1.3])
+        axis_cols[0].radio(
+            "Риск",
+            ["low", "high"],
+            key="matrix_axis_risk",
+            horizontal=True,
+            format_func=lambda value: components.axis_label("risk", value),
+        )
+        axis_cols[1].radio(
+            "Активность",
+            ["active", "passive"],
+            key="matrix_axis_activity",
+            horizontal=True,
+            format_func=lambda value: components.axis_label("activity", value),
+        )
+        axis_cols[2].radio(
+            "Масштаб",
+            ["linear", "scalable"],
+            key="matrix_axis_scalability",
+            horizontal=True,
+            format_func=lambda value: components.axis_label("scalability", value),
+        )
+        with axis_cols[3]:
+            derived_cell = components.axes_to_cell_id(
+                st.session_state["matrix_axis_risk"],
+                st.session_state["matrix_axis_activity"],
+                st.session_state["matrix_axis_scalability"],
+            )
+            badge = derived_cell or "—"
+            st.markdown(f"**Выбрана ячейка: {badge}**")
+            st.button(
+                "Сбросить переход",
+                key="matrix-reset-transition",
+                help="Очистить выбранный переход и мост.",
+                on_click=_clear_transition_state,
+                use_container_width=True,
+            )
 
-    selected_id = st.session_state.get("selected_cell")
+    risk = st.session_state["matrix_axis_risk"]
+    activity = st.session_state["matrix_axis_activity"]
+    scalability = st.session_state["matrix_axis_scalability"]
+    derived_cell = components.axes_to_cell_id(risk, activity, scalability)
+    if derived_cell and derived_cell != selected_cell_id:
+        _select_cell(derived_cell)
+        _queue_global_filter_updates(risk, activity, scalability)
+
+    ways_by_cell = _index_by_cell(data.taxonomy)
+    paths_by_cell = _index_paths_by_cell(data.paths)
+    bridges_by_from, bridges_by_transition = _index_bridges_by_from(data.bridges)
+
+    grid_cols = st.columns(2)
+    for idx, (risk_key, risk_label) in enumerate(
+        [("low", "Низкий риск"), ("high", "Высокий риск")],
+    ):
+        with grid_cols[idx]:
+            with st.container(border=True):
+                st.markdown(f"#### {risk_label}")
+                for activity_key, activity_label in [("active", "Активно"), ("passive", "Пассивно")]:
+                    row = st.columns(2)
+                    for col_idx, scale_key in enumerate(["linear", "scalable"]):
+                        cell = components.axes_to_cell_id(risk_key, activity_key, scale_key)
+                        if not cell:
+                            continue
+                        cell_data = components.cell_lookup(data).get(cell)
+                        if not cell_data:
+                            continue
+                        selected = cell_data.id == st.session_state.get("selected_cell_id")
+                        with row[col_idx]:
+                            with st.container(border=selected):
+                                st.markdown(f"### {cell_data.id}")
+                                st.caption(cell_data.label)
+                                ways_count = len(ways_by_cell.get(cell_data.id, []))
+                                bridges_count = len(bridges_by_from.get(cell_data.id, []))
+                                routes_count = len(paths_by_cell.get(cell_data.id, []))
+                                variants_count = len(data.variants_by_cell_id.get(cell_data.id, []))
+                                st.caption(
+                                    f"💠 {ways_count}  🌉 {bridges_count}  🧭 {routes_count}  🧩 {variants_count}",
+                                )
+                                if st.button(
+                                    f"Выбрать {cell_data.id}",
+                                    key=f"matrix-cell-{cell_data.id}",
+                                    use_container_width=True,
+                                ):
+                                    axes = components.cell_to_axes(cell_data.id) or {}
+                                    st.session_state["request_selected_cell_id"] = cell_data.id
+                                    st.session_state["request_matrix_axis_risk"] = axes.get("risk", risk_key)
+                                    st.session_state["request_matrix_axis_activity"] = axes.get("activity", activity_key)
+                                    st.session_state["request_matrix_axis_scalability"] = axes.get(
+                                        "scalability",
+                                        scale_key,
+                                    )
+                                    st.session_state["request_filter_risk"] = axes.get("risk", risk_key)
+                                    st.session_state["request_filter_activity"] = axes.get("activity", activity_key)
+                                    st.session_state["request_filter_scalability"] = axes.get(
+                                        "scalability",
+                                        scale_key,
+                                    )
+                                    _clear_transition_state()
+                                    st.rerun()
+
+    selected_id = st.session_state.get("selected_cell_id")
     if not selected_id:
         st.info("Выберите ячейку, чтобы увидеть детали.")
         return
@@ -71,73 +203,102 @@ def render(data: AppData, filters: components.Filters) -> None:
         st.warning("Выбранная ячейка не найдена.")
         return
 
-    st.subheader(f"Детали ячейки {cell.id}")
-    st.markdown(f"**{cell.label}**")
-    st.write(cell.short)
-    st.write("Примеры:")
-    for example in cell.examples:
-        st.write(f"- {example}")
+    related_ways = sorted(ways_by_cell.get(cell.id, []), key=lambda item: item.name)
+    outgoing_transitions = sorted({bridge.to_cell for bridge in bridges_by_from.get(cell.id, [])})
+    selected_transition = st.session_state.get("selected_transition")
+    if selected_transition and not selected_transition.startswith(f"{cell.id}->"):
+        selected_transition = None
+        st.session_state["selected_transition"] = None
+        st.session_state["selected_bridge_id"] = None
 
-    outgoing = list_bridges(data, from_cell=cell.id)
-    st.markdown("#### Исходящие мосты")
-    if not outgoing:
-        st.caption("Исходящих мостов нет.")
-    else:
-        for bridge in outgoing:
-            st.markdown(
-                f"- **{bridge.name}** ({bridge.from_cell} → {bridge.to_cell}) — {bridge.notes}"
+    with st.container(border=True):
+        st.markdown(f"### {cell.id} · {cell.label}")
+        st.caption("Смысл")
+        st.write(cell.short)
+
+        st.markdown("#### Связанные способы")
+        if not related_ways:
+            st.caption("Нет связанных способов.")
+        else:
+            max_items = 6
+            displayed = related_ways[:max_items]
+            chip_cols = st.columns(min(4, len(displayed)))
+            for idx, item in enumerate(displayed):
+                with chip_cols[idx % len(chip_cols)]:
+                    if st.button(
+                        item.name,
+                        key=f"matrix-way-{cell.id}-{item.id}",
+                        use_container_width=True,
+                    ):
+                        go_to_section(
+                            "ways",
+                            way_id=item.id,
+                            open_tab="directory",
+                        )
+            if len(related_ways) > max_items:
+                with st.expander("ещё"):
+                    for item in related_ways[max_items:]:
+                        if st.button(
+                            item.name,
+                            key=f"matrix-way-extra-{cell.id}-{item.id}",
+                        ):
+                            go_to_section(
+                                "ways",
+                                way_id=item.id,
+                                open_tab="directory",
+                            )
+
+        st.markdown("#### Куда можно перейти")
+        if not outgoing_transitions:
+            st.caption("Нет исходящих переходов.")
+        else:
+            transition_cols = st.columns(min(4, len(outgoing_transitions)))
+            for idx, to_cell in enumerate(outgoing_transitions[:4]):
+                label = f"{cell.id} → {to_cell}"
+                with transition_cols[idx % len(transition_cols)]:
+                    if st.button(label, key=f"matrix-transition-{cell.id}-{to_cell}"):
+                        st.session_state["selected_transition"] = f"{cell.id}->{to_cell}"
+                        st.session_state["selected_bridge_id"] = None
+                        st.rerun()
+
+        if selected_transition:
+            from_cell, to_cell = selected_transition.split("->", maxsplit=1)
+            st.caption(f"Мосты для перехода {from_cell} → {to_cell}")
+            bridges = bridges_by_transition.get((from_cell, to_cell), [])
+            if not bridges:
+                st.caption("Нет мостов для выбранного перехода.")
+            else:
+                bridge_cols = st.columns(min(3, len(bridges[:6])))
+                for idx, bridge in enumerate(bridges[:6]):
+                    with bridge_cols[idx % len(bridge_cols)]:
+                        if st.button(
+                            bridge.name,
+                            key=f"matrix-bridge-{bridge.id}",
+                            use_container_width=True,
+                        ):
+                            st.session_state["selected_bridge_id"] = bridge.id
+                            st.rerun()
+                if st.session_state.get("selected_bridge_id"):
+                    if st.button(
+                        "Показать конкретику по мосту",
+                        key="matrix-cta-bridge",
+                        use_container_width=True,
+                    ):
+                        go_to_section(
+                            "variants",
+                            cell_id=cell.id,
+                            transition=selected_transition,
+                            bridge_id=st.session_state.get("selected_bridge_id"),
+                        )
+
+        if st.button(
+            "Показать конкретику",
+            key="matrix-cta-variants",
+            use_container_width=True,
+        ):
+            go_to_section(
+                "variants",
+                cell_id=cell.id,
+                transition=selected_transition,
+                bridge_id=st.session_state.get("selected_bridge_id"),
             )
-            if bridge.checks:
-                st.caption("Проверки: " + ", ".join(bridge.checks))
-
-    relevant_sell = {
-        tag
-        for tag, mapping in data.mappings.sell_items.items()
-        if mapping.typical_cells and cell.id in mapping.typical_cells
-    }
-    relevant_value = {
-        tag
-        for tag, mapping in data.mappings.value_measures.items()
-        if mapping.typical_cells and cell.id in mapping.typical_cells
-    }
-    related_taxonomy = [
-        item
-        for item in data.taxonomy
-        if cell.id in item.typical_cells
-        or relevant_sell.intersection(item.sell)
-        or relevant_value.intersection(item.value)
-    ]
-    st.markdown("#### Связанные способы получения денег")
-    if not related_taxonomy:
-        st.caption("Нет связанных механизмов.")
-    else:
-        for item in related_taxonomy:
-            if st.button(
-                f"{item.name} ({item.id})",
-                key=f"goto_way_from_cell_{cell.id}_{item.id}",
-            ):
-                go_to_section(
-                    "Способы получения денег",
-                    way_id=item.id,
-                    tab="Справочник",
-                )
-
-    st.markdown("#### Подходящие варианты (конкретика)")
-    variants = data.variants_by_cell_id.get(cell.id, [])
-    variants = components.apply_global_filters_to_variants(variants, filters)
-    if not variants:
-        st.caption("Нет вариантов для этой ячейки.")
-    else:
-        for variant in variants[:8]:
-            if st.button(
-                f"{variant.title} · {variant.kind}",
-                key=f"cell-variant-{cell.id}-{variant.id}",
-            ):
-                go_to_section(
-                    "Варианты (конкретика)",
-                    variant_id=variant.id,
-                    way_id=variant.primary_way_id,
-                )
-
-    st.markdown("#### Мини-диаграмма")
-    st.code(components.ascii_focus_diagram(cell.id, outgoing), language="text")
