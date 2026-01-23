@@ -7,7 +7,7 @@ import streamlit as st
 
 from money_map.core.model import AppData, BridgeItem, PathItem, TaxonomyItem
 from money_map.ui import components
-from money_map.ui.state import go_to_section
+from money_map.ui.state import go_to_section, request_nav
 
 
 def _index_by_cell(items: Iterable[TaxonomyItem]) -> dict[str, list[TaxonomyItem]]:
@@ -81,15 +81,15 @@ def _select_cell(cell_id: str) -> None:
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Матрица":
+    payload = components.consume_nav_intent("Матрица")
+    if isinstance(payload, dict):
         cell_id = payload.get("cell_id")
         if isinstance(cell_id, str):
             components.set_selected_cell(cell_id)
             st.session_state["matrix_focus_cell"] = cell_id
-        st.session_state["nav_payload"] = None
 
     st.title("Матрица")
+    components.render_path_wizard("Матрица")
 
     focus_cell = st.session_state.get("matrix_focus_cell")
     if focus_cell and st.session_state.get("selected_cell") != focus_cell:
@@ -310,3 +310,12 @@ def render(data: AppData, filters: components.Filters) -> None:
                 transition=selected_transition,
                 bridge_id=st.session_state.get("selected_bridge_id"),
             )
+
+        if st.session_state.get("nav_mode") == "Конструктор пути" and selected_id:
+            if st.button(
+                "Дальше → Классификатор",
+                key="matrix-next-classifier",
+                use_container_width=True,
+            ):
+                st.session_state["nav_step_next"] = "Классификатор"
+                request_nav("Классификатор")

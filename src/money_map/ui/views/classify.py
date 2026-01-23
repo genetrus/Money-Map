@@ -7,7 +7,7 @@ import streamlit as st
 from money_map.core.classify import classify_by_tags
 from money_map.core.model import AppData, TaxonomyItem
 from money_map.ui import components
-from money_map.ui.state import go_to_section
+from money_map.ui.state import go_to_section, request_nav
 
 
 GROUP_CONFIG = {
@@ -265,19 +265,20 @@ def _render_chip_row(
 
 
 def render(data: AppData) -> None:
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Классификатор":
+    payload = components.consume_nav_intent("Классификатор")
+    if isinstance(payload, dict):
         request = payload.get("classifier")
         if request is not None:
             components.apply_classifier_filter_request(request)
-        st.session_state["nav_payload"] = None
 
     components.sync_classifier_filters_from_state()
     selections = _selection_snapshot()
     classifier_items = _build_classifier_items(data)
+    has_selection = any(selections.values())
 
     st.title("Классификатор")
     st.caption("1) Выбери чипсы  2) Посмотри формулу и совпадения  3) Открой конкретику")
+    components.render_path_wizard("Классификатор")
 
     mode = st.radio(
         "Режим",
@@ -337,7 +338,6 @@ def render(data: AppData) -> None:
         st.markdown("### Где это встречается")
         card_cols = st.columns(3)
 
-        has_selection = any(selections.values())
         matches = _top_matches(data.taxonomy, selections) if has_selection else []
         probable_cells = []
         if has_selection:
@@ -486,3 +486,13 @@ def render(data: AppData) -> None:
                     key=f"classifier-directory-add-{item['group']}-{item['id']}",
                     on_click=_add_item,
                 )
+
+    if st.session_state.get("nav_mode") == "Конструктор пути":
+        if st.button(
+            "Дальше → Способы",
+            key="classifier-next-ways",
+            use_container_width=True,
+            disabled=not has_selection,
+        ):
+            st.session_state["nav_step_next"] = "Способы"
+            request_nav("Способы получения денег")

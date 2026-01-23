@@ -6,7 +6,7 @@ import streamlit as st
 
 from money_map.core.model import AppData, BridgeItem, Cell, PathItem, TaxonomyItem, Variant
 from money_map.ui import components
-from money_map.ui.state import go_to_section
+from money_map.ui.state import go_to_section, request_nav
 
 
 def _bridge_effects(bridge: BridgeItem) -> list[str]:
@@ -119,18 +119,18 @@ def render(data: AppData, filters: components.Filters) -> None:
     def _clear_bridge_selection() -> None:
         st.session_state["selected_bridge_id"] = None
 
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Мосты":
+    payload = components.consume_nav_intent("Мосты")
+    if isinstance(payload, dict):
         bridge_id = payload.get("bridge_id")
         transition = payload.get("transition")
         if isinstance(bridge_id, str):
             st.session_state["selected_bridge_id"] = bridge_id
         if isinstance(transition, str):
             st.session_state["selected_transition"] = transition
-        st.session_state["nav_payload"] = None
 
     st.title("Мосты")
     st.markdown("Выберите переход и разберите мосты как визуальную панель управления.")
+    components.render_path_wizard("Мосты")
 
     lookup = components.cell_lookup(data)
     bridges_by_transition, outgoing_by_cell = _index_bridges(data.bridges, lookup, filters)
@@ -354,6 +354,23 @@ def _render_bridge_details(
         st.markdown(f"### {bridge.name}")
         st.caption(_bridge_summary(bridge))
 
+        if st.session_state.get("nav_mode") == "Сравнение":
+            if st.button(
+                "+ В сравнение",
+                key=f"bridge-compare-{bridge.id}",
+                use_container_width=True,
+            ):
+                components.add_compare_item(
+                    {
+                        "type": "bridge",
+                        "id": bridge.id,
+                        "name": bridge.name,
+                        "cell_id": from_cell,
+                        "transition": selected_transition,
+                        "classifier_tags": [],
+                    },
+                )
+
         st.markdown("**Что меняет**")
         effects = _bridge_effects(bridge)
         displayed_effects = effects[:3]
@@ -415,6 +432,15 @@ def _render_bridge_details(
                 cell_id=from_cell,
             ),
         )
+
+        if st.session_state.get("nav_mode") == "Конструктор пути":
+            if st.button(
+                "Дальше → Варианты",
+                key=f"bridge-next-variants-{bridge.id}",
+                use_container_width=True,
+            ):
+                st.session_state["nav_step_next"] = "Варианты"
+                request_nav("Варианты (конкретика)")
 
 
 def _render_way_chips(ways: list[TaxonomyItem]) -> None:
