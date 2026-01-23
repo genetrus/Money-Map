@@ -1,318 +1,616 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Iterable
 
 import streamlit as st
 
-from money_map.core.model import AppData, Variant
+from money_map.core.model import AppData
 from money_map.ui import components
+from money_map.ui.logic.variants_filter import (
+    MatchResult,
+    NormalizedVariant,
+    apply_global_filters,
+    data_coverage_score,
+    explain_match,
+    match_score,
+    normalize_variant,
+)
 from money_map.ui.state import go_to_section
 
 
-def _filter_variants(
-    variants: List[Variant],
-    way_id: str,
-    kind: str,
-    cell_id: str,
-    outside_only: bool,
-    transition: Optional[Tuple[str, str]],
-    bridge_id: Optional[str],
-    bridge_filter_available: bool,
-    classifier_selections: Optional[Dict[str, set[str]]] = None,
-    route_cells: Optional[List[str]] = None,
-    chosen_bridge_ids: Optional[List[str]] = None,
-) -> List[Variant]:
-    filtered = variants
-    if way_id != "all":
-        filtered = [variant for variant in filtered if variant.primary_way_id == way_id]
-    if kind != "all":
-        filtered = [variant for variant in filtered if variant.kind == kind]
-    if cell_id != "all":
-        filtered = [
-            variant for variant in filtered if cell_id in variant.matrix_cells
-        ]
-    if outside_only:
-        filtered = [variant for variant in filtered if variant.outside_market]
-    if bridge_id and bridge_filter_available:
-        filtered = [variant for variant in filtered if bridge_id in variant.bridge_ids]
-    elif transition:
-        from_cell, to_cell = transition
-        filtered = [
-            variant
-            for variant in filtered
-            if from_cell in variant.matrix_cells and to_cell in variant.matrix_cells
-        ]
-    if route_cells:
-        # Fallback when variants don't store explicit routes: match start + target cells.
-        start_cell = route_cells[0]
-        target_cell = route_cells[-1]
-        filtered = [
-            variant
-            for variant in filtered
-            if start_cell in variant.matrix_cells and target_cell in variant.matrix_cells
-        ]
-    if chosen_bridge_ids and bridge_filter_available:
-        filtered = [
-            variant
-            for variant in filtered
-            if any(bridge_id in variant.bridge_ids for bridge_id in chosen_bridge_ids)
-        ]
-    if classifier_selections and any(classifier_selections.values()):
-        scored: List[Tuple[float, Variant]] = []
-        for variant in filtered:
-            score = components.score_variant_against_classifiers(variant, classifier_selections)
-            if score is not None:
-                scored.append((score, variant))
-        scored.sort(key=lambda item: (-item[0], item[1].title))
-        filtered = [variant for _, variant in scored]
-    return filtered
+@dataclass(frozen=True)
+class SelectionContext:
+    selected_matrix_cell: str | None
+    selected_transition: str | None
+    selected_mechanism_ids: list[str]
+    selected_classifiers: dict[str, list[str]]
+    selected_route_id: str | None
+    selected_route_cells: list[str] | None
+    selected_bridge_ids: list[str]
 
 
-def _variant_card(variant: Variant, way_lookup: Dict[str, str]) -> None:
+VARIANT_MODES = ("Подбор", "Библиотека", "Сравнение")
+
+
+def _apply_nav_payload(data: AppData) -> None:
+    payload = st.session_state.get("nav_payload")
+    if not isinstance(payload, dict) or payload.get("section") != "Варианты (конкретика)":
+        return
+
+    way_id = payload.get("way_id")
+    cell_id = payload.get("cell_id")
+    variant_cell_filter = payload.get("variant_cell_filter")
+    bridge_id = payload.get("bridge_id")
+    route_id = payload.get("route_id")
+    transition = payload.get("transition")
+    classifier = payload.get("classifier")
+    variant_id = payload.get("variant_id")
+
+    if isinstance(way_id, str):
+        st.session_state["selected_way_id"] = way_id
+        st.session_state["selected_tax_id"] = way_id
+        st.session_state["ways_selected_way_id"] = way_id
+    if isinstance(cell_id, str):
+        components.set_selected_cell(cell_id)
+    if isinstance(variant_cell_filter, str):
+        components.set_selected_cell(variant_cell_filter)
+    if isinstance(bridge_id, str):
+        st.session_state["selected_bridge_id"] = bridge_id
+    if isinstance(route_id, str):
+        st.session_state["selected_route_id"] = route_id
+        st.session_state["selected_path"] = route_id
+    if isinstance(transition, str):
+        st.session_state["selected_transition"] = transition
+    if classifier is not None:
+        components.apply_classifier_filter_request(classifier)
+    if isinstance(variant_id, str):
+        st.session_state["selected_variant_id"] = variant_id
+
+    st.session_state["nav_payload"] = None
+
+
+def _apply_pending_local_requests() -> None:
+    request_mode = st.session_state.pop("request_variants_mode", None)
+    if isinstance(request_mode, str) and request_mode in VARIANT_MODES:
+        st.session_state["variants_mode"] = request_mode
+
+
+def _selection_context(data: AppData) -> SelectionContext:
+    selection = components.sync_selection_context()
+    selected_route_id = selection.get("selected_route_id")
+    route = next((item for item in data.paths if item.id == selected_route_id), None)
+    return SelectionContext(
+        selected_matrix_cell=selection.get("selected_matrix_cell"),
+        selected_transition=selection.get("selected_transition"),
+        selected_mechanism_ids=selection.get("selected_mechanism_ids", []),
+        selected_classifiers=selection.get(
+            "selected_classifiers",
+            {"sell": [], "to_whom": [], "measure": []},
+        ),
+        selected_route_id=selected_route_id,
+        selected_route_cells=route.sequence if route else None,
+        selected_bridge_ids=selection.get("selected_bridge_ids", []),
+    )
+
+
+def _label_tags(values: Iterable[str], lookup: dict[str, str]) -> list[str]:
+    return [lookup.get(value, value) for value in values]
+
+
+def _render_path_panel(data: AppData, context: SelectionContext) -> None:
+    mechanisms = {item.id: item.name for item in data.taxonomy}
+    bridges = {item.id: item.name for item in data.bridges}
+    routes = {item.id: item.name for item in data.paths}
+    classifier_labels = {
+        "sell": {key: item.label for key, item in data.mappings.sell_items.items()},
+        "to_whom": {key: item.label for key, item in data.mappings.to_whom_items.items()},
+        "measure": {key: item.label for key, item in data.mappings.value_measures.items()},
+    }
+
+    def _chip_line(label: str, values: Iterable[str]) -> str:
+        return f"**{label}:** {components.chips(values) if values else '`не выбрано`'}"
+
+    with st.container(border=True):
+        st.markdown("### Панель пути")
+        st.markdown(
+            _chip_line(
+                "Матрица",
+                [context.selected_matrix_cell] if context.selected_matrix_cell else [],
+            ),
+        )
+
+        classifier_lines = []
+        if context.selected_classifiers.get("sell"):
+            classifier_lines.append(
+                _chip_line(
+                    "Что продаём",
+                    _label_tags(context.selected_classifiers["sell"], classifier_labels["sell"]),
+                ),
+            )
+        if context.selected_classifiers.get("to_whom"):
+            classifier_lines.append(
+                _chip_line(
+                    "Кому",
+                    _label_tags(context.selected_classifiers["to_whom"], classifier_labels["to_whom"]),
+                ),
+            )
+        if context.selected_classifiers.get("measure"):
+            classifier_lines.append(
+                _chip_line(
+                    "Как меряется",
+                    _label_tags(context.selected_classifiers["measure"], classifier_labels["measure"]),
+                ),
+            )
+        if classifier_lines:
+            st.markdown("\n".join(classifier_lines))
+        else:
+            st.markdown("**Классификаторы:** `не выбрано`")
+
+        mechanism_names = [mechanisms.get(item, item) for item in context.selected_mechanism_ids]
+        st.markdown(_chip_line("Способы", mechanism_names))
+
+        if context.selected_route_id:
+            st.markdown(_chip_line("Маршрут", [routes.get(context.selected_route_id, context.selected_route_id)]))
+        else:
+            st.markdown("**Маршрут:** `не выбрано`")
+
+        if context.selected_bridge_ids:
+            bridge_labels = [bridges.get(item, item) for item in context.selected_bridge_ids]
+            st.markdown(_chip_line("Мосты", bridge_labels))
+        else:
+            st.markdown("**Мосты:** `не выбрано`")
+
+
+def _render_shortlist_panel(data: AppData, variants: dict[str, NormalizedVariant]) -> None:
+    shortlist = st.session_state.get("shortlist", {})
+    with st.container(border=True):
+        st.markdown(f"### Шорт-лист ({len(shortlist)})")
+        if not shortlist:
+            st.caption("Добавьте 1–5 вариантов для сравнения.")
+            return
+        for variant_id, meta in shortlist.items():
+            variant = variants.get(variant_id)
+            if not variant:
+                continue
+            status_key = f"shortlist-status-{variant_id}"
+            st.session_state.setdefault(status_key, meta.get("status", "candidate"))
+
+            def _update_status(variant_id: str, key: str) -> None:
+                shortlist_local = dict(st.session_state.get("shortlist", {}))
+                if variant_id in shortlist_local:
+                    shortlist_local[variant_id]["status"] = st.session_state.get(key)
+                st.session_state["shortlist"] = shortlist_local
+
+            name_cols = st.columns([3, 1])
+            name_cols[0].markdown(f"**{variant.title}**")
+            name_cols[1].button(
+                "Убрать",
+                key=f"shortlist-remove-{variant_id}",
+                on_click=_remove_from_shortlist,
+                args=(variant_id,),
+            )
+            st.selectbox(
+                "Статус",
+                ["candidate", "finalist"],
+                key=status_key,
+                format_func=lambda value: "Кандидат" if value == "candidate" else "Финалист",
+                on_change=_update_status,
+                args=(variant_id, status_key),
+            )
+            st.button(
+                "Сравнить",
+                key=f"shortlist-compare-{variant_id}",
+                on_click=_request_variants_mode,
+                args=("Сравнение",),
+                use_container_width=True,
+            )
+
+        st.button(
+            "Перейти в сравнение",
+            key="shortlist-to-compare",
+            on_click=_request_variants_mode,
+            args=("Сравнение",),
+            use_container_width=True,
+        )
+
+
+def _add_to_shortlist(variant_id: str) -> None:
+    shortlist = dict(st.session_state.get("shortlist", {}))
+    if variant_id not in shortlist and len(shortlist) >= 5:
+        st.session_state["shortlist_notice"] = "Можно добавить не больше 5 вариантов."
+        return
+    shortlist.setdefault(variant_id, {"status": "candidate", "note": ""})
+    st.session_state["shortlist"] = shortlist
+
+
+def _remove_from_shortlist(variant_id: str) -> None:
+    shortlist = dict(st.session_state.get("shortlist", {}))
+    shortlist.pop(variant_id, None)
+    st.session_state["shortlist"] = shortlist
+
+
+def _request_variants_mode(mode: str) -> None:
+    st.session_state["request_variants_mode"] = mode
+
+
+def _render_variant_card(
+    variant: NormalizedVariant,
+    *,
+    match: MatchResult | None,
+    data: AppData,
+    label_lookups: dict[str, dict[str, str]],
+) -> None:
+    mechanisms = {item.id: item.name for item in data.taxonomy}
+    bridges = {item.id: item.name for item in data.bridges}
+
     header_cols = st.columns([4, 2])
     with header_cols[0]:
         st.markdown(f"**{variant.title}**")
         st.caption(variant.kind)
     with header_cols[1]:
-        if st.button("Открыть", key=f"variant-open-{variant.id}"):
-            st.session_state["selected_variant_id"] = variant.id
-            st.rerun()
+        in_shortlist = variant.id in st.session_state.get("shortlist", {})
+        if in_shortlist:
+            st.button(
+                "Удалить",
+                key=f"variant-remove-{variant.id}",
+                on_click=_remove_from_shortlist,
+                args=(variant.id,),
+                use_container_width=True,
+            )
+        else:
+            st.button(
+                "⭐ В шорт-лист",
+                key=f"variant-shortlist-{variant.id}",
+                on_click=_add_to_shortlist,
+                args=(variant.id,),
+                use_container_width=True,
+            )
 
-    st.markdown(f"**Способ:** {way_lookup.get(variant.primary_way_id, variant.primary_way_id)}")
-    if variant.matrix_cells:
-        cell_cols = st.columns(len(variant.matrix_cells))
-        for idx, cell_id in enumerate(variant.matrix_cells):
-            with cell_cols[idx]:
-                if st.button(cell_id, key=f"variant-cell-{variant.id}-{cell_id}"):
-                    go_to_section("Матрица", cell_id=cell_id)
+    st.markdown(
+        f"**Способ:** {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}"
+        f" · **Матрица:** {variant.matrix_cell or '—'}",
+    )
 
     tag_cols = st.columns(3)
     with tag_cols[0]:
         st.caption("Что продаёшь")
-        st.markdown(components.chips(variant.sell_tags))
+        st.markdown(components.chips(_label_tags(variant.classifiers["sell"], label_lookups["sell"])))
     with tag_cols[1]:
         st.caption("Кому")
-        st.markdown(components.chips(variant.to_whom_tags))
+        st.markdown(components.chips(_label_tags(variant.classifiers["to_whom"], label_lookups["to_whom"])))
     with tag_cols[2]:
         st.caption("Как меряется")
-        st.markdown(components.chips(variant.value_tags))
+        st.markdown(components.chips(_label_tags(variant.classifiers["measure"], label_lookups["measure"])))
 
-    with st.expander("Требования и первые шаги", expanded=False):
-        st.markdown("**Требования**")
-        for item in variant.requirements:
-            st.markdown(f"- {item}")
+    st.markdown(f"**На практике:** {variant.summary}")
+
+    if match:
+        reasons = explain_match(match)
+        st.caption("Почему здесь: " + ", ".join(reasons))
+
+    if variant.linked_bridges:
+        bridge_labels = [bridges.get(item, item) for item in variant.linked_bridges]
+        st.markdown(f"**Мосты:** {components.chips(bridge_labels)}")
+
+    jump_cols = st.columns([1, 1, 1, 1])
+    jump_cols[0].button(
+        "Способ",
+        key=f"variant-jump-way-{variant.id}",
+        on_click=go_to_section,
+        args=("Способы получения денег",),
+        kwargs={"way_id": variant.mechanism_id, "tab": "Справочник"},
+        use_container_width=True,
+    )
+    if variant.matrix_cell:
+        jump_cols[1].button(
+            "Матрица",
+            key=f"variant-jump-cell-{variant.id}",
+            on_click=go_to_section,
+            args=("Матрица",),
+            kwargs={"cell_id": variant.matrix_cell},
+            use_container_width=True,
+        )
+    else:
+        jump_cols[1].button("Матрица", key=f"variant-jump-cell-disabled-{variant.id}", disabled=True)
+    if variant.linked_bridges:
+        jump_cols[2].button(
+            "Мосты",
+            key=f"variant-jump-bridge-{variant.id}",
+            on_click=go_to_section,
+            args=("Мосты",),
+            kwargs={"bridge_id": variant.linked_bridges[0]},
+            use_container_width=True,
+        )
+    else:
+        jump_cols[2].button("Мосты", key=f"variant-jump-bridge-disabled-{variant.id}", disabled=True)
+    if variant.linked_route:
+        jump_cols[3].button(
+            "Маршрут",
+            key=f"variant-jump-route-{variant.id}",
+            on_click=go_to_section,
+            args=("Маршруты",),
+            kwargs={"route_id": variant.linked_route},
+            use_container_width=True,
+        )
+    else:
+        jump_cols[3].button("Маршрут", key=f"variant-jump-route-disabled-{variant.id}", disabled=True)
+
+    expanded = st.session_state.get("selected_variant_id") == variant.id
+    with st.expander("🔎 Детали", expanded=expanded):
+        st.markdown("**Суть**")
+        st.write(variant.description)
+        st.markdown("**Как выглядит на практике**")
+        st.write(variant.summary)
+        st.markdown("**Почему подходит под текущий выбор**")
+        if match:
+            for reason in match.reasons:
+                st.markdown(f"- {reason}")
+        else:
+            st.markdown("- Совпадает по общему профилю фильтров.")
+        st.markdown("**Связи**")
+        st.markdown(
+            f"- Способ: {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}",
+        )
+        if variant.matrix_cell:
+            st.markdown(f"- Матрица: {variant.matrix_cell}")
+        if variant.linked_bridges:
+            bridge_labels = [bridges.get(item, item) for item in variant.linked_bridges]
+            st.markdown(f"- Мосты: {', '.join(bridge_labels)}")
+        if variant.linked_route:
+            st.markdown(f"- Маршрут: {variant.linked_route}")
+        st.markdown("**Пакет выбора**")
+        if variant.hints_fit:
+            st.markdown("Подходит если:")
+            for hint in variant.hints_fit:
+                st.markdown(f"- {hint}")
+        else:
+            st.caption("Нет данных по условиям, когда подходит.")
+        if variant.hints_not_fit:
+            st.markdown("Не подходит если:")
+            for hint in variant.hints_not_fit:
+                st.markdown(f"- {hint}")
+        else:
+            st.caption("Нет данных по условиям, когда не подходит.")
         st.markdown("**Первые шаги**")
-        for step in variant.first_steps:
-            st.markdown(f"- {step}")
+        if variant.first_steps:
+            for step in variant.first_steps:
+                st.markdown(f"- {step}")
+        else:
+            st.caption("Нет данных.")
+        st.markdown("**Типовые ошибки**")
+        if variant.common_mistakes:
+            for item in variant.common_mistakes:
+                st.markdown(f"- {item}")
+        else:
+            st.caption("Нет данных.")
 
+
+def _render_comparison(
+    data: AppData,
+    normalized_variants: dict[str, NormalizedVariant],
+    matches: dict[str, MatchResult],
+) -> None:
+    shortlist = st.session_state.get("shortlist", {})
+    if len(shortlist) < 2:
+        st.info("Добавьте минимум два варианта для сравнения.")
+        return
+
+    selected_variants = [
+        normalized_variants[variant_id]
+        for variant_id in shortlist.keys()
+        if variant_id in normalized_variants
+    ]
+    if len(selected_variants) > 5:
+        selected_variants = selected_variants[:5]
+
+    mechanisms = {item.id: item.name for item in data.taxonomy}
+    bridges = {item.id: item.name for item in data.bridges}
+
+    rows = []
+    for variant in selected_variants:
+        match = matches.get(variant.id)
+        reasons = explain_match(match) if match else ["Совпадает по общему профилю."]
+        rows.append(
+            {
+                "Вариант": variant.title,
+                "Способ": mechanisms.get(variant.mechanism_id, variant.mechanism_id),
+                "Матрица": variant.matrix_cell or "—",
+                "Классификаторы": ", ".join(
+                    [
+                        *variant.classifiers.get("sell", []),
+                        *variant.classifiers.get("to_whom", []),
+                        *variant.classifiers.get("measure", []),
+                    ],
+                ),
+                "Маршрут": variant.linked_route or "—",
+                "Мосты": ", ".join([bridges.get(item, item) for item in variant.linked_bridges]) or "—",
+                "Краткая суть": variant.summary,
+                "Почему подходит": "; ".join(reasons),
+            },
+        )
+
+    st.dataframe(rows, use_container_width=True)
+
+    for variant in selected_variants:
+        st.button(
+            f"Убрать {variant.title}",
+            key=f"compare-remove-{variant.id}",
+            on_click=_remove_from_shortlist,
+            args=(variant.id,),
+        )
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    def _request_clear_context() -> None:
-        st.session_state["request_clear_variants_context"] = True
-
-    def _clear_classifier_filters() -> None:
-        components.clear_classifier_selections()
-
-    payload = st.session_state.get("nav_payload")
-    if isinstance(payload, dict) and payload.get("section") == "Варианты (конкретика)":
-        way_id = payload.get("way_id")
-        cell_id = payload.get("cell_id")
-        classifier = payload.get("classifier")
-        variant_cell_filter = payload.get("variant_cell_filter")
-        if isinstance(way_id, str):
-            st.session_state["selected_way_id"] = way_id
-        if isinstance(cell_id, str):
-            st.session_state["selected_cell_id"] = cell_id
-        if isinstance(variant_cell_filter, str):
-            st.session_state["variants_filter_cell"] = variant_cell_filter
-        if classifier is not None:
-            components.apply_classifier_filter_request(classifier)
-        st.session_state["nav_payload"] = None
-
-    if "request_clear_variants_context" in st.session_state:
-        st.session_state.pop("request_clear_variants_context")
-        st.session_state["selected_cell_id"] = None
-        st.session_state["selected_transition"] = None
-        st.session_state["selected_bridge_id"] = None
-        st.session_state["selected_route_id"] = None
-        st.session_state["selected_way_id"] = None
-        st.session_state["chosen_bridges_by_transition"] = {}
-        st.session_state["variants_filter_cell"] = "all"
-
-    selected_cell_id = st.session_state.get("selected_cell_id")
-    selected_transition = st.session_state.get("selected_transition")
-    selected_bridge_id = st.session_state.get("selected_bridge_id")
-    selected_route_id = st.session_state.get("selected_route_id")
-    selected_way_id = st.session_state.get("selected_way_id")
-    chosen_bridges_by_transition = st.session_state.get("chosen_bridges_by_transition", {})
-    classifier_selections = components.get_classifier_selection_state()
-    bridge_filter_available = any(variant.bridge_ids for variant in data.variants)
-    transition_pair = None
-    if selected_transition and "->" in selected_transition:
-        from_cell, to_cell = selected_transition.split("->", maxsplit=1)
-        transition_pair = (from_cell, to_cell)
-    route = next((item for item in data.paths if item.id == selected_route_id), None)
+    _apply_nav_payload(data)
+    _apply_pending_local_requests()
 
     st.title("Варианты (конкретика)")
-    st.markdown("Фильтруйте варианты по способам, ячейкам и типам конкретики.")
+    st.markdown(
+        "Финальная точка, где абстракции превращаются в конкретные профессии, "
+        "проекты, форматы сделок и виды бизнеса.",
+    )
 
-    way_lookup = {item.id: item.name for item in data.taxonomy}
-    way_options = ["all"] + sorted(way_lookup.keys())
-    kind_options = ["all"] + sorted({variant.kind for variant in data.variants})
-    cell_options = ["all"] + sorted({cell.id for cell in data.cells})
+    context = _selection_context(data)
+    _render_path_panel(data, context)
 
-    if selected_cell_id and st.session_state.get("variants_filter_cell") != selected_cell_id:
-        st.session_state["variants_filter_cell"] = selected_cell_id
-    if selected_way_id and st.session_state.get("variants_filter_way") != selected_way_id:
-        st.session_state["variants_filter_way"] = selected_way_id
-
-    if selected_cell_id or selected_transition or selected_bridge_id or route or selected_way_id:
-        axis_labels = []
-        if selected_cell_id:
-            axes = components.cell_to_axes(selected_cell_id) or {}
-            axis_labels = [
-                selected_cell_id,
-                components.axis_label("risk", axes.get("risk", "low")),
-                components.axis_label("activity", axes.get("activity", "active")),
-                components.axis_label("scalability", axes.get("scalability", "linear")),
-            ]
-        chip_row = st.columns([4, 1])
-        if selected_cell_id:
-            chip_row[0].markdown(f"**Контекст:** {' · '.join(axis_labels)}")
-        context_chips = []
-        if selected_transition:
-            context_chips.append(f"`{selected_transition}`")
-        if selected_bridge_id:
-            bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
-            bridge = bridge_lookup.get(selected_bridge_id)
-            if bridge:
-                context_chips.append(f"`Мост: {bridge.name}`")
-        if selected_way_id:
-            context_chips.append(f"`Способ: {way_lookup.get(selected_way_id, selected_way_id)}`")
-        if route:
-            route_line = " → ".join(route.sequence)
-            context_chips.append(f"`Маршрут: {route.name} ({route_line})`")
-        if chosen_bridges_by_transition:
-            bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
-            for transition, bridge_id in chosen_bridges_by_transition.items():
-                bridge = bridge_lookup.get(bridge_id)
-                if bridge:
-                    context_chips.append(f"`{transition}: {bridge.name}`")
-        if context_chips:
-            prefix = "**Контекст:** " if not selected_cell_id else ""
-            chip_row[0].markdown(f"{prefix}{' '.join(context_chips)}")
-        chip_row[1].button(
-            "Сбросить",
-            key="variants-clear-context",
-            on_click=_request_clear_context,
+    mode_cols = st.columns([3, 2, 3])
+    with mode_cols[0]:
+        st.radio(
+            "Режим",
+            VARIANT_MODES,
+            key="variants_mode",
+            horizontal=True,
         )
-
-    classifier_lines = []
-    mappings = {
-        "what_sell": data.mappings.sell_items,
-        "to_whom": data.mappings.to_whom_items,
-        "value_measure": data.mappings.value_measures,
-    }
-    group_titles = {
-        "what_sell": "Что продаём",
-        "to_whom": "Кому",
-        "value_measure": "Мера ценности",
-    }
-    for group, values in classifier_selections.items():
-        if not values:
-            continue
-        labels = []
-        for value in sorted(values):
-            label = mappings.get(group, {}).get(value)
-            labels.append(label.label if label else value)
-        classifier_lines.append(f"**{group_titles.get(group, group)}:** {components.chips(labels)}")
-    if classifier_lines:
-        classifier_row = st.columns([4, 1])
-        classifier_row[0].markdown("\n\n".join(classifier_lines))
-        classifier_row[1].button(
-            "Сбросить фильтры классификатора",
-            key="variants-clear-classifiers",
-            on_click=_clear_classifier_filters,
+    with mode_cols[1]:
+        st.radio(
+            "Совпадение",
+            ["strict", "wide"],
+            key="variants_scope",
+            format_func=lambda value: "Строго" if value == "strict" else "Шире",
+            horizontal=True,
         )
+    with mode_cols[2]:
+        st.caption("Строго = полное совпадение, Шире = частичные совпадения с ранжированием.")
 
-    filter_cols = st.columns(4)
-    way_id = filter_cols[0].selectbox(
-        "Способ",
-        way_options,
-        key="variants_filter_way",
-        format_func=lambda value: "Все" if value == "all" else way_lookup.get(value, value),
-    )
-    kind = filter_cols[1].selectbox(
-        "Тип",
-        kind_options,
-        key="variants_filter_kind",
-        format_func=lambda value: "Все" if value == "all" else value,
-    )
-    cell_id = filter_cols[2].selectbox(
-        "Ячейка",
-        cell_options,
-        key="variants_filter_cell",
-        format_func=lambda value: "Все" if value == "all" else value,
-    )
-    outside_only = filter_cols[3].checkbox(
-        "Только вне рынка",
-        key="variants_filter_outside",
+    normalized = [normalize_variant(variant) for variant in data.variants]
+    filtered_global = apply_global_filters(
+        normalized,
+        risk=filters.risk,
+        activity=filters.activity,
+        scalability=filters.scalability,
     )
 
-    filtered_variants = components.apply_global_filters_to_variants(data.variants, filters)
-    filtered_variants = _filter_variants(
-        filtered_variants,
-        way_id,
-        kind,
-        cell_id,
-        outside_only,
-        transition_pair,
-        selected_bridge_id,
-        bridge_filter_available,
-        classifier_selections=classifier_selections,
-        route_cells=route.sequence if route else None,
-        chosen_bridge_ids=list(chosen_bridges_by_transition.values()) if chosen_bridges_by_transition else None,
-    )
+    label_lookups = {
+        "sell": {key: item.label for key, item in data.mappings.sell_items.items()},
+        "to_whom": {key: item.label for key, item in data.mappings.to_whom_items.items()},
+        "measure": {key: item.label for key, item in data.mappings.value_measures.items()},
+    }
 
-    if not filtered_variants:
-        st.info("Ничего не найдено по фильтрам.")
-        return
+    scope = st.session_state.get("variants_scope", "strict")
+    strict = scope == "strict"
 
-    list_col, detail_col = st.columns([2, 1])
+    matches: list[MatchResult] = []
+    match_lookup: dict[str, MatchResult] = {}
+    for variant in filtered_global:
+        result = match_score(
+            variant,
+            selected_mechanism_ids=context.selected_mechanism_ids,
+            selected_matrix_cell=context.selected_matrix_cell,
+            selected_classifiers=context.selected_classifiers,
+            selected_route_cells=context.selected_route_cells,
+            selected_bridge_ids=context.selected_bridge_ids,
+            strict=strict,
+        )
+        if result is not None:
+            matches.append(result)
+            match_lookup[variant.id] = result
 
-    with list_col:
-        st.markdown(f"**Найдено вариантов:** {len(filtered_variants)}")
-        for variant in filtered_variants:
-            with st.container(border=True):
-                _variant_card(variant, way_lookup)
+    total_after_global = len(filtered_global)
+    hidden_count = max(total_after_global - len(matches), 0)
 
-    with detail_col:
-        st.markdown("### Детали выбранного варианта")
-        selected_id = st.session_state.get("selected_variant_id")
-        selected = data.variant_by_id.get(selected_id) if selected_id else None
-        if not selected:
-            st.caption("Выберите вариант слева.")
-        else:
-            st.markdown(f"**{selected.title}**")
-            st.caption(selected.kind)
-            st.markdown("**Первые шаги**")
-            for step in selected.first_steps:
-                st.markdown(f"- {step}")
-            st.markdown("**Метрики успеха**")
-            for metric in selected.success_metrics:
-                st.markdown(f"- {metric}")
-            if selected.related_variant_ids:
-                st.markdown("**Связанные варианты**")
-                for rel_id in selected.related_variant_ids:
-                    rel = data.variant_by_id.get(rel_id)
-                    if rel:
-                        if st.button(rel.title, key=f"variant-related-{selected.id}-{rel_id}"):
-                            st.session_state["selected_variant_id"] = rel_id
-                            st.rerun()
-            st.markdown("**Навигация**")
-            if st.button("Открыть способ", key=f"variant-open-way-{selected.id}"):
-                go_to_section("Способы получения денег", way_id=selected.primary_way_id, tab="Справочник")
-            if selected.matrix_cells:
-                if st.button("Открыть ячейку матрицы", key=f"variant-open-cell-{selected.id}"):
-                    go_to_section("Матрица", cell_id=selected.matrix_cells[0])
+    current_mode = st.session_state.get("variants_mode", "Подбор")
+    if current_mode == "Подбор":
+        matches.sort(
+            key=lambda item: (-item.score, -item.data_coverage, item.variant.title),
+        )
+        header = st.columns([3, 1])
+        header[0].markdown(f"**Найдено вариантов:** {len(matches)}")
+        if hidden_count:
+            header[1].caption(f"Скрыто фильтрами: {hidden_count}")
+
+        if st.session_state.pop("shortlist_notice", None):
+            st.warning("Можно добавить не больше 5 вариантов.")
+
+        list_col, shortlist_col = st.columns([3, 1])
+        with list_col:
+            if not matches:
+                st.info("Нет подходящих вариантов по текущему выбору.")
+            for match in matches:
+                with st.container(border=True):
+                    _render_variant_card(
+                        match.variant,
+                        match=match,
+                        data=data,
+                        label_lookups=label_lookups,
+                    )
+        with shortlist_col:
+            variants_lookup = {item.id: item for item in normalized}
+            _render_shortlist_panel(data, variants_lookup)
+
+    elif current_mode == "Библиотека":
+        catalog_col, shortlist_col = st.columns([3, 1])
+        with catalog_col:
+            search_term = st.text_input(
+                "Поиск по названию или описанию",
+                key="variants_library_search",
+            )
+            filter_cols = st.columns(3)
+            mechanisms = {item.id: item.name for item in data.taxonomy}
+            mechanism_options = ["all"] + sorted(mechanisms.keys())
+            kind_options = ["all"] + sorted({variant.kind for variant in normalized})
+            cell_options = ["all"] + sorted({cell.id for cell in data.cells})
+            filter_cols[0].selectbox(
+                "Способ",
+                mechanism_options,
+                key="variants_library_mechanism",
+                format_func=lambda value: "Все" if value == "all" else mechanisms.get(value, value),
+            )
+            filter_cols[1].selectbox(
+                "Тип",
+                kind_options,
+                key="variants_library_kind",
+                format_func=lambda value: "Все" if value == "all" else value,
+            )
+            filter_cols[2].selectbox(
+                "Ячейка",
+                cell_options,
+                key="variants_library_cell",
+                format_func=lambda value: "Все" if value == "all" else value,
+            )
+
+            filtered = list(filtered_global)
+            mechanism_filter = st.session_state.get("variants_library_mechanism", "all")
+            kind_filter = st.session_state.get("variants_library_kind", "all")
+            cell_filter = st.session_state.get("variants_library_cell", "all")
+            if mechanism_filter != "all":
+                filtered = [item for item in filtered if item.mechanism_id == mechanism_filter]
+            if kind_filter != "all":
+                filtered = [item for item in filtered if item.kind == kind_filter]
+            if cell_filter != "all":
+                filtered = [item for item in filtered if cell_filter in item.matrix_cells]
+            if search_term:
+                search = search_term.lower()
+                filtered = [
+                    item
+                    for item in filtered
+                    if search in item.title.lower() or search in item.summary.lower()
+                ]
+
+            sort_choice = st.selectbox(
+                "Сортировка",
+                ["title", "coverage"],
+                key="variants_library_sort",
+                format_func=lambda value: "По названию" if value == "title" else "По заполненности",
+            )
+            if sort_choice == "coverage":
+                filtered.sort(key=lambda item: (-data_coverage_score(item), item.title))
+            else:
+                filtered.sort(key=lambda item: item.title)
+
+            st.markdown(f"**Всего в библиотеке:** {len(filtered)}")
+            for variant in filtered:
+                with st.container(border=True):
+                    _render_variant_card(
+                        variant,
+                        match=match_lookup.get(variant.id),
+                        data=data,
+                        label_lookups=label_lookups,
+                    )
+        with shortlist_col:
+            variants_lookup = {item.id: item for item in normalized}
+            _render_shortlist_panel(data, variants_lookup)
+
+    else:
+        variants_lookup = {item.id: item for item in normalized}
+        _render_comparison(data, variants_lookup, match_lookup)
