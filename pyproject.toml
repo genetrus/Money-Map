@@ -14,6 +14,7 @@ dependencies = [
   "networkx>=3.2",
   "streamlit>=1.30",
   "streamlit-agraph>=0.0.45",
+  "st-cytoscape>=0.0.5",
 ]
 
 [project.optional-dependencies]
