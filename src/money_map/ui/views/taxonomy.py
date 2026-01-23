@@ -61,7 +61,7 @@ def render(data: AppData) -> None:
                     key=f"tax-bridge-{item.id}-{bridge.id}",
                 ):
                     components.set_selected_bridge(bridge.id)
-                    components.set_page("Мосты")
+                    components.request_page("Мосты")
 
         st.markdown("#### Связанные маршруты")
         paths = components.taxonomy_related_paths(data, item)
@@ -74,4 +74,4 @@ def render(data: AppData) -> None:
                     key=f"tax-path-{item.id}-{path.id}",
                 ):
                     components.set_selected_path(path.id)
-                    components.set_page("Маршруты")
+                    components.request_page("Маршруты")
