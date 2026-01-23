@@ -52,12 +52,16 @@ def reset_cache() -> None:
 
 def init_session_state() -> None:
     st.session_state.setdefault("page", DEFAULT_PAGE)
+    st.session_state.setdefault("current_page", DEFAULT_PAGE)
     st.session_state.setdefault("active_section", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
     st.session_state.setdefault("selected_cell_id", None)
     st.session_state.setdefault("selected_transition", None)
     st.session_state.setdefault("selected_bridge_id", None)
     st.session_state.setdefault("selected_route_id", None)
+    st.session_state.setdefault("route_filters_start_cell", None)
+    st.session_state.setdefault("route_filters_target_cell", None)
+    st.session_state.setdefault("chosen_bridges_by_transition", {})
     st.session_state.setdefault("selected_taxonomy", None)
     st.session_state.setdefault("selected_tax_id", None)
     st.session_state.setdefault("selected_way_id", None)

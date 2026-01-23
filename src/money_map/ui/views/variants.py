@@ -18,6 +18,8 @@ def _filter_variants(
     transition: Optional[Tuple[str, str]],
     bridge_id: Optional[str],
     bridge_filter_available: bool,
+    route_cells: Optional[List[str]] = None,
+    chosen_bridge_ids: Optional[List[str]] = None,
 ) -> List[Variant]:
     filtered = variants
     if way_id != "all":
@@ -38,6 +40,21 @@ def _filter_variants(
             variant
             for variant in filtered
             if from_cell in variant.matrix_cells and to_cell in variant.matrix_cells
+        ]
+    if route_cells:
+        # Fallback when variants don't store explicit routes: match start + target cells.
+        start_cell = route_cells[0]
+        target_cell = route_cells[-1]
+        filtered = [
+            variant
+            for variant in filtered
+            if start_cell in variant.matrix_cells and target_cell in variant.matrix_cells
+        ]
+    if chosen_bridge_ids and bridge_filter_available:
+        filtered = [
+            variant
+            for variant in filtered
+            if any(bridge_id in variant.bridge_ids for bridge_id in chosen_bridge_ids)
         ]
     return filtered
 
@@ -90,16 +107,21 @@ def render(data: AppData, filters: components.Filters) -> None:
         st.session_state["selected_cell_id"] = None
         st.session_state["selected_transition"] = None
         st.session_state["selected_bridge_id"] = None
+        st.session_state["selected_route_id"] = None
+        st.session_state["chosen_bridges_by_transition"] = {}
         st.session_state["variants_filter_cell"] = "all"
 
     selected_cell_id = st.session_state.get("selected_cell_id")
     selected_transition = st.session_state.get("selected_transition")
     selected_bridge_id = st.session_state.get("selected_bridge_id")
+    selected_route_id = st.session_state.get("selected_route_id")
+    chosen_bridges_by_transition = st.session_state.get("chosen_bridges_by_transition", {})
     bridge_filter_available = any(variant.bridge_ids for variant in data.variants)
     transition_pair = None
     if selected_transition and "->" in selected_transition:
         from_cell, to_cell = selected_transition.split("->", maxsplit=1)
         transition_pair = (from_cell, to_cell)
+    route = next((item for item in data.paths if item.id == selected_route_id), None)
 
     st.title("Варианты (конкретика)")
     st.markdown("Фильтруйте варианты по способам, ячейкам и типам конкретики.")
@@ -112,7 +134,7 @@ def render(data: AppData, filters: components.Filters) -> None:
     if selected_cell_id and st.session_state.get("variants_filter_cell") != selected_cell_id:
         st.session_state["variants_filter_cell"] = selected_cell_id
 
-    if selected_cell_id or selected_transition or selected_bridge_id:
+    if selected_cell_id or selected_transition or selected_bridge_id or route:
         axis_labels = []
         if selected_cell_id:
             axes = components.cell_to_axes(selected_cell_id) or {}
@@ -133,6 +155,15 @@ def render(data: AppData, filters: components.Filters) -> None:
             bridge = bridge_lookup.get(selected_bridge_id)
             if bridge:
                 context_chips.append(f"`Мост: {bridge.name}`")
+        if route:
+            route_line = " → ".join(route.sequence)
+            context_chips.append(f"`Маршрут: {route.name} ({route_line})`")
+        if chosen_bridges_by_transition:
+            bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
+            for transition, bridge_id in chosen_bridges_by_transition.items():
+                bridge = bridge_lookup.get(bridge_id)
+                if bridge:
+                    context_chips.append(f"`{transition}: {bridge.name}`")
         if context_chips:
             prefix = "**Контекст:** " if not selected_cell_id else ""
             chip_row[0].markdown(f"{prefix}{' '.join(context_chips)}")
@@ -176,6 +207,8 @@ def render(data: AppData, filters: components.Filters) -> None:
         transition_pair,
         selected_bridge_id,
         bridge_filter_available,
+        route_cells=route.sequence if route else None,
+        chosen_bridge_ids=list(chosen_bridges_by_transition.values()) if chosen_bridges_by_transition else None,
     )
 
     if not filtered_variants:
