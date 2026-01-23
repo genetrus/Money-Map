@@ -54,6 +54,13 @@ def ensure_graph_state_defaults() -> None:
         st.session_state.setdefault(key, st.session_state["graph_edge_type_filters"].get(edge_type, True))
 
 
+def _apply_graph_tab_next() -> None:
+    if "graph_tab" not in st.session_state:
+        st.session_state.setdefault("graph_tab", "Обзор")
+    if "graph_tab_next" in st.session_state:
+        st.session_state["graph_tab"] = st.session_state.pop("graph_tab_next")
+
+
 def _sync_node_filters() -> None:
     st.session_state["graph_node_type_filters"] = {
         node_type: bool(st.session_state.get(f"graph_node_filter_{node_type}", False))
@@ -582,7 +589,7 @@ def render_overview_tab(data: AppData) -> None:
         target = _overview_click_target(data, node_id)
         if target:
             st.session_state["graph_selected_node_id"] = target
-            st.session_state["graph_tab"] = "Исследование"
+            st.session_state["graph_tab_next"] = "Исследование"
             st.rerun()
 
 
@@ -775,6 +782,7 @@ def render(data: AppData, filters: components.Filters) -> None:
     st.markdown("Интерактивная карта связей между сущностями Money Map.")
 
     ensure_graph_state_defaults()
+    _apply_graph_tab_next()
 
     tab_labels = ["Обзор", "Исследование", "Путь"]
     current = st.session_state.get("graph_tab", "Обзор")
