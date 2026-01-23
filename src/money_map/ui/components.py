@@ -77,14 +77,16 @@ def init_session_state() -> None:
     st.session_state.setdefault("search_selected_result", None)
     st.session_state.setdefault("search_results_limit", 10)
     st.session_state.setdefault("active_tab", "Карта")
-    st.session_state.setdefault("ways_tab", "Карта")
+    st.session_state.setdefault("ways_ui_tab", "Карта")
+    st.session_state.setdefault("pending_nav_section", None)
+    st.session_state.setdefault("pending_nav", None)
     st.session_state.setdefault("last_click_id", None)
     st.session_state.setdefault("matrix_focus_cell", None)
     st.session_state.setdefault("ways_highlight_node_id", None)
-    st.session_state.setdefault("ways_map_focus_id", None)
-    st.session_state.setdefault("ways_last_click_id", None)
-    st.session_state.setdefault("ways_last_click_ts", None)
-    st.session_state.setdefault("ways_last_click_is_double", False)
+    st.session_state.setdefault("ways_selected_node_id", None)
+    st.session_state.setdefault("ways_selected_way_id", None)
+    st.session_state.setdefault("ways_ignore_next_selection", False)
+    st.session_state.setdefault("ways_last_tap", {"node_id": None, "timestamp_ms": 0.0})
     st.session_state.setdefault("ways_outside_only", False)
     st.session_state.setdefault("variants_filter_way", "all")
     st.session_state.setdefault("variants_filter_kind", "all")
@@ -107,15 +109,17 @@ def init_session_state() -> None:
 
 
 def apply_pending_navigation() -> None:
-    if "nav_section_next" in st.session_state:
-        st.session_state["nav_section"] = st.session_state["nav_section_next"]
-        del st.session_state["nav_section_next"]
+    pending_section = st.session_state.pop("pending_nav_section", None)
+    if isinstance(pending_section, str) and pending_section:
+        if pending_section != st.session_state.get("nav_section"):
+            st.session_state["nav_section"] = pending_section
+            st.rerun()
 
 
 def request_page(page: str) -> None:
     current = st.session_state.get("nav_section")
     if page != current:
-        st.session_state["nav_section_next"] = page
+        st.session_state["pending_nav_section"] = page
         st.rerun()
 
 
@@ -259,6 +263,8 @@ def axis_label(axis: str, value: str) -> str:
 def set_page(page: str) -> None:
     st.session_state["page"] = page
     st.session_state["active_section"] = page
+    if page != st.session_state.get("nav_section"):
+        st.session_state["pending_nav_section"] = page
 
 
 def set_selected_cell(cell_id: Optional[str]) -> None:

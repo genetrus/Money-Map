@@ -43,9 +43,10 @@ def main() -> None:
             section = intent.get("section")
             payload = intent.get("payload")
             if isinstance(section, str):
-                st.session_state["nav_section"] = section
+                st.session_state["pending_nav_section"] = section
             if isinstance(payload, dict):
                 st.session_state["nav_payload"] = payload
+            st.rerun()
 
     st.sidebar.title("Money Map")
     if st.sidebar.button("Обновить данные"):
@@ -56,9 +57,9 @@ def main() -> None:
 
     if "request_nav_section" in st.session_state:
         requested = st.session_state.pop("request_nav_section")
-        st.session_state["nav_section"] = requested
-        if requested in components.PAGES:
-            components.set_page(requested)
+        if isinstance(requested, str):
+            st.session_state["pending_nav_section"] = requested
+            st.rerun()
     if "request_selected_way_id" in st.session_state:
         way_id = st.session_state.pop("request_selected_way_id")
         st.session_state["selected_way_id"] = way_id
