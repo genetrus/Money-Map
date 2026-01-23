@@ -16,6 +16,8 @@ def _filter_variants(
     cell_id: str,
     outside_only: bool,
     transition: Optional[Tuple[str, str]],
+    bridge_id: Optional[str],
+    bridge_filter_available: bool,
 ) -> List[Variant]:
     filtered = variants
     if way_id != "all":
@@ -28,7 +30,9 @@ def _filter_variants(
         ]
     if outside_only:
         filtered = [variant for variant in filtered if variant.outside_market]
-    if transition:
+    if bridge_id and bridge_filter_available:
+        filtered = [variant for variant in filtered if bridge_id in variant.bridge_ids]
+    elif transition:
         from_cell, to_cell = transition
         filtered = [
             variant
@@ -78,6 +82,9 @@ def _variant_card(variant: Variant, way_lookup: Dict[str, str]) -> None:
 
 
 def render(data: AppData, filters: components.Filters) -> None:
+    def _request_clear_context() -> None:
+        st.session_state["request_clear_variants_context"] = True
+
     if "request_clear_variants_context" in st.session_state:
         st.session_state.pop("request_clear_variants_context")
         st.session_state["selected_cell_id"] = None
@@ -88,6 +95,7 @@ def render(data: AppData, filters: components.Filters) -> None:
     selected_cell_id = st.session_state.get("selected_cell_id")
     selected_transition = st.session_state.get("selected_transition")
     selected_bridge_id = st.session_state.get("selected_bridge_id")
+    bridge_filter_available = any(variant.bridge_ids for variant in data.variants)
     transition_pair = None
     if selected_transition and "->" in selected_transition:
         from_cell, to_cell = selected_transition.split("->", maxsplit=1)
@@ -104,26 +112,35 @@ def render(data: AppData, filters: components.Filters) -> None:
     if selected_cell_id and st.session_state.get("variants_filter_cell") != selected_cell_id:
         st.session_state["variants_filter_cell"] = selected_cell_id
 
-    if selected_cell_id:
-        axes = components.cell_to_axes(selected_cell_id) or {}
-        axis_labels = [
-            selected_cell_id,
-            components.axis_label("risk", axes.get("risk", "low")),
-            components.axis_label("activity", axes.get("activity", "active")),
-            components.axis_label("scalability", axes.get("scalability", "linear")),
-        ]
+    if selected_cell_id or selected_transition or selected_bridge_id:
+        axis_labels = []
+        if selected_cell_id:
+            axes = components.cell_to_axes(selected_cell_id) or {}
+            axis_labels = [
+                selected_cell_id,
+                components.axis_label("risk", axes.get("risk", "low")),
+                components.axis_label("activity", axes.get("activity", "active")),
+                components.axis_label("scalability", axes.get("scalability", "linear")),
+            ]
         chip_row = st.columns([4, 1])
-        chip_row[0].markdown(f"**Контекст:** {' · '.join(axis_labels)}")
+        if selected_cell_id:
+            chip_row[0].markdown(f"**Контекст:** {' · '.join(axis_labels)}")
+        context_chips = []
         if selected_transition:
-            chip_row[0].caption(f"Переход: {selected_transition}")
+            context_chips.append(f"`{selected_transition}`")
         if selected_bridge_id:
             bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
             bridge = bridge_lookup.get(selected_bridge_id)
             if bridge:
-                chip_row[0].caption(f"Мост: {bridge.name}")
-        if chip_row[1].button("Сбросить", key="variants-clear-context"):
-            st.session_state["request_clear_variants_context"] = True
-            st.rerun()
+                context_chips.append(f"`Мост: {bridge.name}`")
+        if context_chips:
+            prefix = "**Контекст:** " if not selected_cell_id else ""
+            chip_row[0].markdown(f"{prefix}{' '.join(context_chips)}")
+        chip_row[1].button(
+            "Сбросить",
+            key="variants-clear-context",
+            on_click=_request_clear_context,
+        )
 
     filter_cols = st.columns(4)
     way_id = filter_cols[0].selectbox(
@@ -157,6 +174,8 @@ def render(data: AppData, filters: components.Filters) -> None:
         cell_id,
         outside_only,
         transition_pair,
+        selected_bridge_id,
+        bridge_filter_available,
     )
 
     if not filtered_variants:

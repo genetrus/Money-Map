@@ -57,6 +57,7 @@ def init_session_state() -> None:
     st.session_state.setdefault("selected_cell_id", None)
     st.session_state.setdefault("selected_transition", None)
     st.session_state.setdefault("selected_bridge_id", None)
+    st.session_state.setdefault("selected_route_id", None)
     st.session_state.setdefault("selected_taxonomy", None)
     st.session_state.setdefault("selected_tax_id", None)
     st.session_state.setdefault("selected_way_id", None)
@@ -142,11 +143,13 @@ def set_selected_tax_id(item_id: Optional[str]) -> None:
 
 def set_selected_bridge(bridge_id: Optional[str]) -> None:
     st.session_state["selected_bridge"] = bridge_id
+    st.session_state["selected_bridge_id"] = bridge_id
     st.session_state["graph_selected_bridge"] = bridge_id
 
 
 def set_selected_path(path_id: Optional[str]) -> None:
     st.session_state["selected_path"] = path_id
+    st.session_state["selected_route_id"] = path_id
 
 
 def set_selected_variant(variant_id: Optional[str]) -> None:

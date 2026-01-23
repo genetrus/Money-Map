@@ -11,10 +11,44 @@ def render(data: AppData, filters: components.Filters) -> None:
     st.title("Маршруты")
     st.markdown("Выберите маршрут и изучите пошаговые переходы.")
 
+    def _clear_bridge_context() -> None:
+        st.session_state["selected_bridge_id"] = None
+
+    selected_bridge_id = st.session_state.get("selected_bridge_id")
+    bridge_lookup = {bridge.id: bridge for bridge in data.bridges}
+    bridge = bridge_lookup.get(selected_bridge_id) if selected_bridge_id else None
+
+    paths = data.paths
+    if bridge:
+        paths = [
+            path
+            for path in data.paths
+            if bridge.from_cell in path.sequence
+            and bridge.to_cell in path.sequence
+            and path.sequence.index(bridge.from_cell) < path.sequence.index(bridge.to_cell)
+        ]
+        context_cols = st.columns([4, 1])
+        context_cols[0].markdown(f"**Контекст:** `Мост: {bridge.name}`")
+        context_cols[1].button(
+            "Сбросить",
+            key="paths-clear-bridge",
+            on_click=_clear_bridge_context,
+        )
+        if not paths:
+            st.info("Нет маршрутов для выбранного моста.")
+            return
+
     left, right = st.columns([1, 2])
 
+    available_ids = {path.id for path in paths}
+    selected_id = st.session_state.get("selected_route_id") or st.session_state.get("selected_path")
+    if selected_id not in available_ids:
+        st.session_state["selected_route_id"] = None
+        st.session_state["selected_path"] = None
+        selected_id = None
+
     with left:
-        for path in sorted(data.paths, key=lambda item: item.name):
+        for path in sorted(paths, key=lambda item: item.name):
             if st.button(
                 path.name,
                 key=f"path-item-{path.id}",
@@ -22,7 +56,6 @@ def render(data: AppData, filters: components.Filters) -> None:
             ):
                 components.set_selected_path(path.id)
 
-    selected_id = st.session_state.get("selected_path")
     if not selected_id:
         with right:
             st.info("Выберите маршрут слева.")
