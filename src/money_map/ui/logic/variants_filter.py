@@ -115,7 +115,7 @@ def data_coverage_score(variant: NormalizedVariant) -> int:
         score += 1
     if variant.related_variant_ids:
         score += 1
-    return score
+    return min(score, 5)
 
 
 def match_score(
@@ -126,7 +126,7 @@ def match_score(
     selected_classifiers: dict[str, list[str]],
     selected_route_cells: list[str] | None,
     selected_bridge_ids: list[str],
-    selected_role_family_ids: list[str],
+    selected_role_families: list[str],
     strict: bool,
 ) -> MatchResult | None:
     score = 0.0
@@ -134,14 +134,14 @@ def match_score(
 
     if selected_mechanism_ids:
         if variant.mechanism_id in selected_mechanism_ids:
-            score += 3
+            score += 30
             reasons.append("Совпадает способ получения денег")
         elif strict:
             return None
 
     if selected_matrix_cell:
         if selected_matrix_cell in variant.matrix_cells:
-            score += 3
+            score += 20
             reasons.append(f"Совпадает ячейка матрицы {selected_matrix_cell}")
         elif strict:
             return None
@@ -160,16 +160,16 @@ def match_score(
         if not strict and classifier_match_count < threshold:
             return None
         if classifier_match_count:
-            score += classifier_match_count * 2
+            score += classifier_match_count * 10
             reasons.append(
-                f"Совпали классификаторы: {classifier_match_count}/{len(selected_groups)} групп",
+                f"Совпали классификаторы: {classifier_match_count}/{len(selected_groups)}",
             )
 
     if selected_route_cells:
         start_cell = selected_route_cells[0]
         end_cell = selected_route_cells[-1]
         if start_cell in variant.matrix_cells and end_cell in variant.matrix_cells:
-            score += 2
+            score += 10
             reasons.append("Совпадает маршрут")
         elif strict:
             return None
@@ -178,21 +178,26 @@ def match_score(
         matched = [bridge_id for bridge_id in selected_bridge_ids if bridge_id in variant.linked_bridges]
         # В строгом режиме считаем релевантными варианты с хотя бы одним совпавшим мостом.
         if matched:
-            score += 1 + 0.25 * (len(matched) - 1)
-            reasons.append(f"Есть пересечение по мостам: {len(matched)}")
+            score += min(24, 6 * len(matched))
+            reasons.append(f"Совпадают мосты: {len(matched)}")
         elif strict:
             return None
 
-    if selected_role_family_ids:
-        if variant.activity_role_family in selected_role_family_ids:
-            score += 3
+    if selected_role_families:
+        if variant.activity_role_family in selected_role_families:
+            score += 35
             reasons.append(
                 f"Совпадает профиль деятельности: {role_family_label(variant.activity_role_family)}",
             )
+        elif variant.activity_role_family == "UNKNOWN":
+            if strict:
+                return None
+            score += 5
+            reasons.append("Профиль не задан (UNKNOWN)")
         elif strict:
             return None
-        else:
-            score -= 1
+
+    score += data_coverage_score(variant)
 
     return MatchResult(
         variant=variant,
