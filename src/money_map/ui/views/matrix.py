@@ -81,6 +81,14 @@ def _select_cell(cell_id: str) -> None:
 
 
 def render(data: AppData, filters: components.Filters) -> None:
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Матрица":
+        cell_id = payload.get("cell_id")
+        if isinstance(cell_id, str):
+            components.set_selected_cell(cell_id)
+            st.session_state["matrix_focus_cell"] = cell_id
+        st.session_state["nav_payload"] = None
+
     st.title("Матрица")
 
     focus_cell = st.session_state.get("matrix_focus_cell")

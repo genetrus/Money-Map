@@ -265,6 +265,13 @@ def _render_chip_row(
 
 
 def render(data: AppData) -> None:
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Классификатор":
+        request = payload.get("classifier")
+        if request is not None:
+            components.apply_classifier_filter_request(request)
+        st.session_state["nav_payload"] = None
+
     components.sync_classifier_filters_from_state()
     selections = _selection_snapshot()
     classifier_items = _build_classifier_items(data)

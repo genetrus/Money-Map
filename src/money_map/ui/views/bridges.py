@@ -119,6 +119,16 @@ def render(data: AppData, filters: components.Filters) -> None:
     def _clear_bridge_selection() -> None:
         st.session_state["selected_bridge_id"] = None
 
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Мосты":
+        bridge_id = payload.get("bridge_id")
+        transition = payload.get("transition")
+        if isinstance(bridge_id, str):
+            st.session_state["selected_bridge_id"] = bridge_id
+        if isinstance(transition, str):
+            st.session_state["selected_transition"] = transition
+        st.session_state["nav_payload"] = None
+
     st.title("Мосты")
     st.markdown("Выберите переход и разберите мосты как визуальную панель управления.")
 

@@ -75,7 +75,7 @@ def _render_map(
         return
 
     available_ids = [item.id for item in available_items]
-    current = st.session_state.get("selected_tax_id")
+    current = st.session_state.get("selected_way_id")
     if current not in available_ids:
         current = available_ids[0]
 
@@ -84,41 +84,47 @@ def _render_map(
         outside_only=outside_only,
         show_tags=show_tags,
         selected_tax_id=current,
-        highlighted_node_id=st.session_state.get("ways_highlight_node_id"),
+        highlighted_node_id=st.session_state.get("ways_map_focus_id"),
         allowed_taxonomy_ids=allowed_taxonomy_ids,
     )
-    bad_nodes = components._sanitize_nodes_inplace(nodes)
-    if bad_nodes:
-        st.error(f"Found link fields in nodes (must be NONE): {bad_nodes[:3]}")
-    st.caption("agraph nodes sanitized: url/href/link removed (check st.error above)")
-
-    result = agraph(nodes=nodes, edges=edges, config=config)
+    components._sanitize_nodes_inplace(nodes)
+    focus_id = st.session_state.get("ways_map_focus_id")
+    graph_key = f"ways_map_{focus_id or 'none'}_{show_tags}_{outside_only}"
+    result = agraph(nodes=nodes, edges=edges, config=config, key=graph_key)
     clicked_id = _get_clicked_id(result)
+    has_selection_keys = isinstance(result, dict) and any(
+        key in result for key in ("selected_node", "selectedNodes", "selected_nodes", "selectedNode", "node", "nodes")
+    )
     dbl = False
     if clicked_id is not None:
         now = time.monotonic()
         last_click_id = st.session_state.get("ways_last_click_id")
-        last_click_ts = st.session_state.get("ways_last_click_ts", 0.0)
+        last_click_ts = st.session_state.get("ways_last_click_ts", 0.0) or 0.0
         dbl = (
             clicked_id == last_click_id
-            and (now - last_click_ts) <= 0.9
+            and (now - last_click_ts) <= 0.6
         )
         st.session_state["ways_last_click_id"] = clicked_id
         st.session_state["ways_last_click_ts"] = now
 
     if clicked_id and isinstance(clicked_id, str):
-        st.session_state["ways_highlight_node_id"] = clicked_id
+        st.session_state["ways_map_focus_id"] = clicked_id
         if dbl and clicked_id.startswith("tax:"):
-            selected_tax_id = clicked_id.removeprefix("tax:")
-            st.session_state["pending_selected_tax_id"] = selected_tax_id
-            st.session_state["request_tab"] = "Справочник"
+            selected_way_id = clicked_id.removeprefix("tax:")
+            st.session_state["selected_way_id"] = selected_way_id
+            st.session_state["selected_tax_id"] = selected_way_id
+            st.session_state["ways_tab"] = "Справочник"
             st.rerun()
         if not dbl:
             st.rerun()
-    elif clicked_id is None:
-        if st.session_state.get("ways_highlight_node_id") is not None:
-            st.session_state["ways_highlight_node_id"] = None
+    elif clicked_id is None and has_selection_keys:
+        if st.session_state.get("ways_map_focus_id") is not None:
+            st.session_state["ways_map_focus_id"] = None
             st.rerun()
+
+    if st.button("Сбросить подсветку", key="ways-map-reset-highlight"):
+        st.session_state["ways_map_focus_id"] = None
+        st.rerun()
 
 
 
@@ -136,27 +142,37 @@ def _render_directory(
 
     id_to_name = {item.id: item.name for item in items}
     options = [item.id for item in items]
+    if st.session_state.get("selected_way_id") not in options:
+        st.session_state["selected_way_id"] = options[0]
+        st.session_state["selected_tax_id"] = options[0]
     st.selectbox(
         "Выберите механизм",
         options,
-        key="selected_tax_id",
+        key="selected_way_id",
         format_func=lambda item_id: id_to_name[item_id],
     )
-    st.session_state["selected_way_id"] = st.session_state.get("selected_tax_id")
     components.render_taxonomy_details_card(
         data,
-        st.session_state.get("selected_tax_id"),
+        st.session_state.get("selected_way_id"),
         filters,
         outside_only,
     )
 
 
 def render(data: AppData, filters: components.Filters) -> None:
-    if "pending_selected_tax_id" in st.session_state:
-        st.session_state["selected_tax_id"] = st.session_state.pop("pending_selected_tax_id")
+    payload = st.session_state.get("nav_payload")
+    if isinstance(payload, dict) and payload.get("section") == "Способы получения денег":
+        way_id = payload.get("way_id")
+        tab = payload.get("tab")
+        if isinstance(way_id, str):
+            st.session_state["selected_way_id"] = way_id
+            st.session_state["selected_tax_id"] = way_id
+        if isinstance(tab, str):
+            st.session_state["ways_tab"] = tab
+        st.session_state["nav_payload"] = None
 
-    if "request_tab" in st.session_state:
-        st.session_state["active_tab"] = st.session_state.pop("request_tab")
+    if st.session_state.get("ways_tab") not in {"Карта", "Справочник"}:
+        st.session_state["ways_tab"] = "Карта"
 
     st.title("Способы получения денег")
     outside_only = st.checkbox(
@@ -171,15 +187,14 @@ def render(data: AppData, filters: components.Filters) -> None:
     filtered_items = [item for item in filtered_items if not outside_only or item.outside_market]
     filtered_taxonomy_ids = [item.id for item in filtered_items]
 
-    current = st.session_state.get("selected_tax_id")
+    current = st.session_state.get("selected_way_id")
     if current not in filtered_taxonomy_ids:
-        st.session_state["selected_tax_id"] = filtered_taxonomy_ids[0] if filtered_taxonomy_ids else None
-    if st.session_state.get("active_tab") not in {"Карта", "Справочник"}:
-        st.session_state["active_tab"] = "Карта"
+        st.session_state["selected_way_id"] = filtered_taxonomy_ids[0] if filtered_taxonomy_ids else None
+    st.session_state["selected_tax_id"] = st.session_state.get("selected_way_id")
 
-    st.radio("", ["Карта", "Справочник"], horizontal=True, key="active_tab")
+    st.radio("", ["Карта", "Справочник"], horizontal=True, key="ways_tab")
 
-    if st.session_state.get("active_tab") == "Справочник":
+    if st.session_state.get("ways_tab") == "Справочник":
         _render_directory(data, filtered_items, filters, outside_only)
     else:
         _render_map(data, filtered_items, set(filtered_taxonomy_ids), outside_only)
