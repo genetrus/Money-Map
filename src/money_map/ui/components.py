@@ -3,18 +3,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 import streamlit as st
 import streamlit.components.v1 as components_html
 from streamlit_agraph import Config, Edge, Node
 
 from money_map.core.load import load_app_data
-from money_map.core.model import AppData, BridgeItem, Cell, PathItem, TaxonomyItem
+from money_map.core.model import AppData, BridgeItem, Cell, PathItem, TaxonomyItem, Variant
 from money_map.core.query import list_bridges
 from money_map.core.taxonomy_graph import build_taxonomy_star
 from money_map.core.validate import validate_app_data
 from money_map.render.taxonomy_graph import render_taxonomy_graph_html
+from money_map.ui.state import go_to_section
 
 
 @dataclass
@@ -34,6 +35,7 @@ PAGES = [
     "Классификатор",
     "Граф",
     "Способы получения денег",
+    "Варианты (конкретика)",
 ]
 
 
@@ -50,11 +52,15 @@ def reset_cache() -> None:
 
 def init_session_state() -> None:
     st.session_state.setdefault("page", DEFAULT_PAGE)
+    st.session_state.setdefault("active_section", DEFAULT_PAGE)
     st.session_state.setdefault("selected_cell", None)
+    st.session_state.setdefault("selected_cell_id", None)
     st.session_state.setdefault("selected_taxonomy", None)
     st.session_state.setdefault("selected_tax_id", None)
+    st.session_state.setdefault("selected_way_id", None)
     st.session_state.setdefault("selected_bridge", None)
     st.session_state.setdefault("selected_path", None)
+    st.session_state.setdefault("selected_variant_id", None)
     st.session_state.setdefault("graph_selected_node", None)
     st.session_state.setdefault("graph_selected_bridge", None)
     st.session_state.setdefault("search_query", "")
@@ -65,24 +71,33 @@ def init_session_state() -> None:
     st.session_state.setdefault("ways_last_click_id", None)
     st.session_state.setdefault("ways_last_click_ts", None)
     st.session_state.setdefault("ways_last_click_is_double", False)
+    st.session_state.setdefault("ways_outside_only", False)
+    st.session_state.setdefault("variants_filter_way", "all")
+    st.session_state.setdefault("variants_filter_kind", "all")
+    st.session_state.setdefault("variants_filter_cell", "all")
+    st.session_state.setdefault("variants_filter_outside", False)
 
 
 def set_page(page: str) -> None:
     st.session_state["page"] = page
+    st.session_state["active_section"] = page
 
 
 def set_selected_cell(cell_id: Optional[str]) -> None:
     st.session_state["selected_cell"] = cell_id
+    st.session_state["selected_cell_id"] = cell_id
     st.session_state["graph_selected_node"] = cell_id
 
 
 def set_selected_taxonomy(item_id: Optional[str]) -> None:
     st.session_state["selected_taxonomy"] = item_id
+    st.session_state["selected_way_id"] = item_id
 
 
 def set_selected_tax_id(item_id: Optional[str]) -> None:
     st.session_state["selected_tax_id"] = item_id
     st.session_state["selected_taxonomy"] = item_id
+    st.session_state["selected_way_id"] = item_id
 
 
 def set_selected_bridge(bridge_id: Optional[str]) -> None:
@@ -92,6 +107,10 @@ def set_selected_bridge(bridge_id: Optional[str]) -> None:
 
 def set_selected_path(path_id: Optional[str]) -> None:
     st.session_state["selected_path"] = path_id
+
+
+def set_selected_variant(variant_id: Optional[str]) -> None:
+    st.session_state["selected_variant_id"] = variant_id
 
 
 def get_filters() -> Filters:
@@ -150,6 +169,39 @@ def filter_cells(cells: Iterable[Cell], filters: Filters) -> List[Cell]:
 
 def get_allowed_cells_from_global_filters(data: AppData, filters: Filters) -> set[str]:
     return {cell.id for cell in filter_cells(data.cells, filters)}
+
+
+def apply_global_filters_to_variants(
+    variants: Iterable[Variant],
+    filters: Filters,
+) -> List[Variant]:
+    results = list(variants)
+    if filters.risk != "all":
+        results = [variant for variant in results if variant.risk_level == filters.risk]
+    if filters.activity != "all":
+        results = [variant for variant in results if variant.activity == filters.activity]
+    if filters.scalability != "all":
+        results = [variant for variant in results if variant.scalability == filters.scalability]
+    return results
+
+
+def apply_global_filters_to_ways(
+    ways: Iterable[TaxonomyItem],
+    filters: Filters,
+    data: AppData,
+) -> List[TaxonomyItem]:
+    allowed_cells = get_allowed_cells_from_global_filters(data, filters)
+    filtered_variant_ids = {
+        variant.primary_way_id
+        for variant in apply_global_filters_to_variants(data.variants, filters)
+    }
+    filtered = []
+    for item in ways:
+        if not allowed_cells and not filtered_variant_ids:
+            continue
+        if any(cell in allowed_cells for cell in item.typical_cells) or item.id in filtered_variant_ids:
+            filtered.append(item)
+    return filtered
 
 
 def filter_taxonomy_by_cells(
@@ -239,7 +291,16 @@ def _chips(values: Iterable[str]) -> str:
     return " ".join(f"`{value}`" for value in values) if values else "—"
 
 
-def render_taxonomy_details_card(app_data: AppData, tax_id: Optional[str]) -> None:
+def chips(values: Iterable[str]) -> str:
+    return _chips(values)
+
+
+def render_taxonomy_details_card(
+    app_data: AppData,
+    tax_id: Optional[str],
+    filters: Filters,
+    outside_only: bool,
+) -> None:
     with st.container(border=True):
         if not tax_id:
             st.markdown("Нажмите на любой узел (например «Зарплата») — здесь появятся детали.")
@@ -290,11 +351,25 @@ def render_taxonomy_details_card(app_data: AppData, tax_id: Optional[str]) -> No
                 row = st.columns([1, 5])
                 with row[0]:
                     if st.button(cell_id, key=f"tax-cell-{item.id}-{cell_id}"):
-                        st.session_state["request_nav_section"] = "Матрица"
-                        st.session_state["request_matrix_focus_cell"] = cell_id
-                        st.rerun()
+                        go_to_section("Матрица", cell_id=cell_id)
                 with row[1]:
                     st.markdown(summary)
+
+        st.markdown("#### Конкретные варианты (конкретика)")
+        variants = app_data.variants_by_way_id.get(item.id, [])
+        variants = apply_global_filters_to_variants(variants, filters)
+        if outside_only:
+            variants = [variant for variant in variants if variant.outside_market]
+        if not variants:
+            st.caption("Нет вариантов для этого способа.")
+        else:
+            for variant in variants[:10]:
+                label = f"{variant.title} · {variant.kind}"
+                if st.button(
+                    label,
+                    key=f"tax-variant-{item.id}-{variant.id}",
+                ):
+                    go_to_section("Варианты (конкретика)", variant_id=variant.id, way_id=item.id)
 
         st.markdown("#### Связанные мосты")
         bridges = taxonomy_related_bridges(app_data, item)

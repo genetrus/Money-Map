@@ -4,6 +4,7 @@ import streamlit as st
 
 from money_map.core.model import AppData
 from money_map.ui import components
+from money_map.ui.state import go_to_section
 
 
 def _match(text: str, needle: str) -> bool:
@@ -12,7 +13,7 @@ def _match(text: str, needle: str) -> bool:
 
 def render(data: AppData) -> None:
     st.title("Поиск")
-    st.markdown("Поиск по таксономии, мостам, ячейкам и маршрутам.")
+    st.markdown("Поиск по способам получения денег, мостам, ячейкам, маршрутам и вариантам.")
 
     query = st.text_input("Введите запрос", key="search_query")
     if not query:
@@ -57,15 +58,44 @@ def render(data: AppData) -> None:
             needle,
         )
     ]
+    variant_results = [
+        variant
+        for variant in data.variants
+        if _match(
+            " ".join(
+                [
+                    variant.title,
+                    variant.kind,
+                    " ".join(variant.requirements),
+                    " ".join(variant.first_steps),
+                    " ".join(variant.sell_tags),
+                    " ".join(variant.to_whom_tags),
+                    " ".join(variant.value_tags),
+                ]
+            ),
+            needle,
+        )
+    ]
 
     st.markdown(
-        f"**Результаты:** Таксономия ({len(taxonomy_results)}), "
+        f"**Результаты:** Способы ({len(taxonomy_results)}), "
         f"Мосты ({len(bridge_results)}), "
         f"Ячейки ({len(cell_results)}), "
-        f"Маршруты ({len(path_results)})"
+        f"Маршруты ({len(path_results)}), "
+        f"Варианты ({len(variant_results)})"
     )
 
-    with st.expander(f"Таксономия ({len(taxonomy_results)})", expanded=True):
+    tabs = st.tabs(
+        [
+            f"Способы ({len(taxonomy_results)})",
+            f"Варианты ({len(variant_results)})",
+            f"Мосты ({len(bridge_results)})",
+            f"Ячейки ({len(cell_results)})",
+            f"Маршруты ({len(path_results)})",
+        ]
+    )
+
+    with tabs[0]:
         if not taxonomy_results:
             st.caption("Ничего не найдено.")
         for item in taxonomy_results:
@@ -74,10 +104,24 @@ def render(data: AppData) -> None:
                 key=f"search-tax-{item.id}",
                 use_container_width=True,
             ):
-                components.set_selected_taxonomy(item.id)
-                components.set_page("Таксономия")
+                go_to_section("Способы получения денег", way_id=item.id, tab="Справочник")
 
-    with st.expander(f"Мосты ({len(bridge_results)})", expanded=False):
+    with tabs[1]:
+        if not variant_results:
+            st.caption("Ничего не найдено.")
+        for variant in variant_results:
+            if st.button(
+                f"{variant.title} ({variant.kind})",
+                key=f"search-variant-{variant.id}",
+                use_container_width=True,
+            ):
+                go_to_section(
+                    "Варианты (конкретика)",
+                    variant_id=variant.id,
+                    way_id=variant.primary_way_id,
+                )
+
+    with tabs[2]:
         if not bridge_results:
             st.caption("Ничего не найдено.")
         for bridge in bridge_results:
@@ -89,7 +133,7 @@ def render(data: AppData) -> None:
                 components.set_selected_bridge(bridge.id)
                 components.set_page("Мосты")
 
-    with st.expander(f"Ячейки ({len(cell_results)})", expanded=False):
+    with tabs[3]:
         if not cell_results:
             st.caption("Ничего не найдено.")
         for cell in cell_results:
@@ -98,10 +142,9 @@ def render(data: AppData) -> None:
                 key=f"search-cell-{cell.id}",
                 use_container_width=True,
             ):
-                components.set_selected_cell(cell.id)
-                components.set_page("Матрица")
+                go_to_section("Матрица", cell_id=cell.id)
 
-    with st.expander(f"Маршруты ({len(path_results)})", expanded=False):
+    with tabs[4]:
         if not path_results:
             st.caption("Ничего не найдено.")
         for path in path_results:

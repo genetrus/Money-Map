@@ -37,6 +37,7 @@ def _render_map(
     data: AppData,
     filtered_items: list[TaxonomyItem],
     allowed_taxonomy_ids: set[str],
+    outside_only: bool,
 ) -> None:
     st.markdown(
         "Двойной клик по кружку откроет справочник. "
@@ -47,13 +48,8 @@ def _render_map(
         "Показать классификаторы вторым кольцом",
         value=False,
     )
-    outside_only = controls[1].checkbox(
-        "Показывать только «вне рынка» (пособия/страховки/подарки)",
-        value=False,
-        help=(
-            "«Вне рынка» = деньги не за сделку/продажу, "
-            "а по правилам системы или отношениям."
-        ),
+    controls[1].caption(
+        "Фильтр «вне рынка» применяется ко всей странице.",
     )
     if show_tags:
         legend_items = components.classifier_legend_items()
@@ -130,6 +126,8 @@ def _render_map(
 def _render_directory(
     data: AppData,
     filtered_items: list[TaxonomyItem],
+    filters: components.Filters,
+    outside_only: bool,
 ) -> None:
     items = sorted(filtered_items, key=lambda item: item.name)
     if not items:
@@ -144,7 +142,13 @@ def _render_directory(
         key="selected_tax_id",
         format_func=lambda item_id: id_to_name[item_id],
     )
-    components.render_taxonomy_details_card(data, st.session_state.get("selected_tax_id"))
+    st.session_state["selected_way_id"] = st.session_state.get("selected_tax_id")
+    components.render_taxonomy_details_card(
+        data,
+        st.session_state.get("selected_tax_id"),
+        filters,
+        outside_only,
+    )
 
 
 def render(data: AppData, filters: components.Filters) -> None:
@@ -155,9 +159,17 @@ def render(data: AppData, filters: components.Filters) -> None:
         st.session_state["active_tab"] = st.session_state.pop("request_tab")
 
     st.title("Способы получения денег")
-    allowed_cells = components.get_allowed_cells_from_global_filters(data, filters)
-    filtered_taxonomy_ids = components.filter_taxonomy_by_cells(data.taxonomy, allowed_cells)
-    filtered_items = [item for item in data.taxonomy if item.id in filtered_taxonomy_ids]
+    outside_only = st.checkbox(
+        "Показывать только «вне рынка» (пособия/страховки/подарки)",
+        key="ways_outside_only",
+        help=(
+            "«Вне рынка» = деньги не за сделку/продажу, "
+            "а по правилам системы или отношениям."
+        ),
+    )
+    filtered_items = components.apply_global_filters_to_ways(data.taxonomy, filters, data)
+    filtered_items = [item for item in filtered_items if not outside_only or item.outside_market]
+    filtered_taxonomy_ids = [item.id for item in filtered_items]
 
     current = st.session_state.get("selected_tax_id")
     if current not in filtered_taxonomy_ids:
@@ -168,6 +180,6 @@ def render(data: AppData, filters: components.Filters) -> None:
     st.radio("", ["Карта", "Справочник"], horizontal=True, key="active_tab")
 
     if st.session_state.get("active_tab") == "Справочник":
-        _render_directory(data, filtered_items)
+        _render_directory(data, filtered_items, filters, outside_only)
     else:
-        _render_map(data, filtered_items, set(filtered_taxonomy_ids))
+        _render_map(data, filtered_items, set(filtered_taxonomy_ids), outside_only)

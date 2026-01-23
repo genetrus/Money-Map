@@ -4,6 +4,7 @@ import streamlit as st
 
 from money_map.core.model import AppData
 from money_map.ui import components
+from money_map.ui.state import go_to_section
 
 
 def render(data: AppData, filters: components.Filters) -> None:
@@ -77,3 +78,29 @@ def render(data: AppData, filters: components.Filters) -> None:
             st.write(f"{selected.from_cell} → {selected.to_cell}")
             st.write(selected.name)
             st.write(selected.notes)
+
+            st.markdown("#### Варианты, где этот мост наиболее типичен")
+            variants = (
+                data.variants_by_cell_id.get(selected.from_cell, [])
+                + data.variants_by_cell_id.get(selected.to_cell, [])
+            )
+            variants = components.apply_global_filters_to_variants(variants, filters)
+            seen: set[str] = set()
+            deduped = []
+            for variant in variants:
+                if variant.id not in seen:
+                    seen.add(variant.id)
+                    deduped.append(variant)
+            if not deduped:
+                st.caption("Нет подходящих вариантов.")
+            else:
+                for variant in deduped[:6]:
+                    if st.button(
+                        f"{variant.title} · {variant.kind}",
+                        key=f"bridge-variant-{selected.id}-{variant.id}",
+                    ):
+                        go_to_section(
+                            "Варианты (конкретика)",
+                            variant_id=variant.id,
+                            way_id=variant.primary_way_id,
+                        )

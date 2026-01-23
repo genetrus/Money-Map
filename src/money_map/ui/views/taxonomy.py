@@ -7,8 +7,8 @@ from money_map.ui import components
 
 
 def render(data: AppData) -> None:
-    st.title("Таксономия")
-    st.markdown("Выберите механизм дохода слева, чтобы увидеть детали справа.")
+    st.title("Способы получения денег")
+    st.markdown("Выберите способ дохода слева, чтобы увидеть детали справа.")
 
     left, right = st.columns([1, 2])
 

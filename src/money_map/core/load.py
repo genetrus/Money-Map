@@ -16,6 +16,7 @@ from money_map.core.model import (
     Mappings,
     PathItem,
     TaxonomyItem,
+    Variant,
 )
 
 DATA_FILES = {
@@ -27,6 +28,7 @@ DATA_FILES = {
     "bridges": "bridges.yaml",
     "diagrams": "diagrams.yaml",
     "keywords": "keywords.yaml",
+    "variants": "variants.yaml",
 }
 
 
@@ -51,6 +53,15 @@ def load_app_data() -> AppData:
             raise FileNotFoundError(f"Не найден файл данных: {path}")
         raw[key] = _load_yaml(path)
 
+    variants = [Variant(**item) for item in raw["variants"].get("variants", [])]
+    variants_by_id = {variant.id: variant for variant in variants}
+    variants_by_way: Dict[str, list[Variant]] = {}
+    variants_by_cell: Dict[str, list[Variant]] = {}
+    for variant in variants:
+        variants_by_way.setdefault(variant.primary_way_id, []).append(variant)
+        for cell_id in variant.matrix_cells:
+            variants_by_cell.setdefault(cell_id, []).append(variant)
+
     return AppData(
         axes=[Axis(**item) for item in raw["axes"].get("axes", [])],
         cells=[Cell(**item) for item in raw["cells"].get("cells", [])],
@@ -60,4 +71,8 @@ def load_app_data() -> AppData:
         bridges=[BridgeItem(**item) for item in raw["bridges"].get("bridges", [])],
         diagrams=DiagramConfig(**raw["diagrams"]),
         keywords=Keywords(**raw["keywords"]),
+        variants=variants,
+        variants_by_way_id=variants_by_way,
+        variants_by_cell_id=variants_by_cell,
+        variant_by_id=variants_by_id,
     )

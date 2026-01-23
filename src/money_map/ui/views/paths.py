@@ -4,9 +4,10 @@ import streamlit as st
 
 from money_map.core.model import AppData
 from money_map.ui import components
+from money_map.ui.state import go_to_section
 
 
-def render(data: AppData) -> None:
+def render(data: AppData, filters: components.Filters) -> None:
     st.title("Маршруты")
     st.markdown("Выберите маршрут и изучите пошаговые переходы.")
 
@@ -49,6 +50,21 @@ def render(data: AppData) -> None:
             else:
                 for bridge in bridges:
                     st.write(f"- {bridge.name} ({bridge.id})")
+
+            variants = data.variants_by_cell_id.get(start, [])
+            variants = components.apply_global_filters_to_variants(variants, filters)
+            if variants:
+                st.caption("Варианты для шага:")
+                for variant in variants[:4]:
+                    if st.button(
+                        f"{variant.title} · {variant.kind}",
+                        key=f"path-variant-{path.id}-{start}-{variant.id}",
+                    ):
+                        go_to_section(
+                            "Варианты (конкретика)",
+                            variant_id=variant.id,
+                            way_id=variant.primary_way_id,
+                        )
 
         if st.button("Показать ASCII", key=f"path-ascii-{path.id}"):
             st.code(components.ascii_path(path), language="text")
