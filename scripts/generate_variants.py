@@ -9,9 +9,17 @@ from typing import Any, Dict, Iterable, List
 
 import yaml
 
+from money_map.domain.activity_tagging import auto_tag_layers, auto_tag_variant
+
 DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "variants"
 OUTPUT_PATH = DATA_DIR / "variants.generated.json"
 CELLS_PATH = Path(__file__).resolve().parents[1] / "data" / "cells.yaml"
+SUBPROFILES_PATH = Path(__file__).resolve().parents[1] / "data" / "activity_subprofiles.yaml"
+AUTO_TAGGING_PATH = Path(__file__).resolve().parents[1] / "data" / "auto_tagging.yaml"
+ACTIVITY_PROFILES_PATH = Path(__file__).resolve().parents[1] / "data" / "activity_profiles.yaml"
+MONEY_WAY_PROFILE_MAP_PATH = (
+    Path(__file__).resolve().parents[1] / "data" / "money_way_profile_map.yaml"
+)
 
 CELL_PRIORITY = ["A1", "A2", "A3", "A4", "P1", "P2", "P3", "P4"]
 MIN_VARIANTS_PER_ARCH = 4
@@ -86,6 +94,40 @@ ALLOWED_BY_MECHANISM = {
         "to_whom": {"market", "state"},
         "measure": {"price", "payout"},
     },
+}
+
+DEFAULT_WORK_FORMATS = {
+    "salary": ["full_time", "on_site", "shifts_day_night"],
+    "fee_for_result": ["project_contract", "flexible"],
+    "commission": ["flexible", "field_mobile"],
+    "entrepreneurship_margin": ["full_time", "on_site"],
+    "rent_access": ["project_contract"],
+    "interest_dividends": ["remote"],
+    "appreciation": ["remote"],
+    "intellectual_property": ["remote", "project_contract"],
+    "attention_audience": ["remote", "flexible"],
+    "data_compute": ["remote", "project_contract"],
+    "grants_prizes": ["project_contract"],
+    "transfers_insurance": [],
+    "gifts_inheritance": [],
+    "savings_effect": ["flexible"],
+}
+
+DEFAULT_ENTRY_LEVELS = {
+    "salary": ["no_experience", "some_experience"],
+    "fee_for_result": ["portfolio_required"],
+    "commission": ["some_experience"],
+    "entrepreneurship_margin": ["capital_required_medium"],
+    "rent_access": ["capital_required_high"],
+    "interest_dividends": ["capital_required_medium"],
+    "appreciation": ["capital_required_medium"],
+    "intellectual_property": ["portfolio_required"],
+    "attention_audience": ["portfolio_required"],
+    "data_compute": ["some_experience"],
+    "grants_prizes": ["portfolio_required"],
+    "transfers_insurance": ["regulated"],
+    "gifts_inheritance": [],
+    "savings_effect": ["no_experience"],
 }
 
 
@@ -278,6 +320,13 @@ def build_variants(
     archetypes: List[Dict[str, Any]],
     modifiers: List[Dict[str, Any]],
     cell_metadata: Dict[str, Dict[str, str]],
+    *,
+    profile_keywords: Dict[str, List[str]],
+    subprofile_keywords: Dict[str, List[str]],
+    subprofile_parent: Dict[str, str],
+    work_format_keywords: Dict[str, List[str]],
+    entry_level_keywords: Dict[str, List[str]],
+    money_way_profile_map: Dict[str, List[str]],
 ) -> List[Dict[str, Any]]:
     variants = []
     dedup_keys = set()
@@ -293,6 +342,34 @@ def build_variants(
             risk_level = cell_meta.get("risk", normalize_risk_level(arch["risk_level"], mod_set))
             channel_state = build_channel_state(mod_set)
             variant_id = f"{arch['mechanism_id']}.{arch['arch_id']}.{mod_key}"
+            text_for_tagging = f"{payload['title']} {payload['notes']}"
+            tag_result = auto_tag_variant(
+                text_for_tagging,
+                profile_keywords=profile_keywords,
+                subprofile_keywords=subprofile_keywords,
+                subprofile_parent=subprofile_parent,
+            )
+            profile_id = tag_result.profile_id if tag_result.confidence >= 0.45 else None
+            subprofile_id = tag_result.subprofile_id if profile_id else None
+            allowed_profiles = money_way_profile_map.get(arch["mechanism_id"], [])
+            if profile_id and allowed_profiles and profile_id not in allowed_profiles:
+                profile_id = None
+                subprofile_id = None
+            if profile_id is None and allowed_profiles:
+                idx = stable_int(variant_id) % len(allowed_profiles)
+                profile_id = allowed_profiles[idx]
+            work_format_ids = auto_tag_layers(
+                text_for_tagging,
+                keywords_map=work_format_keywords,
+            )
+            entry_level_ids = auto_tag_layers(
+                text_for_tagging,
+                keywords_map=entry_level_keywords,
+            )
+            if not work_format_ids:
+                work_format_ids = DEFAULT_WORK_FORMATS.get(arch["mechanism_id"], [])
+            if not entry_level_ids:
+                entry_level_ids = DEFAULT_ENTRY_LEVELS.get(arch["mechanism_id"], [])
             dedup_key = (
                 arch["mechanism_id"],
                 normalize_title(payload["title"]),
@@ -333,6 +410,11 @@ def build_variants(
                         "social_intensity": None,
                         "role_family": arch["role_family"],
                     },
+                    "profile_id": profile_id,
+                    "subprofile_id": subprofile_id,
+                    "work_format_ids": work_format_ids,
+                    "entry_level_ids": entry_level_ids,
+                    "keywords": [],
                 }
             )
     return variants
@@ -417,7 +499,37 @@ def main() -> int:
     archetypes = _load_yaml(archetypes_path).get("archetypes", [])
     modifiers = _load_yaml(modifiers_path).get("modifiers", [])
     cell_metadata = load_cell_metadata()
-    variants = build_variants(archetypes, modifiers, cell_metadata)
+    subprofiles_raw = _load_yaml(SUBPROFILES_PATH).get("activity_subprofiles", [])
+    subprofile_parent = {
+        item["id"]: item["parent_profile_id"] for item in subprofiles_raw
+    }
+    auto_tagging = _load_yaml(AUTO_TAGGING_PATH).get("auto_tagging", {})
+    profiles_raw = _load_yaml(ACTIVITY_PROFILES_PATH).get("activity_profiles", [])
+    money_way_profile_map = _load_yaml(MONEY_WAY_PROFILE_MAP_PATH).get(
+        "money_way_profile_map",
+        {},
+    )
+    merged_profile_keywords: Dict[str, List[str]] = {}
+    merged_subprofile_keywords: Dict[str, List[str]] = {}
+    for profile in profiles_raw:
+        merged_profile_keywords.setdefault(profile["id"], []).extend(profile.get("tags", []))
+    for subprofile in subprofiles_raw:
+        merged_subprofile_keywords.setdefault(subprofile["id"], []).extend(subprofile.get("tags", []))
+    for profile_id, keywords in auto_tagging.get("profile_keywords", {}).items():
+        merged_profile_keywords.setdefault(profile_id, []).extend(keywords)
+    for subprofile_id, keywords in auto_tagging.get("subprofile_keywords", {}).items():
+        merged_subprofile_keywords.setdefault(subprofile_id, []).extend(keywords)
+    variants = build_variants(
+        archetypes,
+        modifiers,
+        cell_metadata,
+        profile_keywords=merged_profile_keywords,
+        subprofile_keywords=merged_subprofile_keywords,
+        subprofile_parent=subprofile_parent,
+        work_format_keywords=auto_tagging.get("work_format_keywords", {}),
+        entry_level_keywords=auto_tagging.get("entry_level_keywords", {}),
+        money_way_profile_map=money_way_profile_map,
+    )
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUTPUT_PATH.open("w", encoding="utf-8") as handle:

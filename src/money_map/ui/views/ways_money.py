@@ -11,7 +11,7 @@ from money_map.ui import components, cyto_graph
 from money_map.ui.state import go_to_section, request_nav
 
 
-WAYS_TABS = ("Карта", "Справочник")
+WAYS_TABS = ("Карта", "Справочник", "Справочник профилей")
 
 
 def _ensure_ways_state_defaults() -> None:
@@ -20,6 +20,8 @@ def _ensure_ways_state_defaults() -> None:
     st.session_state.setdefault("ways_selected_way_id", None)
     st.session_state.setdefault("ways_highlight_node_id", None)
     st.session_state.setdefault("ways_last_tap", {"node_id": None, "timestamp_ms": 0.0})
+    st.session_state.setdefault("ways_profile_selected", None)
+    st.session_state.setdefault("ways_profile_search", "")
 
 
 def _request_directory_navigation(way_id: str) -> None:
@@ -332,6 +334,25 @@ def _render_map(
                     },
                 )
 
+        selected_way_id = st.session_state.get("ways_selected_way_id")
+        allowed_profiles = data.money_way_profile_map.get(selected_way_id, [])
+        if allowed_profiles:
+            profile_lookup = {item.id: item.title_ru for item in data.activity_profiles}
+            st.markdown("#### Связанные профили деятельности")
+            for profile_id in allowed_profiles:
+                label = profile_lookup.get(profile_id, profile_id)
+                cols = st.columns([3, 1])
+                cols[0].markdown(f"- {label}")
+                if cols[1].button(
+                    "→ Варианты",
+                    key=f"ways-profile-open-{selected_way_id}-{profile_id}",
+                ):
+                    go_to_section(
+                        "Варианты (конкретика)",
+                        way_id=selected_way_id,
+                        profile_id=profile_id,
+                    )
+
 
 
 
@@ -390,6 +411,69 @@ def _render_directory(
     )
 
 
+def _render_profile_directory(data: AppData) -> None:
+    profiles = sorted(data.activity_profiles, key=lambda item: item.title_ru)
+    if not profiles:
+        st.info("Профили деятельности не найдены.")
+        return
+
+    search = st.text_input("Поиск профиля", key="ways_profile_search")
+    if search:
+        lowered = search.lower()
+        profiles = [item for item in profiles if lowered in item.title_ru.lower()]
+    if not profiles:
+        st.info("Нет профилей под запрос.")
+        return
+
+    profile_ids = [item.id for item in profiles]
+    profile_lookup = {item.id: item for item in profiles}
+    selected_profile_id = st.session_state.get("ways_profile_selected")
+    if selected_profile_id not in profile_lookup:
+        selected_profile_id = profile_ids[0]
+        st.session_state["ways_profile_selected"] = selected_profile_id
+
+    st.selectbox(
+        "Профиль",
+        profile_ids,
+        key="ways_profile_selected",
+        format_func=lambda value: profile_lookup[value].title_ru,
+    )
+    selected_profile = profile_lookup.get(st.session_state.get("ways_profile_selected"))
+    if not selected_profile:
+        return
+
+    st.markdown(f"### {selected_profile.title_ru}")
+    st.caption(selected_profile.description_ru)
+    if selected_profile.examples_ru:
+        st.markdown("**Примеры**")
+        for example in selected_profile.examples_ru:
+            st.markdown(f"- {example}")
+    if selected_profile.tags:
+        st.markdown("**Теги**")
+        st.markdown(components.chips(selected_profile.tags))
+
+    subprofiles = [
+        item
+        for item in data.activity_subprofiles
+        if item.parent_profile_id == selected_profile.id
+    ]
+    if subprofiles:
+        st.markdown("**Специализации**")
+        for sub in subprofiles:
+            st.markdown(f"- {sub.title_ru}")
+
+    selected_way_id = st.session_state.get("selected_way_id")
+    if st.button(
+        "Открыть в Варианты",
+        key=f"way-profile-open-variants-{selected_profile.id}",
+    ):
+        go_to_section(
+            "Варианты (конкретика)",
+            way_id=selected_way_id,
+            profile_id=selected_profile.id,
+        )
+
+
 def render(data: AppData, filters: components.Filters) -> None:
     _ensure_ways_state_defaults()
     payload = components.consume_nav_intent("Способы получения денег")
@@ -427,8 +511,11 @@ def render(data: AppData, filters: components.Filters) -> None:
 
     st.radio("", WAYS_TABS, horizontal=True, key="ways_ui_tab")
 
-    if st.session_state.get("ways_ui_tab") == "Справочник":
+    current_tab = st.session_state.get("ways_ui_tab")
+    if current_tab == "Справочник":
         _render_directory(data, filtered_items, filters, outside_only)
+    elif current_tab == "Справочник профилей":
+        _render_profile_directory(data)
     else:
         _render_map(data, filtered_items, set(filtered_taxonomy_ids), outside_only)
 

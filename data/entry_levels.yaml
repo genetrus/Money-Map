@@ -1,0 +1,46 @@
+---
+entry_levels:
+  - id: no_experience
+    title_ru: "Без опыта"
+    description_ru: "Вход возможен без опыта."
+    examples_ru: ["Обучение на месте", "Стажировка", "Стартовый уровень"]
+  - id: some_experience
+    title_ru: "Нужен опыт"
+    description_ru: "Желателен практический опыт."
+    examples_ru: ["1+ год", "Похожие задачи", "Проверка навыков"]
+  - id: certified_required
+    title_ru: "Нужен сертификат"
+    description_ru: "Требуются подтверждённые сертификаты."
+    examples_ru: ["Сертификаты", "Курсы", "Аттестация"]
+  - id: license_required
+    title_ru: "Нужна лицензия"
+    description_ru: "Нужна лицензия/допуск."
+    examples_ru: ["Лицензирование", "Допуск", "Регуляторные требования"]
+  - id: portfolio_required
+    title_ru: "Нужно портфолио"
+    description_ru: "Вход через портфолио/кейсы."
+    examples_ru: ["Кейсы", "Портфолио", "Примеры работ"]
+  - id: capital_required_low
+    title_ru: "Нужен капитал (низкий)"
+    description_ru: "Небольшие вложения на старте."
+    examples_ru: ["До 1-2 зарплат", "Малые вложения", "Минимальные закупки"]
+  - id: capital_required_medium
+    title_ru: "Нужен капитал (средний)"
+    description_ru: "Средний уровень вложений."
+    examples_ru: ["Запасы/закупки", "Инструменты", "Средний старт"]
+  - id: capital_required_high
+    title_ru: "Нужен капитал (высокий)"
+    description_ru: "Высокие инвестиции на старте."
+    examples_ru: ["Крупные вложения", "Активы", "Высокий порог"]
+  - id: language_required_basic
+    title_ru: "Нужен язык (базовый)"
+    description_ru: "Достаточно базового уровня языка."
+    examples_ru: ["Базовые коммуникации", "А1-А2", "Минимальные навыки"]
+  - id: language_required_good
+    title_ru: "Нужен язык (хороший)"
+    description_ru: "Нужен уверенный уровень языка."
+    examples_ru: ["B2 и выше", "Деловое общение", "Свободная речь"]
+  - id: regulated
+    title_ru: "Регулируется"
+    description_ru: "Сфера с жёстким регулированием."
+    examples_ru: ["Лицензии", "Регуляторные нормы", "Контроль"]

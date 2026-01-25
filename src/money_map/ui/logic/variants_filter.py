@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from money_map.core.model import Variant
-from money_map.domain.activity_profile import role_family_label
 
 
 @dataclass(frozen=True)
@@ -32,6 +31,10 @@ class NormalizedVariant:
     related_variant_ids: list[str]
     notes: str | None
     activity_role_family: str
+    profile_id: str | None
+    subprofile_id: str | None
+    work_format_ids: list[str]
+    entry_level_ids: list[str]
     raw: Variant
 
 
@@ -76,6 +79,10 @@ def normalize_variant(variant: Variant) -> NormalizedVariant:
         related_variant_ids=list(variant.related_variant_ids),
         notes=variant.notes,
         activity_role_family=variant.activity_profile.role_family,
+        profile_id=variant.profile_id,
+        subprofile_id=variant.subprofile_id,
+        work_format_ids=list(variant.work_format_ids),
+        entry_level_ids=list(variant.entry_level_ids),
         raw=variant,
     )
 
@@ -126,7 +133,11 @@ def match_score(
     selected_classifiers: dict[str, list[str]],
     selected_route_cells: list[str] | None,
     selected_bridge_ids: list[str],
-    selected_role_families: list[str],
+    selected_profile_id: str | None,
+    selected_subprofile_id: str | None,
+    selected_work_formats: list[str],
+    selected_entry_levels: list[str],
+    include_untagged: bool,
     strict: bool,
 ) -> MatchResult | None:
     score = 0.0
@@ -134,14 +145,14 @@ def match_score(
 
     if selected_mechanism_ids:
         if variant.mechanism_id in selected_mechanism_ids:
-            score += 30
+            score += 3
             reasons.append("Совпадает способ получения денег")
         elif strict:
             return None
 
     if selected_matrix_cell:
         if selected_matrix_cell in variant.matrix_cells:
-            score += 20
+            score += 2
             reasons.append(f"Совпадает ячейка матрицы {selected_matrix_cell}")
         elif strict:
             return None
@@ -160,7 +171,7 @@ def match_score(
         if not strict and classifier_match_count < threshold:
             return None
         if classifier_match_count:
-            score += classifier_match_count * 10
+            score += classifier_match_count * 2
             reasons.append(
                 f"Совпали классификаторы: {classifier_match_count}/{len(selected_groups)}",
             )
@@ -169,7 +180,7 @@ def match_score(
         start_cell = selected_route_cells[0]
         end_cell = selected_route_cells[-1]
         if start_cell in variant.matrix_cells and end_cell in variant.matrix_cells:
-            score += 10
+            score += 2
             reasons.append("Совпадает маршрут")
         elif strict:
             return None
@@ -178,22 +189,48 @@ def match_score(
         matched = [bridge_id for bridge_id in selected_bridge_ids if bridge_id in variant.linked_bridges]
         # В строгом режиме считаем релевантными варианты с хотя бы одним совпавшим мостом.
         if matched:
-            score += min(24, 6 * len(matched))
+            score += min(6, 2 * len(matched))
             reasons.append(f"Совпадают мосты: {len(matched)}")
         elif strict:
             return None
 
-    if selected_role_families:
-        if variant.activity_role_family in selected_role_families:
-            score += 35
-            reasons.append(
-                f"Совпадает профиль деятельности: {role_family_label(variant.activity_role_family)}",
-            )
-        elif variant.activity_role_family == "UNKNOWN":
-            if strict:
+    if not include_untagged and variant.profile_id is None:
+        return None
+
+    if selected_profile_id:
+        if variant.profile_id == selected_profile_id:
+            score += 4
+            reasons.append("Совпадает профиль деятельности")
+        elif variant.profile_id is None:
+            if strict or not include_untagged:
                 return None
-            score += 5
-            reasons.append("Профиль не задан (UNKNOWN)")
+            score += 0.5
+            reasons.append("Профиль не задан")
+        elif strict:
+            return None
+
+    if selected_subprofile_id:
+        if variant.subprofile_id == selected_subprofile_id:
+            score += 2
+            reasons.append("Совпадает специализация")
+        elif variant.subprofile_id is None and strict:
+            return None
+        elif strict:
+            return None
+
+    if selected_work_formats:
+        matched_formats = sorted(set(selected_work_formats) & set(variant.work_format_ids))
+        if matched_formats:
+            score += len(matched_formats)
+            reasons.append(f"Совпадает формат работы: {len(matched_formats)}")
+        elif strict:
+            return None
+
+    if selected_entry_levels:
+        matched_levels = sorted(set(selected_entry_levels) & set(variant.entry_level_ids))
+        if matched_levels:
+            score += len(matched_levels)
+            reasons.append(f"Совпадает уровень входа: {len(matched_levels)}")
         elif strict:
             return None
 

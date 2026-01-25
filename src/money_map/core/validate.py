@@ -37,6 +37,7 @@ def validate_app_data(data: AppData) -> List[str]:
     _validate_variants(data, axis_values, errors)
     _validate_paths(data, errors)
     _validate_bridges(data, errors)
+    _validate_activity_profiles(data, errors)
 
     return errors
 
@@ -98,9 +99,14 @@ def _validate_variants(
     cell_ids = {cell.id for cell in data.cells}
     cell_lookup = {cell.id: cell for cell in data.cells}
     taxonomy_ids = {item.id for item in data.taxonomy}
+    profile_ids = {profile.id for profile in data.activity_profiles}
+    subprofile_ids = {sub.id for sub in data.activity_subprofiles}
+    work_format_ids = {item.id for item in data.work_formats}
+    entry_level_ids = {item.id for item in data.entry_levels}
     sell_keys = set(data.mappings.sell_items)
     to_whom_keys = set(data.mappings.to_whom_items)
     value_keys = set(data.mappings.value_measures)
+    tagged_count = 0
 
     for variant in data.variants:
         if variant.primary_way_id not in taxonomy_ids:
@@ -137,6 +143,26 @@ def _validate_variants(
             errors.append(
                 f"Вариант {variant.id}: неверное значение scalability {variant.scalability}"
             )
+        if variant.profile_id:
+            tagged_count += 1
+            if variant.profile_id not in profile_ids:
+                errors.append(
+                    f"Вариант {variant.id}: неизвестный profile_id {variant.profile_id}"
+                )
+        if variant.subprofile_id and variant.subprofile_id not in subprofile_ids:
+            errors.append(
+                f"Вариант {variant.id}: неизвестный subprofile_id {variant.subprofile_id}"
+            )
+        invalid_formats = sorted(set(variant.work_format_ids) - work_format_ids)
+        if invalid_formats:
+            errors.append(
+                f"Вариант {variant.id}: неизвестные work_format_ids {', '.join(invalid_formats)}"
+            )
+        invalid_entry = sorted(set(variant.entry_level_ids) - entry_level_ids)
+        if invalid_entry:
+            errors.append(
+                f"Вариант {variant.id}: неизвестные entry_level_ids {', '.join(invalid_entry)}"
+            )
         if variant.matrix_cells:
             primary_cell = variant.matrix_cells[0]
             cell = cell_lookup.get(primary_cell)
@@ -157,6 +183,13 @@ def _validate_variants(
                         f"не совпадает с ячейкой {primary_cell} ({cell.risk})"
                     )
 
+    if data.variants:
+        ratio = tagged_count / len(data.variants)
+        if ratio < 0.85:
+            errors.append(
+                f"Варианты: размечено профилями {ratio:.0%} (ожидалось >= 85%)"
+            )
+
 
 def _validate_paths(data: AppData, errors: List[str]) -> None:
     cell_ids = {cell.id for cell in data.cells}
@@ -175,3 +208,32 @@ def _validate_bridges(data: AppData, errors: List[str]) -> None:
             errors.append(f"Мост {bridge.id}: неизвестная ячейка from {bridge.from_cell}")
         if bridge.to_cell not in cell_ids:
             errors.append(f"Мост {bridge.id}: неизвестная ячейка to {bridge.to_cell}")
+
+
+def _validate_activity_profiles(data: AppData, errors: List[str]) -> None:
+    profile_ids = [profile.id for profile in data.activity_profiles]
+    duplicates = {pid for pid in profile_ids if profile_ids.count(pid) > 1}
+    if duplicates:
+        errors.append(f"Найдены дубликаты profile_id: {', '.join(sorted(duplicates))}")
+
+    profile_set = set(profile_ids)
+    subprofiles = data.activity_subprofiles
+    for subprofile in subprofiles:
+        if subprofile.parent_profile_id not in profile_set:
+            errors.append(
+                f"Subprofile {subprofile.id}: неизвестный parent_profile_id {subprofile.parent_profile_id}"
+            )
+
+    taxonomy_ids = {item.id for item in data.taxonomy}
+    for tax_id in taxonomy_ids:
+        allowed = data.money_way_profile_map.get(tax_id)
+        if not allowed:
+            errors.append(
+                f"Для способа {tax_id} не задан mapping activity profiles."
+            )
+            continue
+        missing = sorted(set(allowed) - profile_set)
+        if missing:
+            errors.append(
+                f"Для способа {tax_id}: неизвестные profile_id {', '.join(missing)}"
+            )

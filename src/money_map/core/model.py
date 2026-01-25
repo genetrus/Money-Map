@@ -54,6 +54,44 @@ class ActivityProfile(BaseModel):
     social_intensity: Optional[str] = None
 
 
+class ActivityProfileDefinition(BaseModel):
+    id: str
+    title_ru: str
+    description_ru: str
+    examples_ru: List[str]
+    tags: List[str] = Field(default_factory=list)
+    related_classifier_ids: Optional[List[str]] = None
+
+
+class ActivitySubprofileDefinition(BaseModel):
+    id: str
+    parent_profile_id: str
+    title_ru: str
+    examples_ru: List[str]
+    tags: List[str] = Field(default_factory=list)
+
+
+class WorkFormatDefinition(BaseModel):
+    id: str
+    title_ru: str
+    description_ru: str
+    examples_ru: List[str]
+
+
+class EntryLevelDefinition(BaseModel):
+    id: str
+    title_ru: str
+    description_ru: str
+    examples_ru: List[str]
+
+
+class AutoTagging(BaseModel):
+    profile_keywords: Dict[str, List[str]] = Field(default_factory=dict)
+    subprofile_keywords: Dict[str, List[str]] = Field(default_factory=dict)
+    work_format_keywords: Dict[str, List[str]] = Field(default_factory=dict)
+    entry_level_keywords: Dict[str, List[str]] = Field(default_factory=dict)
+
+
 class Variant(BaseModel):
     id: str
     title: str
@@ -76,6 +114,13 @@ class Variant(BaseModel):
     route_ids: List[str] = Field(default_factory=list)
     channel_state: Dict[str, bool] = Field(default_factory=dict)
     activity_profile: ActivityProfile = Field(default_factory=ActivityProfile)
+    profile_id: Optional[str] = None
+    subprofile_id: Optional[str] = None
+    work_format_ids: List[str] = Field(default_factory=list)
+    entry_level_ids: List[str] = Field(default_factory=list)
+    keywords: List[str] = Field(default_factory=list)
+    rationale: Optional[str] = None
+    archetype_tags: List[str] = Field(default_factory=list)
 
 
 class PathItem(BaseModel):
@@ -119,6 +164,12 @@ class AppData(BaseModel):
     bridges: List[BridgeItem]
     diagrams: DiagramConfig
     keywords: Keywords
+    activity_profiles: List[ActivityProfileDefinition] = Field(default_factory=list)
+    activity_subprofiles: List[ActivitySubprofileDefinition] = Field(default_factory=list)
+    work_formats: List[WorkFormatDefinition] = Field(default_factory=list)
+    entry_levels: List[EntryLevelDefinition] = Field(default_factory=list)
+    money_way_profile_map: Dict[str, List[str]] = Field(default_factory=dict)
+    auto_tagging: AutoTagging = Field(default_factory=AutoTagging)
     variants: List[Variant] = Field(default_factory=list)
     variants_by_way_id: Dict[str, List[Variant]] = Field(default_factory=dict)
     variants_by_cell_id: Dict[str, List[Variant]] = Field(default_factory=dict)

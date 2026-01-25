@@ -1,0 +1,146 @@
+---
+money_way_profile_map:
+  salary:
+    - logistics_warehouse
+    - delivery_transport
+    - production_line
+    - construction_general
+    - repairs_installation
+    - facility_maintenance
+    - cleaning_services
+    - security_guarding
+    - landscaping_outdoor
+    - customer_support_cc
+    - retail_store
+    - hospitality_hotel
+    - horeca_foodservice
+    - beauty_personal
+    - office_admin
+    - operations_coordination
+    - procurement_supply
+    - basic_accounting
+    - hr_recruiting
+    - it_software
+    - data_analytics
+    - marketing_growth
+    - sales_b2b
+    - sales_b2c
+    - design_creative
+    - legal_compliance
+    - healthcare_care
+    - education_training
+    - public_sector
+  fee_for_result:
+    - handyman_smallrepairs
+    - repairs_installation
+    - moving_assembly
+    - cleaning_services
+    - car_service_detailing
+    - design_creative
+    - it_software
+    - data_analytics
+    - marketing_growth
+    - basic_accounting
+    - legal_compliance
+    - tutoring_language
+    - fitness_coaching
+    - career_cv
+    - photo_video
+    - events_entertainment
+  commission:
+    - real_estate_broker
+    - insurance_sales
+    - auto_sales
+    - finance_brokerage
+    - sales_b2b
+    - partnerships_channel
+    - sales_b2c
+    - hr_recruiting
+    - affiliate_marketing
+  entrepreneurship_margin:
+    - cleaning_company
+    - repairs_team
+    - moving_logistics
+    - facility_services
+    - marketing_agency
+    - dev_agency
+    - creative_agency
+    - retail_ecommerce
+    - import_distribution
+    - niche_b2b_supply
+    - horeca_foodservice
+    - hospitality_hotel
+    - subscription_service
+  rent_access:
+    - rent_real_estate_long
+    - rent_real_estate_short
+    - rent_storage
+    - rent_vehicle
+    - rent_tools_equipment
+    - rent_space
+  interest_dividends:
+    - savings_deposits
+    - bonds_fixed_income
+    - p2p_lending
+    - private_loans
+    - invoice_factoring
+    - dividend_stocks
+    - reit_funds
+    - private_equity_share
+  appreciation:
+    - long_term_investing
+    - growth_equities
+    - active_trading
+    - options_derivatives
+    - real_estate_flip
+    - collectibles_investing
+  intellectual_property:
+    - software_templates
+    - design_assets
+    - photo_stock
+    - courses_guides
+    - workbooks_cards
+    - books_writing
+    - patent_licensing
+    - brand_licensing
+  attention_audience:
+    - video_creator
+    - streaming
+    - podcast_audio
+    - blog_writing
+    - newsletter
+    - community_builder
+    - social_media_smm
+    - ads_sponsorship
+    - paid_membership
+    - affiliate_marketing
+    - merchandising
+  data_compute:
+    - automation_integrations
+    - internal_tools
+    - micro_saas
+    - api_service
+    - dashboards_bi
+    - data_pipelines
+    - ml_models
+    - ai_agents
+    - hosting_ops
+  grants_prizes:
+    - academic_research
+    - startup_innovation
+    - art_creative_grants
+    - education_scholarship
+    - competitions_prizes
+  transfers_insurance:
+    - social_benefits
+    - tax_refunds
+    - insurance_claims
+    - severance_comp
+    - legal_settlements
+  gifts_inheritance:
+    - gifts_inheritance
+  savings_effect:
+    - basic_accounting
+    - operations_coordination
+    - procurement_supply
+    - facility_maintenance

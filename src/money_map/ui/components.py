@@ -117,6 +117,12 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_filter_kind", "all")
     st.session_state.setdefault("variants_filter_cell", "all")
     st.session_state.setdefault("variants_filter_outside", False)
+    st.session_state.setdefault("variants_filter_way_id", "all")
+    st.session_state.setdefault("variants_profile_id", None)
+    st.session_state.setdefault("variants_subprofile_id", None)
+    st.session_state.setdefault("variants_work_formats", [])
+    st.session_state.setdefault("variants_entry_levels", [])
+    st.session_state.setdefault("variants_include_untagged", True)
     st.session_state.setdefault("variants_mode", "Подбор")
     st.session_state.setdefault("variants_scope", "strict")
     st.session_state.setdefault("variants_library_search", "")
@@ -124,11 +130,6 @@ def init_session_state() -> None:
     st.session_state.setdefault("variants_library_mechanism", "all")
     st.session_state.setdefault("variants_library_cell", "all")
     st.session_state.setdefault("variants_library_kind", "all")
-    st.session_state.setdefault("activity_role_families", [])
-    st.session_state.setdefault("activity_role_family_multi", False)
-    st.session_state.setdefault("activity_role_family_mode", "single")
-    st.session_state.setdefault("activity_role_family_multi_select", [])
-    st.session_state.setdefault("activity_role_family_single", None)
     st.session_state.setdefault("shortlist", {})
     st.session_state.setdefault(
         "selection",
@@ -139,7 +140,11 @@ def init_session_state() -> None:
             "selected_mechanism_ids": [],
             "selected_route_id": None,
             "selected_bridge_ids": [],
-            "activity_role_families": [],
+            "selected_profile_id": None,
+            "selected_subprofile_id": None,
+            "selected_work_formats": [],
+            "selected_entry_levels": [],
+            "include_untagged": True,
             "risk": "all",
             "activity": "all",
             "scalability": "all",
@@ -245,12 +250,20 @@ def sync_selection_context() -> dict[str, object]:
     selection.setdefault("selected_matrix_cell", None)
     selection.setdefault("selected_transition", None)
     selection.setdefault("selected_route_id", None)
-    selection.setdefault("activity_role_families", [])
+    selection.setdefault("selected_profile_id", None)
+    selection.setdefault("selected_subprofile_id", None)
+    selection.setdefault("selected_work_formats", [])
+    selection.setdefault("selected_entry_levels", [])
+    selection.setdefault("include_untagged", True)
 
     selection["selected_matrix_cell"] = st.session_state.get("selected_cell_id")
     selection["selected_transition"] = st.session_state.get("selected_transition")
     selection["selected_route_id"] = st.session_state.get("selected_route_id")
-    selection["activity_role_families"] = st.session_state.get("activity_role_families", [])
+    selection["selected_profile_id"] = st.session_state.get("variants_profile_id")
+    selection["selected_subprofile_id"] = st.session_state.get("variants_subprofile_id")
+    selection["selected_work_formats"] = st.session_state.get("variants_work_formats", [])
+    selection["selected_entry_levels"] = st.session_state.get("variants_entry_levels", [])
+    selection["include_untagged"] = st.session_state.get("variants_include_untagged", True)
     selection["risk"] = st.session_state.get("filter_risk", "all")
     selection["activity"] = st.session_state.get("filter_activity", "all")
     selection["scalability"] = st.session_state.get("filter_scalability", "all")
@@ -298,6 +311,10 @@ def update_nav_payload_from_state() -> dict[str, object]:
     payload["selected_route_id"] = st.session_state.get("selected_route_id")
     payload["selected_bridge_id"] = st.session_state.get("selected_bridge_id")
     payload["selected_variant_id"] = st.session_state.get("selected_variant_id")
+    payload["profile_id"] = st.session_state.get("variants_profile_id")
+    payload["subprofile_id"] = st.session_state.get("variants_subprofile_id")
+    payload["work_format_ids"] = st.session_state.get("variants_work_formats")
+    payload["entry_level_ids"] = st.session_state.get("variants_entry_levels")
     st.session_state["nav_payload"] = payload
     return payload
 

@@ -6,7 +6,6 @@ from typing import Iterable
 import streamlit as st
 
 from money_map.core.model import AppData
-from money_map.domain.activity_profile import ROLE_FAMILY_IDS, ROLE_FAMILY_LABELS, role_family_label
 from money_map.ui import components
 from money_map.ui.logic.variants_filter import (
     MatchResult,
@@ -29,7 +28,11 @@ class SelectionContext:
     selected_route_id: str | None
     selected_route_cells: list[str] | None
     selected_bridge_ids: list[str]
-    selected_role_families: list[str]
+    selected_profile_id: str | None
+    selected_subprofile_id: str | None
+    selected_work_formats: list[str]
+    selected_entry_levels: list[str]
+    include_untagged: bool
 
 
 VARIANT_MODES = ("Подбор", "Библиотека", "Сравнение")
@@ -48,6 +51,10 @@ def _apply_nav_payload(data: AppData) -> None:
     transition = payload.get("transition")
     classifier = payload.get("classifier")
     variant_id = payload.get("variant_id")
+    profile_id = payload.get("profile_id")
+    subprofile_id = payload.get("subprofile_id")
+    work_format_ids = payload.get("work_format_ids")
+    entry_level_ids = payload.get("entry_level_ids")
 
     if isinstance(way_id, str):
         st.session_state["selected_way_id"] = way_id
@@ -68,6 +75,14 @@ def _apply_nav_payload(data: AppData) -> None:
         components.apply_classifier_filter_request(classifier)
     if isinstance(variant_id, str):
         st.session_state["selected_variant_id"] = variant_id
+    if isinstance(profile_id, str):
+        st.session_state["variants_profile_id"] = profile_id
+    if isinstance(subprofile_id, str):
+        st.session_state["variants_subprofile_id"] = subprofile_id
+    if isinstance(work_format_ids, list):
+        st.session_state["variants_work_formats"] = work_format_ids
+    if isinstance(entry_level_ids, list):
+        st.session_state["variants_entry_levels"] = entry_level_ids
 
 
 def _apply_pending_local_requests() -> None:
@@ -91,12 +106,32 @@ def _selection_context(data: AppData) -> SelectionContext:
         selected_route_id=selected_route_id,
         selected_route_cells=route.sequence if route else None,
         selected_bridge_ids=selection.get("selected_bridge_ids", []),
-        selected_role_families=selection.get("activity_role_families", []),
+        selected_profile_id=selection.get("selected_profile_id"),
+        selected_subprofile_id=selection.get("selected_subprofile_id"),
+        selected_work_formats=selection.get("selected_work_formats", []),
+        selected_entry_levels=selection.get("selected_entry_levels", []),
+        include_untagged=bool(selection.get("include_untagged", True)),
     )
 
 
 def _label_tags(values: Iterable[str], lookup: dict[str, str]) -> list[str]:
     return [lookup.get(value, value) for value in values]
+
+
+def _profile_lookup(data: AppData) -> dict[str, str]:
+    return {item.id: item.title_ru for item in data.activity_profiles}
+
+
+def _subprofile_lookup(data: AppData) -> dict[str, str]:
+    return {item.id: item.title_ru for item in data.activity_subprofiles}
+
+
+def _work_format_lookup(data: AppData) -> dict[str, str]:
+    return {item.id: item.title_ru for item in data.work_formats}
+
+
+def _entry_level_lookup(data: AppData) -> dict[str, str]:
+    return {item.id: item.title_ru for item in data.entry_levels}
 
 
 def _render_path_panel(data: AppData, context: SelectionContext) -> None:
@@ -162,8 +197,37 @@ def _render_path_panel(data: AppData, context: SelectionContext) -> None:
         else:
             st.markdown("**Мосты:** `не выбрано`")
 
-        role_family_labels = [ROLE_FAMILY_LABELS.get(item, item) for item in context.selected_role_families]
-        st.markdown(_chip_line("Профиль деятельности", role_family_labels))
+        profile_labels = _profile_lookup(data)
+        subprofile_labels = _subprofile_lookup(data)
+        work_format_labels = _work_format_lookup(data)
+        entry_level_labels = _entry_level_lookup(data)
+
+        profile_value = (
+            [profile_labels.get(context.selected_profile_id, context.selected_profile_id)]
+            if context.selected_profile_id
+            else []
+        )
+        st.markdown(_chip_line("Профиль деятельности", profile_value))
+
+        subprofile_value = (
+            [subprofile_labels.get(context.selected_subprofile_id, context.selected_subprofile_id)]
+            if context.selected_subprofile_id
+            else []
+        )
+        st.markdown(_chip_line("Специализация", subprofile_value))
+
+        st.markdown(
+            _chip_line(
+                "Формат",
+                [work_format_labels.get(item, item) for item in context.selected_work_formats],
+            ),
+        )
+        st.markdown(
+            _chip_line(
+                "Уровень входа",
+                [entry_level_labels.get(item, item) for item in context.selected_entry_levels],
+            ),
+        )
 
 
 def _render_shortlist_panel(data: AppData, variants: dict[str, NormalizedVariant]) -> None:
@@ -238,67 +302,99 @@ def _request_variants_mode(mode: str) -> None:
     st.session_state["request_variants_mode"] = mode
 
 
-def _sync_activity_role_family_selection() -> None:
-    mode = st.session_state.get("activity_role_family_mode", "single")
-    st.session_state["activity_role_family_multi"] = mode == "multi"
-    if st.session_state["activity_role_family_multi"]:
-        selected = st.session_state.get("activity_role_family_multi_select", [])
-    else:
-        selected_value = st.session_state.get("activity_role_family_single")
-        selected = [selected_value] if selected_value else []
-    st.session_state["activity_role_families"] = selected
-
-
-def _reset_activity_role_family() -> None:
-    st.session_state["activity_role_families"] = []
-    st.session_state["activity_role_family_multi_select"] = []
-    st.session_state["activity_role_family_single"] = None
-
-
 def _ensure_activity_profile_state() -> None:
-    st.session_state.setdefault("activity_role_families", [])
-    st.session_state.setdefault("activity_role_family_multi", False)
-    st.session_state.setdefault("activity_role_family_mode", "single")
-    st.session_state.setdefault("activity_role_family_multi_select", [])
-    st.session_state.setdefault("activity_role_family_single", None)
+    st.session_state.setdefault("variants_filter_way_id", "all")
+    st.session_state.setdefault("variants_profile_id", None)
+    st.session_state.setdefault("variants_subprofile_id", None)
+    st.session_state.setdefault("variants_work_formats", [])
+    st.session_state.setdefault("variants_entry_levels", [])
+    st.session_state.setdefault("variants_include_untagged", True)
 
 
-def _render_activity_profile_filter() -> None:
+def _sync_way_filter() -> None:
+    selected = st.session_state.get("variants_filter_way_id", "all")
+    if selected == "all":
+        st.session_state["selected_way_id"] = None
+        st.session_state["selected_tax_id"] = None
+        st.session_state["ways_selected_way_id"] = None
+    else:
+        st.session_state["selected_way_id"] = selected
+        st.session_state["selected_tax_id"] = selected
+        st.session_state["ways_selected_way_id"] = selected
+
+
+def _render_activity_profile_filter(data: AppData) -> None:
     _ensure_activity_profile_state()
+    profiles_lookup = _profile_lookup(data)
+    subprofiles = [item for item in data.activity_subprofiles]
+    work_formats = _work_format_lookup(data)
+    entry_levels = _entry_level_lookup(data)
+
+    way_options = ["all"] + [item.id for item in data.taxonomy]
+    way_label = {item.id: item.name for item in data.taxonomy}
+    if st.session_state.get("selected_way_id") in way_label:
+        st.session_state["variants_filter_way_id"] = st.session_state.get("selected_way_id")
 
     with st.container(border=True):
-        st.markdown("### Профиль деятельности")
+        st.markdown("### Фильтры деятельности")
         st.caption(
-            "Матрица/классификаторы/способ описывают модель денег. "
-            "Профиль деятельности сужает варианты по содержанию деятельности.",
+            "Последовательно уточняйте профиль, специализацию и условия работы.",
         )
-        st.radio(
-            "Выбор профиля",
-            ["single", "multi"],
-            key="activity_role_family_mode",
-            format_func=lambda value: "Один профиль" if value == "single" else "Несколько профилей",
-            horizontal=True,
+        st.selectbox(
+            "Способ получения денег",
+            way_options,
+            key="variants_filter_way_id",
+            format_func=lambda value: "Все" if value == "all" else way_label.get(value, value),
+            on_change=_sync_way_filter,
         )
-        if st.session_state["activity_role_family_multi"]:
-            st.multiselect(
-                "Выберите семейство",
-                ROLE_FAMILY_IDS,
-                key="activity_role_family_multi_select",
-                format_func=lambda value: ROLE_FAMILY_LABELS.get(value, value),
-                on_change=_sync_activity_role_family_selection,
+
+        selected_way = st.session_state.get("variants_filter_way_id")
+        if selected_way == "all":
+            allowed_profiles = list(profiles_lookup.keys())
+        else:
+            allowed_profiles = data.money_way_profile_map.get(selected_way, [])
+
+        profile_options = [None, *allowed_profiles]
+        st.selectbox(
+            "Профиль деятельности",
+            profile_options,
+            key="variants_profile_id",
+            format_func=lambda value: "—" if value is None else profiles_lookup.get(value, value),
+        )
+
+        selected_profile = st.session_state.get("variants_profile_id")
+        available_subprofiles = [
+            item for item in subprofiles if item.parent_profile_id == selected_profile
+        ]
+        if selected_profile:
+            st.selectbox(
+                "Специализация (subprofile)",
+                [None, *[item.id for item in available_subprofiles]],
+                key="variants_subprofile_id",
+                format_func=lambda value: "—"
+                if value is None
+                else _subprofile_lookup(data).get(value, value),
             )
         else:
-            st.selectbox(
-                "Выберите семейство",
-                [None, *ROLE_FAMILY_IDS],
-                key="activity_role_family_single",
-                format_func=lambda value: "—" if value is None else ROLE_FAMILY_LABELS.get(value, value),
-                on_change=_sync_activity_role_family_selection,
-            )
-        if st.button("Сбросить профиль", key="activity_role_family_reset"):
-            _reset_activity_role_family()
-        if not st.session_state.get("activity_role_families"):
-            st.caption("Профиль деятельности: не выбран.")
+            st.session_state["variants_subprofile_id"] = None
+            st.caption("Выберите профиль, чтобы увидеть специализации.")
+
+        st.multiselect(
+            "Формат работы",
+            list(work_formats.keys()),
+            key="variants_work_formats",
+            format_func=lambda value: work_formats.get(value, value),
+        )
+        st.multiselect(
+            "Уровень входа",
+            list(entry_levels.keys()),
+            key="variants_entry_levels",
+            format_func=lambda value: entry_levels.get(value, value),
+        )
+        st.checkbox(
+            "Показывать неразмеченные варианты",
+            key="variants_include_untagged",
+        )
 
 
 def _render_variant_card(
@@ -310,6 +406,10 @@ def _render_variant_card(
 ) -> None:
     mechanisms = {item.id: item.name for item in data.taxonomy}
     bridges = {item.id: item.name for item in data.bridges}
+    profile_labels = _profile_lookup(data)
+    subprofile_labels = _subprofile_lookup(data)
+    work_format_labels = _work_format_lookup(data)
+    entry_level_labels = _entry_level_lookup(data)
 
     header_cols = st.columns([4, 2])
     with header_cols[0]:
@@ -364,7 +464,17 @@ def _render_variant_card(
         f"**Способ:** {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}"
         f" · **Матрица:** {variant.matrix_cell or '—'}",
     )
-    st.markdown(f"**Профиль:** {role_family_label(variant.activity_role_family)}")
+    profile_label = profile_labels.get(variant.profile_id, "Неразмечено")
+    st.markdown(f"**Профиль:** {profile_label}")
+    badges = []
+    if variant.subprofile_id:
+        badges.append(subprofile_labels.get(variant.subprofile_id, variant.subprofile_id))
+    if variant.work_format_ids:
+        badges.extend([work_format_labels.get(item, item) for item in variant.work_format_ids])
+    if variant.entry_level_ids:
+        badges.extend([entry_level_labels.get(item, item) for item in variant.entry_level_ids])
+    if badges:
+        st.caption(" ".join(f"`{item}`" for item in badges))
 
     tag_cols = st.columns(3)
     with tag_cols[0]:
@@ -452,7 +562,19 @@ def _render_variant_card(
         st.markdown(
             f"- Способ: {mechanisms.get(variant.mechanism_id, variant.mechanism_id)}",
         )
-        st.markdown(f"- Профиль: {role_family_label(variant.activity_role_family)}")
+        st.markdown(f"- Профиль: {profile_labels.get(variant.profile_id, 'Неразмечено')}")
+        if variant.subprofile_id:
+            st.markdown(
+                f"- Специализация: {subprofile_labels.get(variant.subprofile_id, variant.subprofile_id)}",
+            )
+        if variant.work_format_ids:
+            st.markdown(
+                f"- Формат: {', '.join(work_format_labels.get(item, item) for item in variant.work_format_ids)}",
+            )
+        if variant.entry_level_ids:
+            st.markdown(
+                f"- Уровень входа: {', '.join(entry_level_labels.get(item, item) for item in variant.entry_level_ids)}",
+            )
         if variant.matrix_cell:
             st.markdown(f"- Матрица: {variant.matrix_cell}")
         if variant.linked_bridges:
@@ -507,6 +629,8 @@ def _render_comparison(
 
     mechanisms = {item.id: item.name for item in data.taxonomy}
     bridges = {item.id: item.name for item in data.bridges}
+    profile_labels = _profile_lookup(data)
+    subprofile_labels = _subprofile_lookup(data)
 
     rows = []
     for variant in selected_variants:
@@ -524,7 +648,10 @@ def _render_comparison(
                         *variant.classifiers.get("measure", []),
                     ],
                 ),
-                "Профиль": role_family_label(variant.activity_role_family),
+                "Профиль": profile_labels.get(variant.profile_id, "Неразмечено"),
+                "Специализация": subprofile_labels.get(variant.subprofile_id, "—")
+                if variant.subprofile_id
+                else "—",
                 "Маршрут": variant.linked_route or "—",
                 "Мосты": ", ".join([bridges.get(item, item) for item in variant.linked_bridges]) or "—",
                 "Краткая суть": variant.summary,
@@ -555,11 +682,10 @@ def render(data: AppData, filters: components.Filters) -> None:
     components.render_path_wizard("Варианты")
 
     _ensure_activity_profile_state()
-    _sync_activity_role_family_selection()
     context = _selection_context(data)
     _render_path_panel(data, context)
 
-    _render_activity_profile_filter()
+    _render_activity_profile_filter(data)
 
     if st.session_state.get("nav_mode") == "Конструктор пути":
         if st.button(
@@ -583,11 +709,11 @@ def render(data: AppData, filters: components.Filters) -> None:
             "Совпадение",
             ["strict", "wide"],
             key="variants_scope",
-            format_func=lambda value: "Строго" if value == "strict" else "Шире",
+            format_func=lambda value: "Строго" if value == "strict" else "Мягко",
             horizontal=True,
         )
     with mode_cols[2]:
-        st.caption("Строго = полное совпадение, Шире = частичные совпадения с ранжированием.")
+        st.caption("Строго = полное совпадение, Мягко = частичные совпадения с ранжированием.")
 
     normalized = [normalize_variant(variant) for variant in data.variants]
     filtered_global = apply_global_filters(
@@ -616,7 +742,11 @@ def render(data: AppData, filters: components.Filters) -> None:
             selected_classifiers=context.selected_classifiers,
             selected_route_cells=context.selected_route_cells,
             selected_bridge_ids=context.selected_bridge_ids,
-            selected_role_families=context.selected_role_families,
+            selected_profile_id=context.selected_profile_id,
+            selected_subprofile_id=context.selected_subprofile_id,
+            selected_work_formats=context.selected_work_formats,
+            selected_entry_levels=context.selected_entry_levels,
+            include_untagged=context.include_untagged,
             strict=strict,
         )
         if result is not None:
@@ -636,13 +766,13 @@ def render(data: AppData, filters: components.Filters) -> None:
         if hidden_count:
             header[1].caption(f"Скрыто фильтрами: {hidden_count}")
 
-        if strict and context.selected_role_families and not matches:
+        if strict and context.selected_profile_id and not matches:
             st.warning(
                 "По выбранному профилю нет вариантов. Переключитесь на 'Шире' или выберите другой профиль.",
             )
 
-        if not context.selected_role_families and len(matches) > 40:
-            st.info("Слишком много вариантов. Выберите профиль деятельности (OPS/ADMIN/…), чтобы сузить список.")
+        if not context.selected_profile_id and len(matches) > 40:
+            st.info("Слишком много вариантов. Выберите профиль деятельности, чтобы сузить список.")
 
         if st.session_state.pop("shortlist_notice", None):
             st.warning("Можно добавить не больше 5 вариантов.")
@@ -651,7 +781,11 @@ def render(data: AppData, filters: components.Filters) -> None:
         with list_col:
             if not matches:
                 st.info("Нет подходящих вариантов по текущему выбору.")
-            for match in matches:
+            top_matches = matches[:15]
+            rest_matches = matches[15:]
+            if top_matches:
+                st.markdown("#### Топ-15")
+            for match in top_matches:
                 with st.container(border=True):
                     _render_variant_card(
                         match.variant,
@@ -659,6 +793,16 @@ def render(data: AppData, filters: components.Filters) -> None:
                         data=data,
                         label_lookups=label_lookups,
                     )
+            if rest_matches:
+                with st.expander(f"Остальные варианты ({len(rest_matches)})", expanded=False):
+                    for match in rest_matches:
+                        with st.container(border=True):
+                            _render_variant_card(
+                                match.variant,
+                                match=match,
+                                data=data,
+                                label_lookups=label_lookups,
+                            )
         with shortlist_col:
             variants_lookup = {item.id: item for item in normalized}
             _render_shortlist_panel(data, variants_lookup)
