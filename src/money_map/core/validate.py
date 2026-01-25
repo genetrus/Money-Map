@@ -96,6 +96,7 @@ def _validate_variants(
     errors: List[str],
 ) -> None:
     cell_ids = {cell.id for cell in data.cells}
+    cell_lookup = {cell.id: cell for cell in data.cells}
     taxonomy_ids = {item.id for item in data.taxonomy}
     sell_keys = set(data.mappings.sell_items)
     to_whom_keys = set(data.mappings.to_whom_items)
@@ -136,6 +137,25 @@ def _validate_variants(
             errors.append(
                 f"Вариант {variant.id}: неверное значение scalability {variant.scalability}"
             )
+        if variant.matrix_cells:
+            primary_cell = variant.matrix_cells[0]
+            cell = cell_lookup.get(primary_cell)
+            if cell:
+                if variant.activity != cell.activity:
+                    errors.append(
+                        f"Вариант {variant.id}: activity {variant.activity} "
+                        f"не совпадает с ячейкой {primary_cell} ({cell.activity})"
+                    )
+                if variant.scalability != cell.scalability:
+                    errors.append(
+                        f"Вариант {variant.id}: scalability {variant.scalability} "
+                        f"не совпадает с ячейкой {primary_cell} ({cell.scalability})"
+                    )
+                if variant.risk_level != cell.risk:
+                    errors.append(
+                        f"Вариант {variant.id}: risk_level {variant.risk_level} "
+                        f"не совпадает с ячейкой {primary_cell} ({cell.risk})"
+                    )
 
 
 def _validate_paths(data: AppData, errors: List[str]) -> None:

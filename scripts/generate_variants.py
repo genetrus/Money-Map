@@ -11,6 +11,7 @@ import yaml
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "variants"
 OUTPUT_PATH = DATA_DIR / "variants.generated.json"
+CELLS_PATH = Path(__file__).resolve().parents[1] / "data" / "cells.yaml"
 
 CELL_PRIORITY = ["A1", "A2", "A3", "A4", "P1", "P2", "P3", "P4"]
 MIN_VARIANTS_PER_ARCH = 4
@@ -91,6 +92,19 @@ ALLOWED_BY_MECHANISM = {
 def _load_yaml(path: Path) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle) or {}
+
+
+def load_cell_metadata() -> Dict[str, Dict[str, str]]:
+    raw = _load_yaml(CELLS_PATH)
+    cells = raw.get("cells", [])
+    return {
+        cell["id"]: {
+            "activity": cell["activity"],
+            "scalability": cell["scalability"],
+            "risk": cell["risk"],
+        }
+        for cell in cells
+    }
 
 
 def normalize_title(value: str) -> str:
@@ -243,6 +257,9 @@ def apply_modifiers(archetype: Dict[str, Any], mod_set: List[Dict[str, Any]]) ->
     matrix_cells = matrix_cells[:3]
     bridges = _cap(bridges, 8)
     routes = _cap(routes, 3)
+    primary_cell = matrix_cells[-1] if matrix_cells else None
+    if primary_cell:
+        matrix_cells = [primary_cell] + [cell for cell in matrix_cells if cell != primary_cell]
 
     return {
         "title": title,
@@ -251,12 +268,17 @@ def apply_modifiers(archetype: Dict[str, Any], mod_set: List[Dict[str, Any]]) ->
         "to_whom_tags": _cap(to_whom_tags, 2),
         "value_tags": _cap(value_tags, 2),
         "matrix_cells": matrix_cells,
+        "primary_cell": primary_cell,
         "bridge_ids": bridges,
         "routes": routes,
     }
 
 
-def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def build_variants(
+    archetypes: List[Dict[str, Any]],
+    modifiers: List[Dict[str, Any]],
+    cell_metadata: Dict[str, Dict[str, str]],
+) -> List[Dict[str, Any]]:
     variants = []
     dedup_keys = set()
     for arch in archetypes:
@@ -264,7 +286,11 @@ def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, A
         for mod_set in mod_sets:
             mod_key = "base" if not mod_set else ".".join(mod["id"] for mod in mod_set)
             payload = apply_modifiers(arch, mod_set)
-            risk_level = normalize_risk_level(arch["risk_level"], mod_set)
+            primary_cell = payload.get("primary_cell")
+            cell_meta = cell_metadata.get(primary_cell or "", {})
+            activity = cell_meta.get("activity", arch["activity"])
+            scalability = cell_meta.get("scalability", arch["scalability"])
+            risk_level = cell_meta.get("risk", normalize_risk_level(arch["risk_level"], mod_set))
             channel_state = build_channel_state(mod_set)
             variant_id = f"{arch['mechanism_id']}.{arch['arch_id']}.{mod_key}"
             dedup_key = (
@@ -290,8 +316,8 @@ def build_variants(archetypes: List[Dict[str, Any]], modifiers: List[Dict[str, A
                     "to_whom_tags": payload["to_whom_tags"],
                     "value_tags": payload["value_tags"],
                     "risk_level": risk_level,
-                    "activity": arch["activity"],
-                    "scalability": arch["scalability"],
+                    "activity": activity,
+                    "scalability": scalability,
                     "outside_market": arch["outside_market"],
                     "requirements": [],
                     "first_steps": [],
@@ -390,7 +416,8 @@ def main() -> int:
 
     archetypes = _load_yaml(archetypes_path).get("archetypes", [])
     modifiers = _load_yaml(modifiers_path).get("modifiers", [])
-    variants = build_variants(archetypes, modifiers)
+    cell_metadata = load_cell_metadata()
+    variants = build_variants(archetypes, modifiers, cell_metadata)
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUTPUT_PATH.open("w", encoding="utf-8") as handle:
