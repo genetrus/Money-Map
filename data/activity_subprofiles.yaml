@@ -1,0 +1,385 @@
+---
+activity_subprofiles:
+  - id: office_admin_docs
+    parent_profile_id: office_admin
+    title_ru: "Документооборот"
+    examples_ru: ["Сканирование и архив", "Регистрация входящих", "Ведение реестров"]
+    tags: ["документы", "архив", "реестр"]
+  - id: office_admin_reception
+    parent_profile_id: office_admin
+    title_ru: "Ресепшен / секретариат"
+    examples_ru: ["Приём гостей", "Телефонные линии", "Заказ пропусков"]
+    tags: ["ресепшен", "секретарь", "приём"]
+  - id: office_admin_office_mgmt
+    parent_profile_id: office_admin
+    title_ru: "Офис-менеджмент"
+    examples_ru: ["Заказ канцелярии", "Поддержка офиса", "Работа с подрядчиками"]
+    tags: ["офис-менеджер", "канцелярия", "подрядчики"]
+  - id: office_admin_meetings_travel
+    parent_profile_id: office_admin
+    title_ru: "Координация встреч/поездок"
+    examples_ru: ["Бронирование переговорок", "Командировки", "Календарь встреч"]
+    tags: ["встречи", "поездки", "календарь"]
+  - id: office_admin_invoices
+    parent_profile_id: office_admin
+    title_ru: "Счета и первичка"
+    examples_ru: ["Счета на оплату", "Акты", "Сверка документов"]
+    tags: ["счета", "акты", "первичка"]
+
+  - id: cc_inbound
+    parent_profile_id: customer_support_cc
+    title_ru: "Входящие обращения"
+    examples_ru: ["Горячая линия", "Чат поддержки", "Тикеты"]
+    tags: ["inbound", "горячая линия", "чат"]
+  - id: cc_outbound
+    parent_profile_id: customer_support_cc
+    title_ru: "Исходящие звонки"
+    examples_ru: ["Опросы", "Напоминания", "Подтверждения"]
+    tags: ["outbound", "звонки", "опрос"]
+  - id: cc_tech_support_lvl1
+    parent_profile_id: customer_support_cc
+    title_ru: "Техподдержка L1"
+    examples_ru: ["Базовые настройки", "FAQ", "Скрипты"]
+    tags: ["tech support", "l1", "faq"]
+  - id: cc_retention
+    parent_profile_id: customer_support_cc
+    title_ru: "Удержание клиентов"
+    examples_ru: ["Возврат пользователей", "Удерживающие офферы", "Работа с оттоком"]
+    tags: ["retention", "удержание", "отток"]
+  - id: cc_complaints
+    parent_profile_id: customer_support_cc
+    title_ru: "Жалобы и эскалации"
+    examples_ru: ["Разбор претензий", "Эскалации", "Сложные случаи"]
+    tags: ["жалобы", "эскалация", "complaints"]
+
+  - id: warehouse_picking
+    parent_profile_id: logistics_warehouse
+    title_ru: "Комплектация (picking)"
+    examples_ru: ["Сбор заказов", "Сканирование", "Маршрут по складу"]
+    tags: ["picking", "комплектация", "сканер"]
+  - id: warehouse_packing
+    parent_profile_id: logistics_warehouse
+    title_ru: "Упаковка (packing)"
+    examples_ru: ["Упаковка заказов", "Маркировка", "Подготовка к отгрузке"]
+    tags: ["packing", "упаковка", "маркировка"]
+  - id: warehouse_inbound_receive
+    parent_profile_id: logistics_warehouse
+    title_ru: "Приёмка (inbound)"
+    examples_ru: ["Приём поставок", "Сверка накладных", "Размещение"]
+    tags: ["inbound", "приёмка", "размещение"]
+  - id: warehouse_outbound_ship
+    parent_profile_id: logistics_warehouse
+    title_ru: "Отгрузка (outbound)"
+    examples_ru: ["Сбор к отгрузке", "Погрузка", "Документы"]
+    tags: ["outbound", "отгрузка", "погрузка"]
+  - id: warehouse_inventory_cycle
+    parent_profile_id: logistics_warehouse
+    title_ru: "Инвентаризация"
+    examples_ru: ["Cycle count", "Сверка остатков", "Переучёт"]
+    tags: ["инвентаризация", "cycle count", "остатки"]
+  - id: warehouse_returns
+    parent_profile_id: logistics_warehouse
+    title_ru: "Возвраты"
+    examples_ru: ["Обработка возвратов", "Осмотр товара", "Списание"]
+    tags: ["возвраты", "returns", "осмотр"]
+
+  - id: delivery_last_mile
+    parent_profile_id: delivery_transport
+    title_ru: "Курьер последней мили"
+    examples_ru: ["Доставка по району", "Маршрутные листы", "Сканирование заказов"]
+    tags: ["last mile", "курьер", "доставка"]
+  - id: delivery_van_driver
+    parent_profile_id: delivery_transport
+    title_ru: "Водитель фургона"
+    examples_ru: ["Маршрутные рейсы", "Экспедирование", "Развоз заказов"]
+    tags: ["van", "водитель", "развоз"]
+  - id: delivery_truck_driver
+    parent_profile_id: delivery_transport
+    title_ru: "Водитель грузовика"
+    examples_ru: ["Межгород", "Доставка паллет", "Погрузка/разгрузка"]
+    tags: ["truck", "грузовик", "межгород"]
+  - id: delivery_dispatcher_support
+    parent_profile_id: delivery_transport
+    title_ru: "Диспетчерская поддержка"
+    examples_ru: ["Контроль рейсов", "Связь с водителями", "Оперативные изменения"]
+    tags: ["диспетчер", "рейсы", "поддержка"]
+  - id: delivery_route_planning
+    parent_profile_id: delivery_transport
+    title_ru: "Помощь в планировании маршрутов"
+    examples_ru: ["Оптимизация маршрутов", "Планирование окон", "Проверка адресов"]
+    tags: ["маршруты", "планирование", "routing"]
+
+  - id: it_frontend
+    parent_profile_id: it_software
+    title_ru: "Frontend-разработка"
+    examples_ru: ["Интерфейсы", "UI компоненты", "Веб-приложения"]
+    tags: ["frontend", "ui", "веб"]
+  - id: it_backend
+    parent_profile_id: it_software
+    title_ru: "Backend-разработка"
+    examples_ru: ["API", "Сервисы", "Базы данных"]
+    tags: ["backend", "api", "сервер"]
+  - id: it_mobile
+    parent_profile_id: it_software
+    title_ru: "Мобильная разработка"
+    examples_ru: ["iOS приложения", "Android приложения", "Кросс-платформа"]
+    tags: ["mobile", "ios", "android"]
+  - id: it_qa
+    parent_profile_id: it_software
+    title_ru: "QA и тестирование"
+    examples_ru: ["Тест-планы", "Регрессия", "Автотесты"]
+    tags: ["qa", "тестирование", "автотесты"]
+  - id: it_devops
+    parent_profile_id: it_software
+    title_ru: "DevOps/CI"
+    examples_ru: ["CI/CD", "Инфраструктура", "Мониторинг"]
+    tags: ["devops", "ci/cd", "infra"]
+  - id: it_integrations
+    parent_profile_id: it_software
+    title_ru: "Интеграции и API"
+    examples_ru: ["Webhook", "Интеграции сервисов", "Синхронизация данных"]
+    tags: ["integration", "api", "webhook"]
+
+  - id: marketing_performance_ads
+    parent_profile_id: marketing_growth
+    title_ru: "Performance-реклама"
+    examples_ru: ["Контекст", "Таргет", "Оптимизация CPA"]
+    tags: ["performance", "ads", "cpa"]
+  - id: marketing_seo_content
+    parent_profile_id: marketing_growth
+    title_ru: "SEO и контент"
+    examples_ru: ["Контент-план", "SEO-статьи", "Оптимизация сайта"]
+    tags: ["seo", "контент", "статьи"]
+  - id: marketing_crm_lifecycle
+    parent_profile_id: marketing_growth
+    title_ru: "CRM/Lifecycle"
+    examples_ru: ["Email-цепочки", "Push-кампании", "Сегментация"]
+    tags: ["crm", "lifecycle", "email"]
+  - id: marketing_product_marketing
+    parent_profile_id: marketing_growth
+    title_ru: "Product marketing"
+    examples_ru: ["Позиционирование", "Go-to-market", "Упаковка"]
+    tags: ["product marketing", "позиционирование", "gtm"]
+  - id: marketing_partnerships
+    parent_profile_id: marketing_growth
+    title_ru: "Партнёрский рост"
+    examples_ru: ["Кросс-промо", "Партнёрства", "Канальные сделки"]
+    tags: ["партнёрства", "growth", "каналы"]
+  - id: marketing_analytics_reporting
+    parent_profile_id: marketing_growth
+    title_ru: "Маркетинг-аналитика"
+    examples_ru: ["Отчеты по воронке", "CAC/LTV", "Атрибуция"]
+    tags: ["аналитика", "отчеты", "атрибуция"]
+
+  - id: b2b_lead_gen
+    parent_profile_id: sales_b2b
+    title_ru: "Лидогенерация"
+    examples_ru: ["Холодные письма", "Списки лидов", "Квалификация"]
+    tags: ["lead gen", "лиды", "outreach"]
+  - id: b2b_outbound
+    parent_profile_id: sales_b2b
+    title_ru: "Outbound продажи"
+    examples_ru: ["Холодные звонки", "Демо", "Пайплайн"]
+    tags: ["outbound", "sales", "демо"]
+  - id: b2b_account_mgmt
+    parent_profile_id: sales_b2b
+    title_ru: "Account-менеджмент"
+    examples_ru: ["Сопровождение клиентов", "Продления", "Upsell"]
+    tags: ["account", "продления", "upsell"]
+  - id: b2b_enterprise
+    parent_profile_id: sales_b2b
+    title_ru: "Enterprise-продажи"
+    examples_ru: ["Долгие циклы", "Тендеры", "Сложные сделки"]
+    tags: ["enterprise", "тендеры", "сделки"]
+  - id: b2b_presales
+    parent_profile_id: sales_b2b
+    title_ru: "Presales/solution"
+    examples_ru: ["Презентации", "Технический пресейл", "Proof of concept"]
+    tags: ["presales", "solution", "poc"]
+
+  - id: b2c_retail_floor
+    parent_profile_id: sales_b2c
+    title_ru: "Продажи в торговом зале"
+    examples_ru: ["Консультации", "Демонстрации", "Сервис на месте"]
+    tags: ["розница", "зал", "консультации"]
+  - id: b2c_telesales
+    parent_profile_id: sales_b2c
+    title_ru: "Телефонные продажи"
+    examples_ru: ["Скрипты", "Обзвон базы", "Закрытие сделок"]
+    tags: ["telesales", "звонки", "скрипты"]
+  - id: b2c_online_chat
+    parent_profile_id: sales_b2c
+    title_ru: "Онлайн-продажи/чат"
+    examples_ru: ["Чат-консультации", "Онлайн-чат", "Поддержка покупки"]
+    tags: ["чат", "онлайн", "sales"]
+  - id: b2c_field_sales
+    parent_profile_id: sales_b2c
+    title_ru: "Выездные продажи"
+    examples_ru: ["Выезды к клиентам", "Демонстрации", "Полевые продажи"]
+    tags: ["выезд", "field sales", "демо"]
+  - id: b2c_upsell
+    parent_profile_id: sales_b2c
+    title_ru: "Апселл/кросс-сейл"
+    examples_ru: ["Доп.продажи", "Пакеты", "Сопутствующие товары"]
+    tags: ["upsell", "cross-sell", "допродажи"]
+
+  - id: ecommerce_marketplace_ops
+    parent_profile_id: retail_ecommerce
+    title_ru: "Операции на маркетплейсах"
+    examples_ru: ["Карточки товаров", "Рейтинг", "Промо-акции"]
+    tags: ["маркетплейс", "карточки", "операции"]
+  - id: ecommerce_catalog_pricing
+    parent_profile_id: retail_ecommerce
+    title_ru: "Каталог и цены"
+    examples_ru: ["Категоризация", "Прайсинг", "Управление ассортиментом"]
+    tags: ["каталог", "цены", "ассортимент"]
+  - id: ecommerce_fulfillment
+    parent_profile_id: retail_ecommerce
+    title_ru: "Фулфилмент"
+    examples_ru: ["Сборка заказов", "Упаковка", "Отгрузка"]
+    tags: ["fulfillment", "отгрузка", "упаковка"]
+  - id: ecommerce_customer_support
+    parent_profile_id: retail_ecommerce
+    title_ru: "Поддержка покупателей"
+    examples_ru: ["Чат покупателей", "Статусы заказов", "Возвраты"]
+    tags: ["поддержка", "покупатели", "заказы"]
+  - id: ecommerce_returns
+    parent_profile_id: retail_ecommerce
+    title_ru: "Возвраты и претензии"
+    examples_ru: ["Обработка возвратов", "Претензии", "Компенсации"]
+    tags: ["возвраты", "претензии", "claims"]
+
+  - id: flipping_sourcing
+    parent_profile_id: used_goods_flipping
+    title_ru: "Поиск и закупка"
+    examples_ru: ["Охота за лотами", "Закупка на барахолках", "Оценка состояния"]
+    tags: ["sourcing", "закупка", "барахолка"]
+  - id: flipping_listing
+    parent_profile_id: used_goods_flipping
+    title_ru: "Описания и размещение"
+    examples_ru: ["Фото товара", "Листинги", "Площадки"]
+    tags: ["listing", "описание", "фото"]
+  - id: flipping_refurbish
+    parent_profile_id: used_goods_flipping
+    title_ru: "Восстановление"
+    examples_ru: ["Чистка", "Ремонт", "Комплектация"]
+    tags: ["refurbish", "восстановление", "ремонт"]
+  - id: flipping_cross_platform
+    parent_profile_id: used_goods_flipping
+    title_ru: "Кросс-платформенная продажа"
+    examples_ru: ["Продажи на Авито", "Маркетплейсы", "Соцсети"]
+    tags: ["платформы", "маркетплейс", "соцсети"]
+  - id: flipping_logistics
+    parent_profile_id: used_goods_flipping
+    title_ru: "Логистика и выдача"
+    examples_ru: ["Доставка", "Самовывоз", "Упаковка"]
+    tags: ["доставка", "логистика", "упаковка"]
+
+  - id: repairs_electrical
+    parent_profile_id: repairs_installation
+    title_ru: "Электромонтаж"
+    examples_ru: ["Проводка", "Розетки", "Щитки"]
+    tags: ["электрика", "монтаж", "проводка"]
+  - id: repairs_plumbing
+    parent_profile_id: repairs_installation
+    title_ru: "Сантехника"
+    examples_ru: ["Смесители", "Трубы", "Санузлы"]
+    tags: ["сантехника", "трубы", "смеситель"]
+  - id: repairs_appliance
+    parent_profile_id: repairs_installation
+    title_ru: "Ремонт техники"
+    examples_ru: ["Бытовая техника", "Диагностика", "Замена деталей"]
+    tags: ["техника", "ремонт", "диагностика"]
+  - id: repairs_furniture_install
+    parent_profile_id: repairs_installation
+    title_ru: "Сборка и установка мебели"
+    examples_ru: ["Сборка шкафов", "Монтаж кухни", "Крепёж"]
+    tags: ["мебель", "сборка", "монтаж"]
+  - id: repairs_finish
+    parent_profile_id: repairs_installation
+    title_ru: "Отделочные работы"
+    examples_ru: ["Шпатлевка", "Покраска", "Плинтусы"]
+    tags: ["отделка", "ремонт", "покраска"]
+
+  - id: cleaning_residential
+    parent_profile_id: cleaning_services
+    title_ru: "Жилая уборка"
+    examples_ru: ["Квартиры", "Дома", "Регулярная уборка"]
+    tags: ["жилой", "уборка", "квартира"]
+  - id: cleaning_commercial
+    parent_profile_id: cleaning_services
+    title_ru: "Коммерческая уборка"
+    examples_ru: ["Офисы", "Склады", "Торговые точки"]
+    tags: ["коммерческий", "офисы", "уборка"]
+  - id: cleaning_deep
+    parent_profile_id: cleaning_services
+    title_ru: "Генеральная уборка"
+    examples_ru: ["Глубокая уборка", "Мытьё окон", "Сложные поверхности"]
+    tags: ["генеральная", "deep", "окна"]
+  - id: cleaning_move_in_out
+    parent_profile_id: cleaning_services
+    title_ru: "Уборка при переездах"
+    examples_ru: ["До заселения", "После выезда", "Подготовка квартиры"]
+    tags: ["переезд", "move in", "move out"]
+  - id: cleaning_post_construction
+    parent_profile_id: cleaning_services
+    title_ru: "Послестроительная уборка"
+    examples_ru: ["После ремонта", "Пыль и мусор", "Вынос остатков"]
+    tags: ["после ремонта", "строительная", "dust"]
+
+  - id: automation_no_code
+    parent_profile_id: automation_integrations
+    title_ru: "No-code интеграции"
+    examples_ru: ["Zapier/Make", "Интеграции CRM", "Быстрые сценарии"]
+    tags: ["no-code", "zapier", "make"]
+  - id: automation_api_integration
+    parent_profile_id: automation_integrations
+    title_ru: "API интеграции"
+    examples_ru: ["REST API", "Webhook интеграции", "Синхронизация данных"]
+    tags: ["api", "integration", "webhook"]
+  - id: automation_workflow
+    parent_profile_id: automation_integrations
+    title_ru: "Автоматизация процессов"
+    examples_ru: ["Workflow", "Скрипты", "Согласования"]
+    tags: ["workflow", "automation", "process"]
+  - id: automation_data_sync
+    parent_profile_id: automation_integrations
+    title_ru: "Синхронизация данных"
+    examples_ru: ["ETL", "Data sync", "Интеграции таблиц"]
+    tags: ["data sync", "etl", "таблицы"]
+  - id: automation_reporting
+    parent_profile_id: automation_integrations
+    title_ru: "Автоматизация отчётности"
+    examples_ru: ["Автоотчёты", "BI выгрузки", "Регламентные отчёты"]
+    tags: ["отчеты", "bi", "автоматизация"]
+
+  - id: video_short_form
+    parent_profile_id: video_creator
+    title_ru: "Short-form видео"
+    examples_ru: ["Reels/Shorts", "TikTok", "Короткие клипы"]
+    tags: ["shorts", "reels", "tiktok"]
+  - id: video_long_form
+    parent_profile_id: video_creator
+    title_ru: "Long-form видео"
+    examples_ru: ["YouTube выпуски", "Документалки", "Обзоры"]
+    tags: ["youtube", "long-form", "обзоры"]
+  - id: video_editing_post
+    parent_profile_id: video_creator
+    title_ru: "Монтаж и постпродакшн"
+    examples_ru: ["Монтаж роликов", "Саунд-дизайн", "Цветокор"]
+    tags: ["монтаж", "post", "color"]
+  - id: video_live_production
+    parent_profile_id: video_creator
+    title_ru: "Прямые эфиры и продакшн"
+    examples_ru: ["Live эфиры", "Стрим-режиссура", "Многокамерная съемка"]
+    tags: ["live", "стрим", "продакшн"]
+  - id: video_script_story
+    parent_profile_id: video_creator
+    title_ru: "Сценарии и сторителлинг"
+    examples_ru: ["Сценарии", "Структуры выпусков", "Сторителлинг"]
+    tags: ["сценарий", "story", "структура"]
+  - id: video_filming_on_location
+    parent_profile_id: video_creator
+    title_ru: "Выездные съемки"
+    examples_ru: ["Съемка на локациях", "Репортажи", "Интервью"]
+    tags: ["съемка", "локация", "interview"]

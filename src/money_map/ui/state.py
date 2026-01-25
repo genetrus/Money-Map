@@ -21,6 +21,10 @@ def go_to_section(
     route_id: Optional[str] = None,
     variant_id: Optional[str] = None,
     classifier: Optional[object] = None,
+    profile_id: Optional[str] = None,
+    subprofile_id: Optional[str] = None,
+    work_format_ids: Optional[list[str]] = None,
+    entry_level_ids: Optional[list[str]] = None,
     tab: Optional[str] = None,
     open_tab: Optional[str] = None,
     variant_cell_filter: Optional[str] = None,
@@ -61,6 +65,14 @@ def go_to_section(
         payload["variant_id"] = variant_id
     if classifier is not None:
         payload["classifier"] = classifier
+    if profile_id is not None:
+        payload["profile_id"] = profile_id
+    if subprofile_id is not None:
+        payload["subprofile_id"] = subprofile_id
+    if work_format_ids is not None:
+        payload["work_format_ids"] = work_format_ids
+    if entry_level_ids is not None:
+        payload["entry_level_ids"] = entry_level_ids
     if variant_cell_filter is not None:
         payload["variant_cell_filter"] = variant_cell_filter
     if target_tab is not None:
